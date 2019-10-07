@@ -10,6 +10,10 @@ django = "*"
 djangorestframework = "*"
 drf-yasg = "*"
 firebase-admin = "*"
+django-cors-headers = "*"
+gunicorn = "*"
+dj-database-url = "*"
+python-decouple = "*"
 
 [requires]
 python_version = "3.7"
