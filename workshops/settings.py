@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import django_heroku
 import firebase_admin
+import pyAesCrypt
 from firebase_admin import credentials
 from decouple import config
 
@@ -23,13 +24,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1ehe!ow4lk7v!5nnl0xt(t$zxi5v*m3_^q%dx3du$4g7nee%m5'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get('DEBUG','1'))
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+if(DEBUG):
+	SECRET_KEY = '1ehe!ow4lk7v!5nnl0xt(t$zxi5v*m3_^q%dx3du$4g7nee%m5'
+else:
+    SECRET_KEY = config('SECRET_KEY')
+
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -153,5 +157,17 @@ STATIC_URL = '/static/'
 django_heroku.settings(locals())
 
 # Firebase Credentials
-cred = credentials.Certificate(config('GOOGLE_APPLICATION_CREDENTIALS'))
+# if not DEBUG:
+with open("service_account.json.aes", "rb") as encrypted_file:
+    with open("service_account.json", "wb") as decrypted_file:
+        # decrypt file stream
+        pyAesCrypt.decryptStream(
+            encrypted_file, 
+            decrypted_file, 
+            config('SERVICE_ACCOUNT_DECRYPT_KEY'), 
+            64*1024, 
+            int(config('SERVICE_ACCOUNT_ENC_SIZE'))
+        )
+
+cred = credentials.Certificate(os.path.join(BASE_DIR,'service_account.json'))
 default_app = firebase_admin.initialize_app(cred)
