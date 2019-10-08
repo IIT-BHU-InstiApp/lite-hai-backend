@@ -14,6 +14,7 @@ import os
 import django_heroku
 import firebase_admin
 from firebase_admin import credentials
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -152,5 +153,5 @@ STATIC_URL = '/static/'
 django_heroku.settings(locals())
 
 # Firebase Credentials
-cred = credentials.Certificate(GOOGLE_APPLICATION_CREDENTIALS)
+cred = credentials.Certificate(config('GOOGLE_APPLICATION_CREDENTIALS'))
 default_app = firebase_admin.initialize_app(cred)
