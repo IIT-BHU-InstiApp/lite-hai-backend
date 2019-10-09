@@ -11,20 +11,6 @@ def create_auth_token(user):
     return token
 
 
-class RegisterView(generics.GenericAPIView):
-    authentication_classes=[]
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = RegisterSerializer
-    
-    def post(self,request):
-        self.serializer = self.get_serializer(data=request.data)
-        self.serializer.is_valid(raise_exception=True)  
-        self.user = self.serializer.save()
-        self.token = create_auth_token(self.user)
-        response = ResponseSerializer({'message':self.token})
-        return Response(response.data,status.HTTP_200_OK)
-
-
 class LoginView(generics.GenericAPIView):
     authentication_classes = []
     permission_classes = (permissions.AllowAny,)

@@ -8,5 +8,5 @@ from .models import *
 class UserProfileAdmin(admin.ModelAdmin):
     list_display=('__str__', 'uid', 'email',)
     search_fields=('uid',)
-    list_filter=('department', 'course', 'year_of_joining',)
+    list_filter=('department', 'year_of_joining',)
     raw_id_fields=('user',)

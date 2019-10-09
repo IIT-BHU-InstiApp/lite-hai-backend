@@ -24,37 +24,6 @@ class Student:
         'hss': 'Humanistic Studies'
     }
 
-    roll_to_dept_list = {
-        '01': 'bce',
-        '02': 'bme',
-        '03': 'cer',
-        '04': 'che',
-        '05': 'chy',
-        '06': 'civ',
-        '07': 'cse',
-        '08': 'eee',
-        '09': 'ece',
-        '10': 'mec',
-        '11': 'mst',
-        '12': 'mat',
-        '13': 'mec',
-        '14': 'met',
-        '15': 'min',
-        '16': 'phe',
-        '17': 'phy',
-        '18': 'eee',
-        '19': 'hss'
-    }
-
-    roll_to_course_list = {
-        '1': 'Ph.D',
-        '2': 'M.Tech',
-        '3': 'IDD',
-        '4': 'IDD',
-        '5': 'B.Tech',
-        '6': 'Post Doctoral Fellow'
-    }
-
     @classmethod
     def get_department_code(cls, email):
         username = email.split('@')[0]
@@ -73,11 +42,6 @@ class Student:
         return '20' + year
     
     @classmethod
-    def get_course(cls, roll_number):
-        course = roll_number[4:5]
-        return cls.roll_to_course_list[course]
-    
-    @classmethod
     def verify_email(cls, email):
         username = email.split('@')[0]
         domain = email.split('@')[1]
@@ -89,21 +53,6 @@ class Student:
         if dept_code not in cls.dept_list:
             return False
         return True
-
-    @classmethod
-    def verify_roll_number(cls, roll_number, email):
-        year = '20' + roll_number[:2]
-        dept = roll_number[2:4]
-        dept_no = ''
-        if dept not in cls.roll_to_dept_list:
-            return False
-        else:
-            dept_code = cls.roll_to_dept_list[dept]
-        course = roll_number[4:5]
-        if year == cls.get_year(email) and dept_code == cls.get_department_code(email) and course in cls.roll_to_course_list:
-            return True
-        else:
-            return False
 
 
 class FirebaseAPI:
