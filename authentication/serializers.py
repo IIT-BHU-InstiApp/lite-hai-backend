@@ -36,7 +36,7 @@ class RegisterSerializer(serializers.Serializer):
     def get_user(self, jwt):
         user = User()
         user.username = jwt['uid']
-        user.first_name = FirebaseAPI.get_name(jwt)
+        user.last_name = FirebaseAPI.get_name(jwt)
         user.email = FirebaseAPI.get_email(jwt)
         return user
     
@@ -56,7 +56,7 @@ class RegisterSerializer(serializers.Serializer):
         course = Student.get_course(roll_number)
         user.save()
         profile, created = UserProfile.objects.get_or_create(
-            uid=uid, user=user, name=user.first_name, email=user.email, roll_number=roll_number,
+            uid=uid, user=user, name=user.last_name, email=user.email, roll_number=roll_number,
             mobile_number=mobile_number, department=department, course=course, year_of_joining=year_of_joining
         )
         return user
