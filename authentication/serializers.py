@@ -56,7 +56,7 @@ class RegisterSerializer(serializers.Serializer):
         course = Student.get_course(roll_number)
         user.save()
         profile, created = UserProfile.objects.get_or_create(
-            pk=uid, user=user, name=user.first_name, email=user.email, roll_number=roll_number,
+            uid=uid, user=user, name=user.first_name, email=user.email, roll_number=roll_number,
             mobile_number=mobile_number, department=department, course=course, year_of_joining=year_of_joining
         )
         return user
