@@ -4,7 +4,7 @@ from .utils import FirebaseAPI
 
 # Create your models here.
 class UserProfile(models.Model):
-    uid = models.CharField(max_length=64, editable=False)
+    uid = models.CharField(max_length=64)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     email = models.EmailField(max_length=255)
