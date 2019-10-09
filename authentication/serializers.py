@@ -53,3 +53,20 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 
+class ProfileSerializer(serializers.Serializer):
+    name = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
+    current_year = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        return obj.user.last_name
+
+    def get_email(self, obj):
+        return obj.user.email
+    
+    def get_department(self, obj):
+        return obj.user.userprofile.department
+    
+    def get_current_year(self, obj):
+        return 2020 - int(obj.user.userprofile.year_of_joining)
