@@ -21,7 +21,7 @@ class LoginView(generics.GenericAPIView):
         self.serializer.is_valid(raise_exception=True)
         self.user = self.serializer.validated_data['user']
         self.token = create_auth_token(self.user)
-        response = ResponseSerializer({'message':self.token})
+        response = ResponseSerializer({'token':self.token})
         return Response(response.data,status.HTTP_200_OK)
 
 

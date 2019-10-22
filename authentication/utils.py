@@ -66,15 +66,5 @@ class FirebaseAPI:
             raise ValidationError('Invalid Firebase ID Token.', HTTP_422_UNPROCESSABLE_ENTITY)
     
     @classmethod
-    def get_name(cls, jwt):
-        name = jwt.get('name', '')
-        return name
-    
-    @classmethod
-    def get_email(cls, jwt):
-        email = jwt.get('email', '')
-        return email
-    
-    @classmethod
     def delete_user_by_uid(cls, uid):
         auth.delete_user(uid)

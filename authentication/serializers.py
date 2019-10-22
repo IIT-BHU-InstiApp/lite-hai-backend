@@ -5,68 +5,47 @@ from rest_framework.exceptions import ParseError
 
 
 class ResponseSerializer(serializers.Serializer):
-    message = serializers.CharField(max_length=500)
+    token = serializers.CharField(max_length=500)
 
 
 class LoginSerializer(serializers.Serializer):
     id_token = serializers.CharField(max_length=2400)
 
     def validate_access_token(self, access_token):
-        return FirebaseAPI.verify_id_token(access_token)
+        try:
+            return FirebaseAPI.verify_id_token(access_token)
+        except:
+            raise serializers.ValidationError("Invalid Firebase Token")
     
     def validate(self, data):
         id_token = data.get('id_token', None)
-        user = None
-        if id_token:
-            jwt = self.validate_access_token(id_token)
-            uid = jwt['uid']
-            profile = UserProfile.objects.filter(uid=uid)
-            try:
-                profile = UserProfile.objects.get(uid=uid)
-            except UserProfile.DoesNotExist:
-                user = User()
-                user.username = jwt['uid']
-                user.last_name = FirebaseAPI.get_name(jwt)
-                user.email = FirebaseAPI.get_email(jwt)
-                if Student.verify_email(user.email):
-                    pass
-                else:
-                    raise serializers.ValidationError("Please login using @itbhu.ac.in or @iitbhu.ac.in student email id only")
-                department = Student.get_department(user.email)
-                year_of_joining = Student.get_year(user.email)
-                user.save()
-                profile, created = UserProfile.objects.get_or_create(
-                    uid=uid, user=user, name=user.last_name, email=user.email,
-                    department=department, year_of_joining=year_of_joining
-                )
-            user = profile.user
-        else:
-            raise ParseError('Provide id_token or username to continue.')
+        current_user = None
+        jwt = self.validate_access_token(id_token)
+        uid = jwt['uid']
+        profile = UserProfile.objects.filter(uid=uid)
 
-        if user:
-            if not user.is_active:
-                raise serializers.ValidationError('User account is disabled.')
+        if profile:
+            current_user = profile[0].user
         else:
-            raise serializers.ValidationError('Unable to log in with provided credentials.')
+            email = jwt['email']
+            name = jwt['name']
+            user = User()
+            user.username = jwt['uid']
+            user.email = email
+            user.save()
+            current_user = user
+            
+            if not Student.verify_email(email):
+                raise serializers.ValidationError("Please login using @itbhu.ac.in or @iitbhu.ac.in student email id only")
+            department = Student.get_department(email)
+            year_of_joining = Student.get_year(email)
+            profile = UserProfile.objects.create(uid=uid,user=user,name=name,email=email,department=department,year_of_joining=year_of_joining)
 
-        data['user'] = user
+        data['user'] = current_user
         return data
 
 
-class ProfileSerializer(serializers.Serializer):
-    name = serializers.SerializerMethodField()
-    email = serializers.SerializerMethodField()
-    department = serializers.SerializerMethodField()
-    current_year = serializers.SerializerMethodField()
-
-    def get_name(self, obj):
-        return obj.user.last_name
-
-    def get_email(self, obj):
-        return obj.user.email
-    
-    def get_department(self, obj):
-        return obj.user.userprofile.department
-    
-    def get_current_year(self, obj):
-        return 2020 - int(obj.user.userprofile.year_of_joining)
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ('name','email','department','year_of_joining')
