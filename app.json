@@ -8,6 +8,12 @@
     }
   ],
   "env": {
+    "SERVICE_ACCOUNT_DECRYPT_KEY": {
+      "required": true
+    },
+    "SERVICE_ACCOUNT_ENC_SIZE": {
+      "required": true
+    }
   },
   "formation": {
     "web": {
