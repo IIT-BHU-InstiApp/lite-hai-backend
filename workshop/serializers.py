@@ -22,9 +22,10 @@ class CouncilSerializer(serializers.ModelSerializer):
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
+    club = ClubSerializer(read_only=True)
     class Meta:
         model = Workshop
-        fields = ('id', 'title', 'date', 'time',)
+        fields = ('id', 'club', 'title', 'date', 'time',)
 
 
 class ClubDetailSerializer(serializers.ModelSerializer):
