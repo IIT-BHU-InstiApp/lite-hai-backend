@@ -10,7 +10,6 @@ class UserProfile(models.Model):
     email = models.EmailField(max_length=255)
     department = models.CharField(max_length=60)
     year_of_joining = models.CharField(max_length=10)
-    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

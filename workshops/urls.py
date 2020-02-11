@@ -34,4 +34,5 @@ urlpatterns = [
     path('',schema_view.with_ui('swagger'), name='schema-swagger-ui'),
     path('', include('authentication.urls')),
     path('', include('workshop.urls')),
+    path('', include('team.urls')),
 ]
