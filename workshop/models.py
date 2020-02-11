@@ -18,6 +18,7 @@ class Club(models.Model):
     council = models.ForeignKey(Council, on_delete=models.CASCADE, related_name='clubs')
     secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='club_secy')
     joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='club_joint_secy')
+    subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
 
     def __str__(self):
         return f'{self.name} - {self.council.name}'
@@ -32,7 +33,8 @@ class Workshop(models.Model):
     location = models.CharField(blank=True, max_length=50)
     audience = models.CharField(blank=True, max_length=50)
     resources = models.TextField(null=True, blank=True)
-    contacts = models.ManyToManyField(UserProfile, blank=True, related_name='workshop_contact')
+    contacts = models.ManyToManyField(UserProfile, blank=True, related_name='organized_workshops')
+    attendees = models.ManyToManyField(UserProfile, blank=True, related_name='attended_workshops')
 
     def __str__(self):
         return f'{self.title} on {self.date} - {self.club.name}'
