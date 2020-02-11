@@ -20,18 +20,19 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 schema_view = get_schema_view(
-   openapi.Info(
-      title="IIT BHU Workshops App API",
-      default_version='v1',
-      description="This is the official IIT BHU Workshops App API developed using Django Rest Framework",
-   ),
-   public=True,
-   permission_classes=(permissions.AllowAny,),
+    openapi.Info(
+        title="IIT BHU Workshops App API",
+        default_version='v1',
+        description="This is the official IIT BHU Workshops App API" +
+        "developed using Django Rest Framework",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',schema_view.with_ui('swagger'), name='schema-swagger-ui'),
+    path('', schema_view.with_ui('swagger'), name='schema-swagger-ui'),
     path('', include('authentication.urls')),
     path('', include('workshop.urls')),
     path('', include('team.urls')),

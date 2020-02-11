@@ -25,11 +25,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get('DEBUG','1'))
+DEBUG = int(os.environ.get('DEBUG', '1'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-if(DEBUG):
-	SECRET_KEY = '1ehe!ow4lk7v!5nnl0xt(t$zxi5v*m3_^q%dx3du$4g7nee%m5'
+if DEBUG:
+    SECRET_KEY = '1ehe!ow4lk7v!5nnl0xt(t$zxi5v*m3_^q%dx3du$4g7nee%m5'
 else:
     SECRET_KEY = config('SECRET_KEY')
 
@@ -96,13 +96,13 @@ REST_FRAMEWORK = {
 }
 
 SWAGGER_SETTINGS = {
-   'SECURITY_DEFINITIONS': {
-      'Token': {
+    'SECURITY_DEFINITIONS': {
+        'Token': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
-      }
-   }
+        }
+    }
 }
 
 
@@ -164,12 +164,12 @@ with open("service_account.json.aes", "rb") as encrypted_file:
     with open("service_account.json", "wb") as decrypted_file:
         # decrypt file stream
         pyAesCrypt.decryptStream(
-            encrypted_file, 
-            decrypted_file, 
-            config('SERVICE_ACCOUNT_DECRYPT_KEY'), 
-            64*1024, 
+            encrypted_file,
+            decrypted_file,
+            config('SERVICE_ACCOUNT_DECRYPT_KEY'),
+            64*1024,
             int(config('SERVICE_ACCOUNT_ENC_SIZE'))
         )
 
-cred = credentials.Certificate(os.path.join(BASE_DIR,'service_account.json'))
+cred = credentials.Certificate(os.path.join(BASE_DIR, 'service_account.json'))
 default_app = firebase_admin.initialize_app(cred)

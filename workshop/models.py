@@ -1,11 +1,12 @@
 from django.db import models
-from authentication.models import *
+from authentication.models import UserProfile
 
 
 class Council(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
-    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='council_secy')
+    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
+                             null=True, blank=True, related_name='council_secy')
     joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='council_joint_secy')
 
     def __str__(self):
@@ -16,7 +17,8 @@ class Club(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
     council = models.ForeignKey(Council, on_delete=models.CASCADE, related_name='clubs')
-    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='club_secy')
+    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
+                             null=True, blank=True, related_name='club_secy')
     joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='club_joint_secy')
     subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
 
