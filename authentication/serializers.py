@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from workshop.serializers import ClubSerializer
 from .utils import Student
 from .models import UserProfile, User
 
@@ -54,7 +55,24 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    club_privileges = serializers.SerializerMethodField()
+
+    def get_club_privileges(self, obj):
+        """
+        Get the club_privileges field
+        """
+        clubs = obj.club_secy.all()
+        clubs = clubs | obj.club_joint_secy.all()
+        council_gensec = obj.council_gensec
+        council_joint_gensec = obj.council_joint_gensec
+        for council in council_gensec.all():
+            clubs = clubs | council.clubs.all()
+        for council in council_joint_gensec.all():
+            clubs = clubs | council.clubs.all()
+
+        return ClubSerializer(clubs, many=True).data
+
     class Meta:
         model = UserProfile
-        read_only_fields = ('email', 'department', 'year_of_joining')
-        fields = ('name', 'email', 'department', 'year_of_joining')
+        read_only_fields = ('email', 'department', 'year_of_joining', 'club_privileges')
+        fields = ('name', 'email', 'department', 'year_of_joining', 'club_privileges')
