@@ -1,1 +1,1 @@
-IIT BHU Workshops App
+## IIT BHU Workshops App [![Codacy Badge](https://api.codacy.com/project/badge/Grade/eaf6981cf8194a7192ad5c0426df4218)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nishantwrp/workshops-app-backend&amp;utm_campaign=Badge_Grade)
