@@ -55,11 +55,19 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    subscriptions = serializers.SerializerMethodField()
     club_privileges = serializers.SerializerMethodField()
+
+    def get_subscriptions(self, obj):
+        """
+        Get the user subscriptions for the clubs
+        """
+        clubs = obj.subscriptions.all()
+        return ClubSerializer(clubs, many=True).data
 
     def get_club_privileges(self, obj):
         """
-        Get the club_privileges field
+        Get the privileges of the user for creating workshops
         """
         clubs = obj.club_secy.all()
         clubs = clubs | obj.club_joint_secy.all()
@@ -74,5 +82,5 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        read_only_fields = ('email', 'department', 'year_of_joining', 'club_privileges')
-        fields = ('name', 'email', 'department', 'year_of_joining', 'club_privileges')
+        read_only_fields = ('email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges')
+        fields = ('name', 'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges')
