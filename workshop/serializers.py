@@ -75,22 +75,22 @@ class ClubDetailSerializer(serializers.ModelSerializer):
 
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
-    secy = serializers.SerializerMethodField()
-    joint_secy = serializers.SerializerMethodField()
+    gensec = serializers.SerializerMethodField()
+    joint_gensec = serializers.SerializerMethodField()
     clubs = serializers.SerializerMethodField()
 
-    def get_secy(self, obj):
+    def get_gensec(self, obj):
         """
         Get the the value of secy field
         """
-        serializer = UserProfileSerializer(obj.secy)
+        serializer = UserProfileSerializer(obj.gensec)
         return serializer.data
 
-    def get_joint_secy(self, obj):
+    def get_joint_gensec(self, obj):
         """
         Get the the value of joint_secy field
         """
-        serializer = UserProfileSerializer(obj.joint_secy, many=True)
+        serializer = UserProfileSerializer(obj.joint_gensec, many=True)
         return serializer.data
 
     def get_clubs(self, obj):
@@ -102,7 +102,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Council
-        fields = ('id', 'name', 'description', 'secy', 'joint_secy', 'clubs',)
+        fields = ('id', 'name', 'description', 'gensec', 'joint_gensec', 'clubs',)
 
 
 class WorkshopCreateSerializer(serializers.ModelSerializer):
