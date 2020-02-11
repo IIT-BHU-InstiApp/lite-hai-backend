@@ -7,7 +7,7 @@ from .models import TeamMember
 
 class TeamView(generics.ListAPIView):
     """
-        Returns the list of all the people who have contributed to the making of this application.
+    Returns the list of all the people who have contributed to the making of this application.
     """
     permission_classes = (permissions.AllowAny,)
     serializer_class = TeamMemberSerializer

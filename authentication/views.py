@@ -38,9 +38,10 @@ class LoginView(generics.GenericAPIView):
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     """
-    <b>GET</b>: Returns the Name, Email, Department and Year of Joining of the user.
-    <b>PUT/PATCH</b>: Updates the name of User Profile and returns the Name, Email,
-    Department and Year of Joining.
+    <b>GET</b>: Returns the Name, Email, Phone Number, Department, Year of Joining
+                and Photo URL of the user.
+    <b>PUT/PATCH</b>: Updates the name, phone_number and photo of User Profile and
+                      returns all the fields.
     """
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ProfileSerializer

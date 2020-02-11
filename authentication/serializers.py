@@ -85,4 +85,5 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges')
         fields = (
-            'name', 'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges')
+            'name', 'email', 'phone_number', 'department', 'year_of_joining',
+            'subscriptions', 'club_privileges', 'photo_url')
