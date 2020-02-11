@@ -39,7 +39,7 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError("Please login using @itbhu.ac.in or @iitbhu.ac.in student email id only")
             department = Student.get_department(email)
             year_of_joining = Student.get_year(email)
-            profile = UserProfile.objects.create(uid=uid,user=user,name=name,email=email,department=department,year_of_joining=year_of_joining)
+            profile = UserProfile.objects.create(uid=uid, user=user, name=name, email=email, department=department, year_of_joining=year_of_joining)
 
         data['user'] = current_user
         return data
@@ -48,4 +48,5 @@ class LoginSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
+        read_only_fields = ('email', 'department', 'year_of_joining')
         fields = ('name','email','department','year_of_joining')
