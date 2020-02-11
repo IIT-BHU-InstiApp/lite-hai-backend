@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import *
+from .views import (
+    CouncilView, CouncilDetailView, ClubDetailView, WorkshopView,
+    WorkshopPastView, WorkshopCreateView, WorkshopDetailView)
 
 urlpatterns = [
     path('councils/', CouncilView.as_view()),
