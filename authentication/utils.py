@@ -1,5 +1,6 @@
 from firebase_admin import auth
 from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY
+from rest_framework.exceptions import ValidationError
 
 
 class Student:
@@ -78,7 +79,7 @@ class FirebaseAPI:
             decoded_token = auth.verify_id_token(id_token)
             return decoded_token
         except ValueError:
-            raise Exception('Invalid Firebase ID Token.', HTTP_422_UNPROCESSABLE_ENTITY)
+            raise ValidationError('Invalid Firebase ID Token.', HTTP_422_UNPROCESSABLE_ENTITY)
 
     @classmethod
     def delete_user_by_uid(cls, uid):
