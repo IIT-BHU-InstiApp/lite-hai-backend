@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from workshop.serializers import ClubSerializer
-from .utils import Student
+from .utils import Student, FirebaseAPI
 from .models import UserProfile, User
 
 
@@ -48,7 +48,7 @@ class LoginSerializer(serializers.Serializer):
             # pylint: disable=no-member
             profile = UserProfile.objects.create(
                 uid=uid, user=user, name=name, email=email, department=department,
-                year_of_joining=year_of_joining)
+                year_of_joining=year_of_joining, photo_url=jwt['picture'])
 
         data['user'] = current_user
         return data
@@ -83,7 +83,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         read_only_fields = (
-            'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges')
+            'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges',
+            'photo_url')
         fields = (
             'name', 'email', 'phone_number', 'department', 'year_of_joining',
-            'subscriptions', 'club_privileges', 'photo_url')
+            'subscriptions', 'club_privileges')

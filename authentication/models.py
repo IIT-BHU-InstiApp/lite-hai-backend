@@ -10,7 +10,7 @@ class UserProfile(models.Model):
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     department = models.CharField(max_length=60)
     year_of_joining = models.CharField(max_length=10)
-    photo_url = models.URLField(null=True, blank=True)
+    photo_url = models.URLField(null=True, blank=True, editable=False)
 
     def __str__(self):
         return self.name
