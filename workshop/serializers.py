@@ -5,23 +5,25 @@ from .models import UserProfile, Club, Council, Workshop
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'email', 'phone_number', 'photo_url')
 
 
 class ClubSerializer(serializers.ModelSerializer):
+    # TODO : Add Subscribed Users here
     class Meta:
         model = Club
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
 
 
 class CouncilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Council
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'small_image_url', 'large_image_url')
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
+    # TODO : Add Number of attendees here, and subscribed
     class Meta:
         model = Workshop
         fields = ('id', 'club', 'title', 'date', 'time',)
@@ -31,8 +33,9 @@ class ClubDetailSerializer(serializers.ModelSerializer):
     council = CouncilSerializer()
     secy = serializers.SerializerMethodField()
     joint_secy = serializers.SerializerMethodField()
-    workshops = serializers.SerializerMethodField()
+    active_workshops = serializers.SerializerMethodField()
     past_workshops = serializers.SerializerMethodField()
+    # TODO : Subscribed users, and whether subscribed or not
 
     def get_secy(self, obj):
         """
@@ -48,9 +51,9 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         serializer = UserProfileSerializer(obj.joint_secy, many=True)
         return serializer.data
 
-    def get_workshops(self, obj):
+    def get_active_workshops(self, obj):
         """
-        Get the the value of workshops field
+        Get the the value of active workshops field
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
@@ -71,7 +74,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Council
         fields = ('id', 'name', 'description', 'council',
-                  'secy', 'joint_secy', 'workshops', 'past_workshops',)
+                  'secy', 'joint_secy', 'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url')
 
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
@@ -102,7 +105,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Council
-        fields = ('id', 'name', 'description', 'secy', 'joint_secy', 'clubs',)
+        fields = ('id', 'name', 'description', 'secy', 'joint_secy', 'clubs', 'small_image_url', 'large_image_url')
 
 
 class WorkshopCreateSerializer(serializers.ModelSerializer):
@@ -133,15 +136,16 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts',)
+            'location', 'audience', 'resources', 'contacts', 'image_url')
 
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
     contacts = UserProfileSerializer(many=True, read_only=True)
+    # TODO : Add number of attendees here and subscribed
 
     class Meta:
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts',)
+            'location', 'audience', 'resources', 'contacts', 'image_url')

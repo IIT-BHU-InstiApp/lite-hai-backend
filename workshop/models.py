@@ -8,6 +8,8 @@ class Council(models.Model):
     secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
                              null=True, blank=True, related_name='council_secy')
     joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='council_joint_secy')
+    small_image_url = models.URLField(null=True, blank=True)
+    large_image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -21,6 +23,8 @@ class Club(models.Model):
                              null=True, blank=True, related_name='club_secy')
     joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='club_joint_secy')
     subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
+    small_image_url = models.URLField(null=True, blank=True)
+    large_image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.name} - {self.council.name}'
@@ -37,6 +41,7 @@ class Workshop(models.Model):
     resources = models.TextField(null=True, blank=True)
     contacts = models.ManyToManyField(UserProfile, blank=True, related_name='organized_workshops')
     attendees = models.ManyToManyField(UserProfile, blank=True, related_name='attended_workshops')
+    image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.title} on {self.date} - {self.club.name}'
