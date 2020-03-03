@@ -183,3 +183,19 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
             'is_attendee', 'attendees')
+
+
+class ClubSubscriptionToggleSerializer(serializers.Serializer):
+    def toggle_subscription(self):
+        """
+        Toggles the subscription of the user
+        """
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(
+            user=self.context['request'].user)
+        club = self.context['club']
+
+        if club in profile.subscriptions.all():
+            club.subscribed_users.remove(profile)
+        else:
+            club.subscribed_users.add(profile)

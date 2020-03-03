@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from .models import Workshop, Council, Club
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer,
-    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer)
+    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
+    ClubSubscriptionToggleSerializer)
 from .permissions import AllowClubAdmin, AllowAdmin
 
 
@@ -40,7 +41,7 @@ class ClubDetailView(generics.RetrieveAPIView):
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'workshop':self.get_object()
+            'club':self.get_object()
         }
 
 
@@ -77,3 +78,33 @@ class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkshopDetailSerializer
     # pylint: disable=no-member
     queryset = Workshop.objects.all()
+
+
+class ClubSubscriptionToggleView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = ClubSubscriptionToggleSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'club':self.get_object()
+        }
+
+    # pylint: disable=unused-argument
+    def get(self, *args, **kwargs):
+        """
+        Handles the GET request
+        """
+        serializer = self.get_serializer()
+        serializer.toggle_subscription()
+        return Response(status=status.HTTP_200_OK)
