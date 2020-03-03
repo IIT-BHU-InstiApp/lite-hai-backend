@@ -5,9 +5,11 @@ from authentication.models import UserProfile
 class Council(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
-    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
-                             null=True, blank=True, related_name='council_secy')
-    joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='council_joint_secy')
+    gensec = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True,
+                               related_name='council_gensec', verbose_name='General Secretary')
+    joint_gensec = models.ManyToManyField(UserProfile, blank=True,
+                                          related_name='council_joint_gensec',
+                                          verbose_name='Joint General Secretary')
 
     def __str__(self):
         return self.name
@@ -17,9 +19,10 @@ class Club(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
     council = models.ForeignKey(Council, on_delete=models.CASCADE, related_name='clubs')
-    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL,
-                             null=True, blank=True, related_name='club_secy')
-    joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='club_joint_secy')
+    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True,
+                             blank=True, related_name='club_secy', verbose_name='Secretary')
+    joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='club_joint_secy',
+                                        verbose_name='Joint Secretary')
     subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
 
     def __str__(self):
