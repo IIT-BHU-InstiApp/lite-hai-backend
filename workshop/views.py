@@ -27,8 +27,21 @@ class CouncilDetailView(generics.RetrieveAPIView):
 class ClubDetailView(generics.RetrieveAPIView):
     # pylint: disable=no-member
     queryset = Club.objects.all()
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ClubDetailSerializer
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'workshop':self.get_object()
+        }
 
 
 class WorkshopView(generics.ListAPIView):

@@ -5,19 +5,19 @@ from .models import UserProfile, Club, Council, Workshop
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'email', 'phone_number', 'photo_url')
 
 
 class ClubSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
 
 
 class CouncilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Council
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'small_image_url', 'large_image_url')
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
@@ -31,8 +31,10 @@ class ClubDetailSerializer(serializers.ModelSerializer):
     council = CouncilSerializer()
     secy = serializers.SerializerMethodField()
     joint_secy = serializers.SerializerMethodField()
-    workshops = serializers.SerializerMethodField()
+    active_workshops = serializers.SerializerMethodField()
     past_workshops = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+    subscribed_users = serializers.SerializerMethodField()
 
     def get_secy(self, obj):
         """
@@ -48,9 +50,9 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         serializer = UserProfileSerializer(obj.joint_secy, many=True)
         return serializer.data
 
-    def get_workshops(self, obj):
+    def get_active_workshops(self, obj):
         """
-        Get the the value of workshops field
+        Get the the value of active workshops field
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
@@ -68,10 +70,27 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
+    def get_is_subscribed(self, obj):
+        """
+        Get if the user has subscribed the club
+        """
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=self.context['request'].user)
+        return profile in obj.subscribed_users.all()
+
+    def get_subscribed_users(self, obj):
+        """
+        Get the total number of subscribed users
+        """
+        return obj.subscribed_users.count()
+
+
     class Meta:
-        model = Council
-        fields = ('id', 'name', 'description', 'council',
-                  'secy', 'joint_secy', 'workshops', 'past_workshops',)
+        model = Club
+        fields = (
+            'id', 'name', 'description', 'council', 'secy', 'joint_secy',
+            'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url',
+            'is_subscribed', 'subscribed_users')
 
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
@@ -102,7 +121,9 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Council
-        fields = ('id', 'name', 'description', 'gensec', 'joint_gensec', 'clubs',)
+        fields = (
+            'id', 'name', 'description', 'gensec', 'joint_gensec',
+            'clubs', 'small_image_url', 'large_image_url')
 
 
 class WorkshopCreateSerializer(serializers.ModelSerializer):
@@ -133,15 +154,32 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts',)
+            'location', 'audience', 'resources', 'contacts', 'image_url')
 
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
     contacts = UserProfileSerializer(many=True, read_only=True)
+    is_attendee = serializers.SerializerMethodField()
+    attendees = serializers.SerializerMethodField()
+
+    def get_is_attendee(self, obj):
+        """
+        Get if the user has subscribed the club
+        """
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=self.context['request'].user)
+        return profile in obj.attendees.all()
+
+    def get_attendees(self, obj):
+        """
+        Get the total number of subscribed users
+        """
+        return obj.attendees.count()
 
     class Meta:
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts',)
+            'location', 'audience', 'resources', 'contacts', 'image_url',
+            'is_attendee', 'attendees')
