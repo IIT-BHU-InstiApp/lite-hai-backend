@@ -25,4 +25,4 @@ class TeamMemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TeamMember
-        fields = ('name', 'github_username', 'github_image_url')
+        fields = ('name', 'role', 'github_username', 'github_image_url')

@@ -33,16 +33,15 @@ class LoginSerializer(serializers.Serializer):
             current_user = profile[0].user
         else:
             email = jwt['email']
+            if not Student.verify_email(email):
+                raise serializers.ValidationError(
+                    "Please login using @itbhu.ac.in or @iitbhu.ac.in student email id only")
             name = jwt['name']
             user = User()
             user.username = jwt['uid']
             user.email = email
             user.save()
             current_user = user
-
-            if not Student.verify_email(email):
-                raise serializers.ValidationError(
-                    "Please login using @itbhu.ac.in or @iitbhu.ac.in student email id only")
             department = Student.get_department(email)
             year_of_joining = Student.get_year(email)
             # pylint: disable=no-member
