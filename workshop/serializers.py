@@ -40,6 +40,8 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         """
         Get the the value of secy field
         """
+        if obj.secy is None:
+            return None
         serializer = UserProfileSerializer(obj.secy)
         return serializer.data
 
@@ -102,6 +104,8 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
         """
         Get the the value of secy field
         """
+        if obj.gensec is None:
+            return None
         serializer = UserProfileSerializer(obj.gensec)
         return serializer.data
 
