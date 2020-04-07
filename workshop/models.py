@@ -43,7 +43,8 @@ class Workshop(models.Model):
     audience = models.CharField(blank=True, max_length=50)
     resources = models.TextField(null=True, blank=True)
     contacts = models.ManyToManyField(UserProfile, blank=True, related_name='organized_workshops')
-    attendees = models.ManyToManyField(UserProfile, blank=True, related_name='attended_workshops')
+    interested_users = models.ManyToManyField(UserProfile, blank=True,
+                                              related_name='interested_workshops')
     image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):

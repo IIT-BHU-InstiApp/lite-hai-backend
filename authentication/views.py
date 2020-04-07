@@ -38,7 +38,8 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     """
     get:
     Returns the Name, Email, Phone Number, Department, Year of Joining\
-    and Photo URL of the user.
+    and Photo URL of the user. Also returns the subscriptions and\
+    club privileges of the user.
 
     put:
     Updates the name, phone_number and photo of User Profile and\

@@ -143,6 +143,24 @@ class WorkshopCreateView(generics.GenericAPIView):
 
 
 class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Get the title, description, club, date, time, location, audience, resources, contacts\
+    and image URL for a workshop.
+    Also, get the number of interested users for the workshop\
+    and whether the user is interested for the workshop.
+
+    put:
+    Update the title, description, date, time, location, audience and resources of a workshop.
+    Only the Club POR Holders and Workshop Contacts can update this. (Full Update)
+
+    patch:
+    Update the title, description, date, time, location, audience and resources of a workshop.
+    Only the Club POR Holders and Workshop Contacts can update this. (Partial Update)
+
+    delete:
+    Delete the workshop. Only the Club POR Holders and Workshop Contacts can perform this action.
+    """
     permission_classes = (AllowWorkshopHead,)
     serializer_class = WorkshopDetailSerializer
     # pylint: disable=no-member

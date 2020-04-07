@@ -81,10 +81,11 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         """
         Get if the user has subscribed the club
         """
-        if self.context['request'].user.is_anonymous:
+        user = self.context['request'].user
+        if user.is_anonymous:
             return None
         # pylint: disable=no-member
-        profile = UserProfile.objects.get(user=self.context['request'].user)
+        profile = UserProfile.objects.get(user=user)
         return profile in obj.subscribed_users.all()
 
     def get_subscribed_users(self, obj):
@@ -107,11 +108,12 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
         """
         Toggles the subscription of the user
         """
-        if self.context['request'].user.is_anonymous:
+        user = self.context['request'].user
+        if user.is_anonymous:
             raise serializers.ValidationError("User is not logged in")
         # pylint: disable=no-member
         profile = UserProfile.objects.get(
-            user=self.context['request'].user)
+            user=user)
         club = self.context['club']
 
         if club in profile.subscriptions.all():
@@ -188,28 +190,33 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
 
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
-    club = ClubSerializer(read_only=True)
+    time = serializers.TimeField(allow_null=True, default=None)
+    club = ClubSerializer(read_only=True, required=False)
     contacts = UserProfileSerializer(many=True, read_only=True)
-    is_attendee = serializers.SerializerMethodField()
-    attendees = serializers.SerializerMethodField()
+    is_interested = serializers.SerializerMethodField()
+    interested_users = serializers.SerializerMethodField()
 
-    def get_is_attendee(self, obj):
+    def get_is_interested(self, obj):
         """
-        Get if the user has subscribed the club
+        Get if the user is interested for the workshop
         """
         # pylint: disable=no-member
-        profile = UserProfile.objects.get(user=self.context['request'].user)
-        return profile in obj.attendees.all()
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return None
+        profile = UserProfile.objects.get(user=user)
+        return profile in obj.interested_users.all()
 
-    def get_attendees(self, obj):
+    def get_interested_users(self, obj):
         """
-        Get the total number of subscribed users
+        Get the total number of interested users for the workshop
         """
-        return obj.attendees.count()
+        return obj.interested_users.count()
 
     class Meta:
         model = Workshop
+        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users')
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
-            'is_attendee', 'attendees')
+            'is_interested', 'interested_users')

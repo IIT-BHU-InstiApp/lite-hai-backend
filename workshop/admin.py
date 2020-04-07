@@ -65,15 +65,15 @@ class WorkshopAdmin(admin.ModelAdmin):
         """
         return ',\n'.join([o.name for o in obj.contacts.all()])
 
-    def get_attendees(self, obj):
+    def get_interested_users(self, obj):
         """
-        Get the count of attendees for a workshop
+        Get the count of interested users for a workshop
         """
-        return obj.attendees.count()
+        return obj.interested_users.count()
 
-    list_display = ('__str__', 'title', 'club', 'date', 'time', 'get_attendees', 'get_contacts')
+    list_display = ('__str__', 'title', 'club', 'date', 'time', 'get_interested_users', 'get_contacts')
     search_fields = ('title', 'contacts__name',)
     list_filter = ('club',)
 
-    get_attendees.short_description = 'Attendees'
+    get_interested_users.short_description = 'Interested Users'
     get_contacts.short_description = 'Contacts'
