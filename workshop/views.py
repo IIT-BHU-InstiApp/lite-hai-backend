@@ -7,8 +7,8 @@ from .models import Workshop, Council, Club
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer,
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
-    ClubSubscriptionToggleSerializer)
-from .permissions import AllowClubAdmin, AllowAdmin
+    WorkshopActivePastSerializer, ClubSubscriptionToggleSerializer)
+from .permissions import AllowClubHead, AllowWorkshopHead
 
 
 class ClubDetailView(generics.RetrieveAPIView):
@@ -58,7 +58,7 @@ class ClubSubscriptionToggleView(generics.GenericAPIView):
     # pylint: disable=unused-argument
     def get(self, *args, **kwargs):
         """
-        Handles the GET request
+        Toggles the Club Subscription for current user
         """
         serializer = self.get_serializer()
         serializer.toggle_subscription()
@@ -85,7 +85,33 @@ class CouncilDetailView(generics.RetrieveAPIView):
     serializer_class = CouncilDetailSerializer
 
 
-class WorkshopView(generics.ListAPIView):
+class WorkshopActivePastView(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+
+    # pylint: disable=unused-argument
+    def get(self, *args, **kwargs):
+        """
+        Get both Active and Past Workshops
+        """
+        # pylint: disable=no-member
+        active_workshops = Workshop.objects.filter(
+            date__gte=date.today()).order_by('date', 'time')
+        past_workshops = Workshop.objects.filter(
+            date__lt=date.today()).order_by('-date', '-time')
+        active_workshops_serializer = WorkshopSerializer(active_workshops, many=True)
+        past_workshops_serializer = WorkshopSerializer(past_workshops, many=True)
+        serializer = WorkshopActivePastSerializer(data={
+            "active_workshops": active_workshops_serializer.data,
+            "past_workshops": past_workshops_serializer.data
+        })
+        serializer.is_valid()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class WorkshopActiveView(generics.ListAPIView):
+    """
+    Get the Active Workshops
+    """
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
     # pylint: disable=no-member
@@ -93,6 +119,9 @@ class WorkshopView(generics.ListAPIView):
 
 
 class WorkshopPastView(generics.ListAPIView):
+    """
+    Get the Past Workshops
+    """
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
     # pylint: disable=no-member
@@ -100,12 +129,12 @@ class WorkshopPastView(generics.ListAPIView):
 
 
 class WorkshopCreateView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated, AllowAdmin,)
+    permission_classes = (permissions.IsAuthenticated, AllowClubHead,)
     serializer_class = WorkshopCreateSerializer
 
     def post(self, request):
         """
-        Handles the POST request
+        Create Workshops for a Club - only Club POR Holders are allowed to create a workshop
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -114,7 +143,7 @@ class WorkshopCreateView(generics.GenericAPIView):
 
 
 class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (AllowClubAdmin,)
+    permission_classes = (AllowWorkshopHead,)
     serializer_class = WorkshopDetailSerializer
     # pylint: disable=no-member
     queryset = Workshop.objects.all()

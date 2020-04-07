@@ -1,8 +1,8 @@
 from rest_framework import permissions
-from .models import UserProfile, Workshop
+from .models import UserProfile
 
 
-class AllowClubAdmin(permissions.BasePermission):
+class AllowWorkshopHead(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_object_permission(self, request, view, obj):
@@ -11,24 +11,23 @@ class AllowClubAdmin(permissions.BasePermission):
         if request.user.is_anonymous:
             return False
         # pylint: disable=no-member
-        profile = UserProfile.objects.filter(user=request.user)
-        if profile and profile[0].is_admin:
-            # pylint: disable=no-member
-            queryset = Workshop.objects.get(pk=obj.pk)
-            club = queryset.club
-            if (club in profile[0].club_secy.all() or club in profile[0].club_joint_secy.all()
-                    or club in profile[0].workshop_contact.all()):
-                return True
-            return False
+        profile = UserProfile.objects.get(user=request.user)
+        # pylint: disable=no-member
+        club = obj.club
+        if (club in profile.get_club_privileges()
+                or obj in profile.organized_workshops.all()):
+            return True
         return False
 
 
-class AllowAdmin(permissions.BasePermission):
+class AllowClubHead(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return False
         # pylint: disable=no-member
-        profile = UserProfile.objects.filter(user=request.user)
-        if profile and profile[0].is_admin:
+        profile = UserProfile.objects.get(user=request.user)
+        if profile.get_club_privileges():
             return True
         return False

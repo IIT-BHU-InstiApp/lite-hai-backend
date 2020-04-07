@@ -77,27 +77,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         Clubs - Secretary / Joint Secretary,
         Councils - General Secretary / Joint General Secretary
         """
-        clubs = obj.club_secy.all()
-        clubs = clubs | obj.club_joint_secy.all()
-        council_gensec = obj.council_gensec
-        council_joint_gensec = obj.council_joint_gensec
-        for council in council_gensec.all():
-            clubs = clubs | council.clubs.all()
-        for council in council_joint_gensec.all():
-            clubs = clubs | council.clubs.all()
-
+        clubs = obj.get_club_privileges()
         return ClubSerializer(clubs, many=True).data
 
     def update(self, instance, validated_data):
         name = validated_data['name']
         phone_number = validated_data['phone_number']
         # pylint: disable=no-member
-        profile = UserProfile.objects.get(pk=instance.pk)
-        profile.name = name
-        profile.phone_number = phone_number
-        profile.photo_url = FirebaseAPI.get_photo_url(profile.uid) # update photo_url of user
-        profile.save()
-        return profile
+        instance.name = name
+        instance.phone_number = phone_number
+        instance.photo_url = FirebaseAPI.get_photo_url(instance.uid) # update photo_url of user
+        instance.save()
+        return instance
 
     class Meta:
         model = UserProfile

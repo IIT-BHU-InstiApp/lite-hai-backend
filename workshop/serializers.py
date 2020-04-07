@@ -27,6 +27,11 @@ class WorkshopSerializer(serializers.ModelSerializer):
         fields = ('id', 'club', 'title', 'date', 'time',)
 
 
+class WorkshopActivePastSerializer(serializers.Serializer):
+    active_workshops = WorkshopSerializer()
+    past_workshops = WorkshopSerializer()
+
+
 class ClubDetailSerializer(serializers.ModelSerializer):
     council = CouncilSerializer()
     secy = serializers.SerializerMethodField()
@@ -158,21 +163,22 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        if club not in profile.club_secy.all() and club not in profile.club_joint_secy.all():
+        if club not in profile.get_club_privileges():
             raise serializers.ValidationError(
                 "You are not authorized to create workshops for this club")
         return club
 
-    def validate_contacts(self, contacts):
-        """
-        Validate the contacts field
-        """
-        request = self.context['request']
+    def save(self, **kwargs):
+        data = self.validated_data
         # pylint: disable=no-member
-        profile = UserProfile.objects.filter(user=request.user)
-        if not profile:
-            raise serializers.ValidationError("User does not exist")
-        return contacts
+        workshop = Workshop.objects.create(
+            title=data['title'], description=data['description'], club=data['club'],
+            date=data['date'], time=data['time'], location=data['location'],
+            audience=data['audience'], resources=data['resources'], image_url=data['image_url']
+        )
+        workshop.contacts.set(data['contacts'])
+        # By default, add the creator of the workshop as the contact for the workshop
+        workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
 
     class Meta:
         model = Workshop
