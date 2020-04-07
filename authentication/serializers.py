@@ -1,7 +1,13 @@
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
 from .models import UserProfile, User
+
+phone_regex = RegexValidator(
+    regex=r'^\+\d{9,15}$',
+    message="Phone number must be entered in the format: '+919876543210'."
+)
 
 
 class ResponseSerializer(serializers.Serializer):
@@ -35,7 +41,7 @@ class LoginSerializer(serializers.Serializer):
             email = jwt['email']
             if not Student.verify_email(email):
                 raise serializers.ValidationError(
-                    "Please login using @itbhu.ac.in or @iitbhu.ac.in student email id only")
+                    "Please login using @itbhu.ac.in student email id only")
             name = jwt['name']
             user = User()
             user.username = jwt['uid']
@@ -54,6 +60,7 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(max_length=15, validators=[phone_regex,], allow_blank=True)
     subscriptions = serializers.SerializerMethodField()
     club_privileges = serializers.SerializerMethodField()
 
@@ -67,6 +74,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_club_privileges(self, obj):
         """
         Get the privileges of the user for creating workshops
+        Clubs - Secretary / Joint Secretary,
+        Councils - General Secretary / Joint General Secretary
         """
         clubs = obj.club_secy.all()
         clubs = clubs | obj.club_joint_secy.all()
@@ -79,6 +88,17 @@ class ProfileSerializer(serializers.ModelSerializer):
 
         return ClubSerializer(clubs, many=True).data
 
+    def update(self, instance, validated_data):
+        name = validated_data['name']
+        phone_number = validated_data['phone_number']
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(pk=instance.pk)
+        profile.name = name
+        profile.phone_number = phone_number
+        profile.photo_url = FirebaseAPI.get_photo_url(profile.uid) # update photo_url of user
+        profile.save()
+        return profile
+
     class Meta:
         model = UserProfile
         read_only_fields = (
@@ -86,4 +106,4 @@ class ProfileSerializer(serializers.ModelSerializer):
             'photo_url')
         fields = (
             'name', 'email', 'phone_number', 'department', 'year_of_joining',
-            'subscriptions', 'club_privileges')
+            'subscriptions', 'club_privileges', 'photo_url')

@@ -76,6 +76,8 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         """
         Get if the user has subscribed the club
         """
+        if self.context['request'].user.is_anonymous:
+            return None
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=self.context['request'].user)
         return profile in obj.subscribed_users.all()
@@ -93,6 +95,24 @@ class ClubDetailSerializer(serializers.ModelSerializer):
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
             'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url',
             'is_subscribed', 'subscribed_users')
+
+
+class ClubSubscriptionToggleSerializer(serializers.Serializer):
+    def toggle_subscription(self):
+        """
+        Toggles the subscription of the user
+        """
+        if self.context['request'].user.is_anonymous:
+            raise serializers.ValidationError("User is not logged in")
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(
+            user=self.context['request'].user)
+        club = self.context['club']
+
+        if club in profile.subscriptions.all():
+            club.subscribed_users.remove(profile)
+        else:
+            club.subscribed_users.add(profile)
 
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
@@ -187,19 +207,3 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
             'is_attendee', 'attendees')
-
-
-class ClubSubscriptionToggleSerializer(serializers.Serializer):
-    def toggle_subscription(self):
-        """
-        Toggles the subscription of the user
-        """
-        # pylint: disable=no-member
-        profile = UserProfile.objects.get(
-            user=self.context['request'].user)
-        club = self.context['club']
-
-        if club in profile.subscriptions.all():
-            club.subscribed_users.remove(profile)
-        else:
-            club.subscribed_users.add(profile)

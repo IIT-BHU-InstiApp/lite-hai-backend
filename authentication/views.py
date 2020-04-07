@@ -16,17 +16,15 @@ def create_auth_token(user):
 
 
 class LoginView(generics.GenericAPIView):
-    """
-    Checks the credentials and returns the REST Token (Authentication Token)
-    if the credentials are valid.
-    """
     authentication_classes = []
     permission_classes = (permissions.AllowAny, )
     serializer_class = LoginSerializer
 
     def post(self, request):
         """
-        Handles the POST request
+        Checks the credentials (taking firebase **idToken** as input)\
+        and returns the **REST Token** (Authentication Token),\
+        if the credentials are valid.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -38,10 +36,17 @@ class LoginView(generics.GenericAPIView):
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     """
-    <b>GET</b>: Returns the Name, Email, Phone Number, Department, Year of Joining
-                and Photo URL of the user.
-    <b>PUT/PATCH</b>: Updates the name, phone_number and photo of User Profile and
-                      returns all the fields.
+    get:
+    Returns the Name, Email, Phone Number, Department, Year of Joining\
+    and Photo URL of the user.
+
+    put:
+    Updates the name, phone_number and photo of User Profile and\
+    returns all the fields. (Full update)
+
+    patch:
+    Updates the name, phone_number and photo of User Profile and\
+    returns all the fields. (Partial update)
     """
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ProfileSerializer

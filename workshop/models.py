@@ -30,7 +30,7 @@ class Club(models.Model):
     large_image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.name} - {self.council.name}'
+        return self.name
 
 
 class Workshop(models.Model):
@@ -47,4 +47,4 @@ class Workshop(models.Model):
     image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.title} on {self.date} - {self.club.name}'
+        return self.title

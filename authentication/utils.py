@@ -58,7 +58,7 @@ class Student:
         """
         username = email.split('@')[0]
         domain = email.split('@')[1]
-        if domain not in ['itbhu.ac.in', 'iitbhu.ac.in']:
+        if domain not in ['itbhu.ac.in',]:
             return False
         if '.' not in username:
             return False
@@ -87,3 +87,11 @@ class FirebaseAPI:
         Delete User
         """
         auth.delete_user(uid)
+
+    @classmethod
+    def get_photo_url(cls, uid):
+        """
+        Get the photo url of the corresponding user
+        """
+        # pylint: disable=protected-access
+        return auth.get_user(uid)._data['photoUrl']

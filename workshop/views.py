@@ -11,24 +11,14 @@ from .serializers import (
 from .permissions import AllowClubAdmin, AllowAdmin
 
 
-class CouncilView(generics.ListAPIView):
-    # pylint: disable=no-member
-    queryset = Council.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = CouncilSerializer
-
-
-class CouncilDetailView(generics.RetrieveAPIView):
-    # pylint: disable=no-member
-    queryset = Council.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = CouncilDetailSerializer
-
-
 class ClubDetailView(generics.RetrieveAPIView):
+    """
+    Get the Name, Description, Council, Secretaries, Workshops, Image URL\
+    and Subscribed Users details of a Club
+    """
     # pylint: disable=no-member
     queryset = Club.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ClubDetailSerializer
 
     def get_object(self):
@@ -43,6 +33,56 @@ class ClubDetailView(generics.RetrieveAPIView):
             'view': self,
             'club':self.get_object()
         }
+
+
+class ClubSubscriptionToggleView(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny, )
+    serializer_class = ClubSubscriptionToggleSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'club':self.get_object()
+        }
+
+    # pylint: disable=unused-argument
+    def get(self, *args, **kwargs):
+        """
+        Handles the GET request
+        """
+        serializer = self.get_serializer()
+        serializer.toggle_subscription()
+        return Response(status=status.HTTP_200_OK)
+
+
+class CouncilView(generics.ListAPIView):
+    """
+    Get the Name and Image URL of all Councils
+    """
+    # pylint: disable=no-member
+    queryset = Council.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = CouncilSerializer
+
+
+class CouncilDetailView(generics.RetrieveAPIView):
+    """
+    Get the Name, Description, Secretaries, Clubs and Image URL of a Council
+    """
+    # pylint: disable=no-member
+    queryset = Council.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = CouncilDetailSerializer
 
 
 class WorkshopView(generics.ListAPIView):
@@ -78,33 +118,3 @@ class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkshopDetailSerializer
     # pylint: disable=no-member
     queryset = Workshop.objects.all()
-
-
-class ClubSubscriptionToggleView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = ClubSubscriptionToggleSerializer
-    lookup_field = 'pk'
-    # pylint: disable=no-member
-    queryset = Club.objects.all()
-
-    def get_object(self):
-        if getattr(self, 'swagger_fake_view', False):
-            return None
-        return super().get_object()
-
-    def get_serializer_context(self):
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self,
-            'club':self.get_object()
-        }
-
-    # pylint: disable=unused-argument
-    def get(self, *args, **kwargs):
-        """
-        Handles the GET request
-        """
-        serializer = self.get_serializer()
-        serializer.toggle_subscription()
-        return Response(status=status.HTTP_200_OK)
