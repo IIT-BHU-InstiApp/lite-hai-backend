@@ -3,14 +3,14 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from workshop.permissions import AllowClubHead
+from workshop.permissions import AllowAnyClubHead
 from .models import UserProfile
 from .serializers import (
     LoginSerializer, ProfileSerializer, ResponseSerializer, ProfileSearchSerializer)
 
 def create_auth_token(user):
     """
-    Returns the token required for authentication for a user
+    Returns the token required for authentication for a user.
     """
     # pylint: disable=no-member
     token, _ = Token.objects.get_or_create(user=user)
@@ -60,7 +60,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
 
 class ProfileSearchView(generics.GenericAPIView):
-    permission_classes = (AllowClubHead, )
+    permission_classes = (AllowAnyClubHead, )
     serializer_class = ProfileSearchSerializer
 
     def post(self, request):
