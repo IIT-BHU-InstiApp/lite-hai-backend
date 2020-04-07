@@ -15,4 +15,4 @@ class TeamMember(models.Model):
     github_image_url = models.URLField(null=True, blank=True, editable=False)
 
     def __str__(self):
-        return f'{self.name} - {self.role}'
+        return self.name

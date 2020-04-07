@@ -27,6 +27,11 @@ class WorkshopSerializer(serializers.ModelSerializer):
         fields = ('id', 'club', 'title', 'date', 'time',)
 
 
+class WorkshopActiveAndPastSerializer(serializers.Serializer):
+    active_workshops = WorkshopSerializer()
+    past_workshops = WorkshopSerializer()
+
+
 class ClubDetailSerializer(serializers.ModelSerializer):
     council = CouncilSerializer()
     secy = serializers.SerializerMethodField()
@@ -76,8 +81,11 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         """
         Get if the user has subscribed the club
         """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return None
         # pylint: disable=no-member
-        profile = UserProfile.objects.get(user=self.context['request'].user)
+        profile = UserProfile.objects.get(user=user)
         return profile in obj.subscribed_users.all()
 
     def get_subscribed_users(self, obj):
@@ -93,6 +101,23 @@ class ClubDetailSerializer(serializers.ModelSerializer):
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
             'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url',
             'is_subscribed', 'subscribed_users')
+
+
+class ClubSubscriptionToggleSerializer(serializers.Serializer):
+    def toggle_subscription(self):
+        """
+        Toggles the subscription of the user
+        """
+        user = self.context['request'].user
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(
+            user=user)
+        club = self.context['club']
+
+        if club in profile.subscriptions.all():
+            club.subscribed_users.remove(profile)
+        else:
+            club.subscribed_users.add(profile)
 
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
@@ -138,21 +163,23 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        if club not in profile.club_secy.all() and club not in profile.club_joint_secy.all():
+        if club not in profile.get_club_privileges():
             raise serializers.ValidationError(
                 "You are not authorized to create workshops for this club")
         return club
 
-    def validate_contacts(self, contacts):
-        """
-        Validate the contacts field
-        """
-        request = self.context['request']
+    def save(self, **kwargs):
+        data = self.validated_data
         # pylint: disable=no-member
-        profile = UserProfile.objects.filter(user=request.user)
-        if not profile:
-            raise serializers.ValidationError("User does not exist")
-        return contacts
+        workshop = Workshop.objects.create(
+            title=data['title'], description=data.get('description', ''), club=data['club'],
+            date=data['date'], time=data.get('time', None), location=data.get('location', ''),
+            audience=data.get('audience', ''), resources=data.get('resources', ''),
+            image_url=data.get('image_url', '')
+        )
+        workshop.contacts.set(data.get('contacts', []))
+        # By default, add the creator of the workshop as the contact for the workshop
+        workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
 
     class Meta:
         model = Workshop
@@ -162,44 +189,126 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
 
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
-    club = ClubSerializer(read_only=True)
+    time = serializers.TimeField(allow_null=True, default=None)
+    club = ClubSerializer(read_only=True, required=False)
     contacts = UserProfileSerializer(many=True, read_only=True)
-    is_attendee = serializers.SerializerMethodField()
-    attendees = serializers.SerializerMethodField()
+    is_interested = serializers.SerializerMethodField()
+    interested_users = serializers.SerializerMethodField()
 
-    def get_is_attendee(self, obj):
+    def get_is_interested(self, obj):
         """
-        Get if the user has subscribed the club
+        Get if the user is interested for the workshop
         """
         # pylint: disable=no-member
-        profile = UserProfile.objects.get(user=self.context['request'].user)
-        return profile in obj.attendees.all()
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return None
+        profile = UserProfile.objects.get(user=user)
+        return profile in obj.interested_users.all()
 
-    def get_attendees(self, obj):
+    def get_interested_users(self, obj):
         """
-        Get the total number of subscribed users
+        Get the total number of interested users for the workshop
         """
-        return obj.attendees.count()
+        return obj.interested_users.count()
 
     class Meta:
         model = Workshop
+        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users')
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
-            'is_attendee', 'attendees')
+            'is_interested', 'interested_users')
 
 
-class ClubSubscriptionToggleSerializer(serializers.Serializer):
-    def toggle_subscription(self):
-        """
-        Toggles the subscription of the user
-        """
+class WorkshopContactsUpdateSerializer(serializers.ModelSerializer):
+    def save(self, **kwargs):
+        data = self.validated_data
         # pylint: disable=no-member
-        profile = UserProfile.objects.get(
-            user=self.context['request'].user)
-        club = self.context['club']
+        workshop = self.context['workshop']
+        workshop.contacts.set(data['contacts'])
 
-        if club in profile.subscriptions.all():
-            club.subscribed_users.remove(profile)
+    class Meta:
+        model = Workshop
+        fields = ('contacts',)
+
+
+class WorkshopInterestedToggleSerializer(serializers.Serializer):
+    def toggle_interested(self):
+        """
+        Toggles whether user is interested for the workshop or not.
+        """
+        user = self.context['request'].user
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+        workshop = self.context['workshop']
+
+        if workshop in profile.interested_workshops.all():
+            workshop.interested_users.remove(profile)
         else:
-            club.subscribed_users.add(profile)
+            workshop.interested_users.add(profile)
+
+
+class WorkshopInterestedSerializer(serializers.ModelSerializer):
+    interested = serializers.SerializerMethodField()
+
+    def get_interested(self, obj):
+        """
+        Get all the workshops in which the user is interested.
+        """
+        workshops = obj.interested_workshops.all()
+        return WorkshopSerializer(workshops, many=True).data
+
+    class Meta:
+        model = UserProfile
+        read_only_fields = ('interested',)
+        fields = ('interested',)
+
+
+
+class WorkshopSearchSerializer(serializers.Serializer):
+    search_by = serializers.ChoiceField(choices=['title', 'location', 'audience'], default='title')
+    search_string = serializers.CharField(max_length=50)
+
+    def validate_search_string(self, search_string):
+        """
+        Validate the search_string field, length must be greater than 3
+        """
+        if len(search_string) < 3:
+            raise serializers.ValidationError("The length of search field must be atleast 3")
+        return search_string
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        search_by = data['search_by']
+        search_string = data['search_string']
+        # pylint: disable=no-member
+        if search_by == 'title':
+            workshop = Workshop.objects.filter(title__icontains=search_string)
+        elif search_by == 'location':
+            workshop = Workshop.objects.filter(location__icontains=search_string)
+        elif search_by == 'audience':
+            workshop = Workshop.objects.filter(audience__icontains=search_string)
+        return workshop
+
+
+class WorkshopDateSearchSerializer(serializers.Serializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+
+    def validate(self, attrs):
+        """
+        Validate the data i.e. start_date must be less than or equal to end_date
+        """
+        start_date = attrs['start_date']
+        end_date = attrs['end_date']
+        if start_date > end_date:
+            raise serializers.ValidationError("Start Date cannot be greater than End Date")
+        return attrs
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        start_date = data['start_date']
+        end_date = data['end_date']
+        # pylint: disable=no-member
+        return Workshop.objects.filter(date__gte=start_date, date__lte=end_date)
