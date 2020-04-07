@@ -7,7 +7,8 @@ from .models import Workshop, Council, Club
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer,
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
-    WorkshopActivePastSerializer, ClubSubscriptionToggleSerializer)
+    ActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
+    WorkshopSearchSerializer)
 from .permissions import AllowClubHead, AllowWorkshopHead
 
 
@@ -85,7 +86,7 @@ class CouncilDetailView(generics.RetrieveAPIView):
     serializer_class = CouncilDetailSerializer
 
 
-class WorkshopActivePastView(generics.GenericAPIView):
+class ActiveAndPastWorkshopView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
 
     # pylint: disable=unused-argument
@@ -100,7 +101,7 @@ class WorkshopActivePastView(generics.GenericAPIView):
             date__lt=date.today()).order_by('-date', '-time')
         active_workshops_serializer = WorkshopSerializer(active_workshops, many=True)
         past_workshops_serializer = WorkshopSerializer(past_workshops, many=True)
-        serializer = WorkshopActivePastSerializer(data={
+        serializer = ActiveAndPastWorkshopSerializer(data={
             "active_workshops": active_workshops_serializer.data,
             "past_workshops": past_workshops_serializer.data
         })
@@ -108,7 +109,7 @@ class WorkshopActivePastView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class WorkshopActiveView(generics.ListAPIView):
+class ActiveWorkshopView(generics.ListAPIView):
     """
     Get the Active Workshops
     """
@@ -118,7 +119,7 @@ class WorkshopActiveView(generics.ListAPIView):
     queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time')
 
 
-class WorkshopPastView(generics.ListAPIView):
+class PastWorkshopView(generics.ListAPIView):
     """
     Get the Past Workshops
     """
@@ -165,3 +166,34 @@ class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkshopDetailSerializer
     # pylint: disable=no-member
     queryset = Workshop.objects.all()
+
+
+class WorkshopContactAddView(generics.GenericAPIView):
+    pass
+
+
+class WorkshopInterestedToggleView(generics.GenericAPIView):
+    pass
+
+
+class WorkshopInterestedView(generics.GenericAPIView):
+    pass
+
+
+class WorkshopSearchView(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = WorkshopSearchSerializer
+
+    def post(self, request):
+        """
+        Search a workshop based on Title, Location or Audience
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profile = serializer.save()
+        response = Workshop(profile, many=True)
+        return Response(response.data, status.HTTP_200_OK)
+
+
+class WorkshopDateSearchView(generics.GenericAPIView):
+    pass

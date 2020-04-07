@@ -71,7 +71,8 @@ class WorkshopAdmin(admin.ModelAdmin):
         """
         return obj.interested_users.count()
 
-    list_display = ('__str__', 'title', 'club', 'date', 'time', 'get_interested_users', 'get_contacts')
+    list_display = (
+        '__str__', 'title', 'club', 'date', 'time', 'get_interested_users', 'get_contacts')
     search_fields = ('title', 'contacts__name',)
     list_filter = ('club',)
 

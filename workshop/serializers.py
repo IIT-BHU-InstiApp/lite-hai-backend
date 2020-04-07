@@ -27,7 +27,7 @@ class WorkshopSerializer(serializers.ModelSerializer):
         fields = ('id', 'club', 'title', 'date', 'time',)
 
 
-class WorkshopActivePastSerializer(serializers.Serializer):
+class ActiveAndPastSerializer(serializers.Serializer):
     active_workshops = WorkshopSerializer()
     past_workshops = WorkshopSerializer()
 
@@ -220,3 +220,29 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
             'is_interested', 'interested_users')
+
+
+class WorkshopSearchSerializer(serializers.Serializer):
+    search_by = serializers.ChoiceField(choices=['title', 'location', 'audience'], default='title')
+    search_string = serializers.CharField(max_length=50)
+
+    def validate_search_string(self, search_string):
+        """
+        Validate the search_string field, length must be greater than 3
+        """
+        if len(search_string) < 3:
+            raise serializers.ValidationError("The length of search field must be atleast 3")
+        return search_string
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        search_by = data['search_by']
+        search_string = data['search_string']
+        # pylint: disable=no-member
+        if search_by == 'title':
+            workshop = Workshop.objects.filter(title__icontains=search_string)
+        elif search_by == 'location':
+            workshop = Workshop.objects.filter(location__icontains=search_string)
+        elif search_by == 'audience':
+            workshop = Workshop.objects.filter(audience__icontains=search_string)
+        return workshop

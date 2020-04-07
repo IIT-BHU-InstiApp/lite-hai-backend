@@ -3,8 +3,10 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from workshop.permissions import AllowClubHead
 from .models import UserProfile
-from .serializers import LoginSerializer, ProfileSerializer, ResponseSerializer
+from .serializers import (
+    LoginSerializer, ProfileSerializer, ResponseSerializer, ProfileSearchSerializer)
 
 def create_auth_token(user):
     """
@@ -55,3 +57,20 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # pylint: disable=no-member
         return UserProfile.objects.get(user=self.request.user)
+
+
+class ProfileSearchView(generics.GenericAPIView):
+    permission_classes = (AllowClubHead, )
+    serializer_class = ProfileSearchSerializer
+
+    def post(self, request):
+        """
+        Search a user based on Name or Email. (Only Top 10 results)
+        Only Club POR holders can perform this action.
+        (Can be used to search profile while adding contacts for a workshop)
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        profile = serializer.save()
+        response = ProfileSerializer(profile, many=True)
+        return Response(response.data, status.HTTP_200_OK)

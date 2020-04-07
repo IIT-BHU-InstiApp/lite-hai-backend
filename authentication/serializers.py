@@ -98,3 +98,27 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'name', 'email', 'phone_number', 'department', 'year_of_joining',
             'subscriptions', 'club_privileges', 'photo_url')
+
+
+class ProfileSearchSerializer(serializers.Serializer):
+    search_by = serializers.ChoiceField(choices=['name', 'email'], default='email')
+    search_string = serializers.CharField(max_length=255)
+
+    def validate_search_string(self, search_string):
+        """
+        Validate the search_string field, length must be greater than 3
+        """
+        if len(search_string) < 3:
+            raise serializers.ValidationError("The length of search field must be atleast 3")
+        return search_string
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        search_by = data['search_by']
+        search_string = data['search_string']
+        # pylint: disable=no-member
+        if search_by == 'name':
+            profile = UserProfile.objects.filter(name__icontains=search_string)[:10]
+        elif search_by == 'email':
+            profile = UserProfile.objects.filter(email__icontains=search_string)[:10]
+        return profile
