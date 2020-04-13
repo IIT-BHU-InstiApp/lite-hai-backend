@@ -10,7 +10,7 @@ from .serializers import (
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
-    WorkshopInterestedToggleSerializer, WorkshopInterestedSerializer)
+    WorkshopInterestedToggleSerializer,)
 from .permissions import AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadAndContacts
 
 
@@ -237,16 +237,16 @@ class WorkshopInterestedToggleView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class WorkshopInterestedView(generics.RetrieveAPIView):
+class WorkshopInterestedView(generics.ListAPIView):
     """
     Show all the workshops in which the user is interested.
     """
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = WorkshopInterestedSerializer
+    serializer_class = WorkshopSerializer
 
-    def get_object(self):
+    def get_queryset(self):
         # pylint: disable=no-member
-        return UserProfile.objects.get(user=self.request.user)
+        return UserProfile.objects.get(user=self.request.user).interested_workshops.all()
 
 
 class WorkshopSearchView(generics.GenericAPIView):
