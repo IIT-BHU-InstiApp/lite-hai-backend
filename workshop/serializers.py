@@ -249,23 +249,6 @@ class WorkshopInterestedToggleSerializer(serializers.Serializer):
             workshop.interested_users.add(profile)
 
 
-class WorkshopInterestedSerializer(serializers.ModelSerializer):
-    interested = serializers.SerializerMethodField()
-
-    def get_interested(self, obj):
-        """
-        Get all the workshops in which the user is interested.
-        """
-        workshops = obj.interested_workshops.all()
-        return WorkshopSerializer(workshops, many=True).data
-
-    class Meta:
-        model = UserProfile
-        read_only_fields = ('interested',)
-        fields = ('interested',)
-
-
-
 class WorkshopSearchSerializer(serializers.Serializer):
     search_by = serializers.ChoiceField(choices=['title', 'location', 'audience'], default='title')
     search_string = serializers.CharField(max_length=50)
