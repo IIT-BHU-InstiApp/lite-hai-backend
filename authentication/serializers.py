@@ -92,10 +92,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         read_only_fields = (
-            'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges',
+            'id', 'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges',
             'photo_url')
         fields = (
-            'name', 'email', 'phone_number', 'department', 'year_of_joining',
+            'id', 'name', 'email', 'phone_number', 'department', 'year_of_joining',
             'subscriptions', 'club_privileges', 'photo_url')
 
 
