@@ -21,6 +21,7 @@ class ClubSerializer(serializers.ModelSerializer):
         model = Club
         fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
 
+
 class WorkshopSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
     class Meta:
