@@ -8,16 +8,18 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'email', 'phone_number', 'photo_url')
 
 
-class ClubSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Club
-        fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
-
-
 class CouncilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Council
         fields = ('id', 'name', 'small_image_url', 'large_image_url')
+
+
+class ClubSerializer(serializers.ModelSerializer):
+    council = CouncilSerializer()
+
+    class Meta:
+        model = Club
+        fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
