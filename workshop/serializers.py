@@ -196,6 +196,8 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
     contacts = UserProfileSerializer(many=True, read_only=True)
     is_interested = serializers.SerializerMethodField()
     interested_users = serializers.SerializerMethodField()
+    is_workshop_contact = serializers.SerializerMethodField()
+    is_por_holder = serializers.SerializerMethodField()
 
     def get_is_interested(self, obj):
         """
@@ -214,13 +216,48 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         """
         return obj.interested_users.count()
 
+    def get_is_workshop_contact(self, obj):
+        """
+        If the user making the request is a workshop contact
+        """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+        return profile in obj.contacts.all()
+
+    def get_is_por_holder(self, obj):
+        """
+        If the user is a por holder of the club or council
+        """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+
+        if profile == obj.club.secy:
+            return True
+
+        if profile in obj.club.joint_secy.all():
+            return True
+
+        if profile == obj.club.council.gensec:
+            return True
+
+        if profile in obj.club.council.joint_gensec.all():
+            return True
+
+        return False
+
     class Meta:
         model = Workshop
         read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users')
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
-            'is_interested', 'interested_users')
+            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder')
 
 
 class WorkshopContactsUpdateSerializer(serializers.ModelSerializer):
