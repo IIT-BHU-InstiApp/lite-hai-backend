@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Council, Club, Workshop
-
+from .models import Council, Club, Tag, Workshop
 
 @admin.register(Council)
 class CouncilAdmin(admin.ModelAdmin):
@@ -56,6 +55,11 @@ class ClubAdmin(admin.ModelAdmin):
     get_joint_secy.short_description = 'Joint Secretary'
     get_subscribed_users.short_description = 'Subscribed Users'
 
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('tag_name', 'club')
+    search_fields = ('tag_name',)
+    list_filter = ('club',)
 
 @admin.register(Workshop)
 class WorkshopAdmin(admin.ModelAdmin):
@@ -65,6 +69,12 @@ class WorkshopAdmin(admin.ModelAdmin):
         """
         return ',\n'.join([o.name for o in obj.contacts.all()])
 
+    def get_tags(self, obj):
+        """
+        Get the tags for a workshop
+        """
+        return ',\n'.join([o.tag_name for o in obj.tags.all()])
+
     def get_interested_users(self, obj):
         """
         Get the count of interested users for a workshop
@@ -72,9 +82,11 @@ class WorkshopAdmin(admin.ModelAdmin):
         return obj.interested_users.count()
 
     list_display = (
-        '__str__', 'title', 'club', 'date', 'time', 'get_interested_users', 'get_contacts')
-    search_fields = ('title', 'contacts__name',)
+        '__str__', 'title', 'club', 'date', 'time',
+        'get_interested_users', 'get_contacts', 'get_tags')
+    search_fields = ('title', 'contacts__name', 'tags__tag_name')
     list_filter = ('club',)
 
     get_interested_users.short_description = 'Interested Users'
     get_contacts.short_description = 'Contacts'
+    get_tags.short_description = 'Tags'
