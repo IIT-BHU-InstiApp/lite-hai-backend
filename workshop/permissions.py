@@ -66,7 +66,6 @@ class AllowWorkshopHeadOrContactForResource(permissions.BasePermission):
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        print(profile)
         # pylint: disable=no-member
         club = obj.workshop.club
         if (club in profile.get_club_privileges()
