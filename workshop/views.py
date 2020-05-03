@@ -16,10 +16,17 @@ from .permissions import (
     AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadOrContact, AllowAnyClubHeadOrContact)
 
 
-class ClubDetailView(generics.RetrieveAPIView):
+class ClubDetailView(generics.RetrieveUpdateAPIView):
     """
+    get:
     Get the Name, Description, Council, Secretaries, Workshops, Image URL\
     and Subscribed Users details of a Club.
+
+    put:
+    Update the description of a Club (Full Update).
+
+    patch:
+    Update the description of a Club (Partial Update).
     """
     # pylint: disable=no-member
     queryset = Club.objects.all()
@@ -80,9 +87,16 @@ class CouncilView(generics.ListAPIView):
     serializer_class = CouncilSerializer
 
 
-class CouncilDetailView(generics.RetrieveAPIView):
+class CouncilDetailView(generics.RetrieveUpdateAPIView):
     """
+    get:
     Get the Name, Description, Secretaries, Clubs and Image URL of a Council.
+
+    put:
+    Update the description of a Council (Full Update).
+
+    patch:
+    Update the description of a Council (Partial Update).
     """
     # pylint: disable=no-member
     queryset = Council.objects.all()

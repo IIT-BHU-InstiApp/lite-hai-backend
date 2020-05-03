@@ -45,7 +45,7 @@ class WorkshopActiveAndPastSerializer(serializers.Serializer):
 
 
 class ClubDetailSerializer(serializers.ModelSerializer):
-    council = CouncilSerializer()
+    council = CouncilSerializer(read_only=True, required=False)
     secy = serializers.SerializerMethodField()
     joint_secy = serializers.SerializerMethodField()
     active_workshops = serializers.SerializerMethodField()
@@ -109,6 +109,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Club
+        read_only_fields = ('name', 'council', 'small_image_url', 'large_image_url')
         fields = (
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
             'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url',
@@ -163,6 +164,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Council
+        read_only_fields = ('name', 'small_image_url', 'large_image_url')
         fields = (
             'id', 'name', 'description', 'gensec', 'joint_gensec',
             'clubs', 'small_image_url', 'large_image_url', 'website_url', 'facebook_url',
