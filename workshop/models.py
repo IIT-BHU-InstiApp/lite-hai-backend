@@ -12,6 +12,12 @@ class Council(models.Model):
                                           verbose_name='Joint General Secretary')
     small_image_url = models.URLField(null=True, blank=True)
     large_image_url = models.URLField(null=True, blank=True)
+    website_url = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(null=True, blank=True)
+    twitter_url = models.URLField(null=True, blank=True)
+    instagram_url = models.URLField(null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -28,6 +34,12 @@ class Club(models.Model):
     subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
     small_image_url = models.URLField(null=True, blank=True)
     large_image_url = models.URLField(null=True, blank=True)
+    website_url = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(null=True, blank=True)
+    twitter_url = models.URLField(null=True, blank=True)
+    instagram_url = models.URLField(null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name

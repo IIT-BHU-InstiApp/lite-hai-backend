@@ -102,7 +102,8 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
             'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url',
-            'is_subscribed', 'subscribed_users')
+            'is_subscribed', 'subscribed_users', 'website_url', 'facebook_url',
+            'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
 
 
 class ClubSubscriptionToggleSerializer(serializers.Serializer):
@@ -154,7 +155,8 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
         model = Council
         fields = (
             'id', 'name', 'description', 'gensec', 'joint_gensec',
-            'clubs', 'small_image_url', 'large_image_url')
+            'clubs', 'small_image_url', 'large_image_url', 'website_url', 'facebook_url',
+            'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
 
 
 class WorkshopCreateSerializer(serializers.ModelSerializer):
