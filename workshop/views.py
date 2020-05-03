@@ -16,7 +16,7 @@ from .permissions import AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadA
 
 class ClubDetailView(generics.RetrieveAPIView):
     """
-    Get the Name, Description, Council, Secretaries, Workshops, Image URL\
+    Get the Name, Description, Council, Secretaries, Image URL\
     and Subscribed Users details of a Club.
     """
     # pylint: disable=no-member
@@ -40,8 +40,7 @@ class ClubDetailView(generics.RetrieveAPIView):
 
 class ClubDetailWorkshopView(generics.RetrieveAPIView):
     """
-    Get the Name, Description, Council, Secretaries, Workshops, Image URL\
-    and Subscribed Users details of a Club.
+    Get the Active and Past Workshop details of a Club
     """
     # pylint: disable=no-member
     queryset = Club.objects.all()
