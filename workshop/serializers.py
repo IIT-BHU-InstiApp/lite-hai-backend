@@ -48,8 +48,6 @@ class ClubDetailSerializer(serializers.ModelSerializer):
     council = CouncilSerializer(read_only=True, required=False)
     secy = serializers.SerializerMethodField()
     joint_secy = serializers.SerializerMethodField()
-    active_workshops = serializers.SerializerMethodField()
-    past_workshops = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
     subscribed_users = serializers.SerializerMethodField()
 
@@ -67,26 +65,6 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         Get the the value of joint_secy field
         """
         serializer = UserProfileSerializer(obj.joint_secy, many=True)
-        return serializer.data
-
-    def get_active_workshops(self, obj):
-        """
-        Get the the value of active workshops field
-        """
-        # pylint: disable=no-member
-        queryset = Workshop.objects.filter(
-            club=obj, date__gte=date.today()).order_by('date', 'time')
-        serializer = WorkshopSerializer(queryset, many=True)
-        return serializer.data
-
-    def get_past_workshops(self, obj):
-        """
-        Get the the value of past_workshops field
-        """
-        # pylint: disable=no-member
-        queryset = Workshop.objects.filter(
-            club=obj, date__lt=date.today()).order_by('-date', '-time')
-        serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
     def get_is_subscribed(self, obj):
@@ -112,9 +90,38 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ('name', 'council', 'small_image_url', 'large_image_url')
         fields = (
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
-            'active_workshops', 'past_workshops', 'small_image_url', 'large_image_url',
-            'is_subscribed', 'subscribed_users', 'website_url', 'facebook_url',
-            'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
+            'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users',
+            'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
+            'linkedin_url', 'youtube_url')
+
+
+class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
+    active_workshops = serializers.SerializerMethodField()
+    past_workshops = serializers.SerializerMethodField()
+
+    def get_active_workshops(self, obj):
+        """
+        Get the the value of active workshops field
+        """
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(
+            club=obj, date__gte=date.today()).order_by('date', 'time')
+        serializer = WorkshopSerializer(queryset, many=True)
+        return serializer.data
+
+    def get_past_workshops(self, obj):
+        """
+        Get the the value of past_workshops field
+        """
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(
+            club=obj, date__lt=date.today()).order_by('-date', '-time')
+        serializer = WorkshopSerializer(queryset, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Club
+        fields = ('active_workshops', 'past_workshops')
 
 
 class ClubSubscriptionToggleSerializer(serializers.Serializer):
