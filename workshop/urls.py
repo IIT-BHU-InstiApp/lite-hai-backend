@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import (
     CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView,
-    ClubSubscriptionToggleView, WorkshopActiveAndPastView, WorkshopPastView,
-    WorkshopCreateView, WorkshopDetailView, WorkshopActiveView,
-    WorkshopContactsUpdateView, WorkshopInterestedToggleView,
+    ClubSubscriptionToggleView, TagCreateView, TagSearchView, WorkshopTagsUpdateView,
+    WorkshopActiveAndPastView, WorkshopPastView, WorkshopCreateView, WorkshopDetailView,
+    WorkshopActiveView, WorkshopContactsUpdateView, WorkshopInterestedToggleView,
     WorkshopInterestedView, WorkshopSearchView, WorkshopDateSearchView)
 
 urlpatterns = [
@@ -12,11 +12,14 @@ urlpatterns = [
     path('clubs/<int:pk>/', ClubDetailView.as_view()),
     path('clubs/<int:pk>/workshops/', ClubDetailWorkshopView.as_view()),
     path('clubs/<int:pk>/toggle-subscribed/', ClubSubscriptionToggleView.as_view()),
+    path('tags/create/', TagCreateView.as_view()),
+    path('tags/search/', TagSearchView.as_view()),
     path('workshops/', WorkshopActiveAndPastView.as_view()),
     path('workshops/active/', WorkshopActiveView.as_view()),
     path('workshops/past/', WorkshopPastView.as_view()),
     path('workshops/create/', WorkshopCreateView.as_view()),
     path('workshops/<int:pk>/', WorkshopDetailView.as_view()),
+    path('workshops/<int:pk>/update-tags/', WorkshopTagsUpdateView.as_view()),
     path('workshops/<int:pk>/update-contacts/', WorkshopContactsUpdateView.as_view()),
     path('workshops/<int:pk>/toggle-interested/', WorkshopInterestedToggleView.as_view()),
     path('workshops/interested/', WorkshopInterestedView.as_view()),

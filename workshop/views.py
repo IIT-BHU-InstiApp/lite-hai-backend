@@ -10,14 +10,23 @@ from .serializers import (
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
-    WorkshopInterestedToggleSerializer,)
-from .permissions import AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadAndContacts
+    WorkshopInterestedToggleSerializer, TagCreateSerializer, TagSearchSerializer,
+    TagSerializer, WorkshopTagsUpdateSerializer)
+from .permissions import (
+    AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadOrContact, AllowAnyClubHeadOrContact)
 
 
-class ClubDetailView(generics.RetrieveAPIView):
+class ClubDetailView(generics.RetrieveUpdateAPIView):
     """
+    get:
     Get the Name, Description, Council, Secretaries, Image URL\
     and Subscribed Users details of a Club.
+
+    put:
+    Update the description of a Club (Full Update).
+
+    patch:
+    Update the description of a Club (Partial Update).
     """
     # pylint: disable=no-member
     queryset = Club.objects.all()
@@ -34,7 +43,7 @@ class ClubDetailView(generics.RetrieveAPIView):
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'club':self.get_object()
+            'club': self.get_object()
         }
 
 
@@ -70,7 +79,7 @@ class ClubSubscriptionToggleView(generics.GenericAPIView):
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'club':self.get_object()
+            'club': self.get_object()
         }
 
     # pylint: disable=unused-argument
@@ -93,14 +102,91 @@ class CouncilView(generics.ListAPIView):
     serializer_class = CouncilSerializer
 
 
-class CouncilDetailView(generics.RetrieveAPIView):
+class CouncilDetailView(generics.RetrieveUpdateAPIView):
     """
+    get:
     Get the Name, Description, Secretaries, Clubs and Image URL of a Council.
+
+    put:
+    Update the description of a Council (Full Update).
+
+    patch:
+    Update the description of a Council (Partial Update).
     """
     # pylint: disable=no-member
     queryset = Council.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = CouncilDetailSerializer
+
+
+class TagCreateView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowAnyClubHeadOrContact,)
+    serializer_class = TagCreateSerializer
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+        }
+
+    def post(self, request):
+        """
+        Create Tag for a Club - only Club POR Holders or\
+        any Workshop Contact are allowed to create a tag for the club.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tag = serializer.save()
+        serializer = TagSerializer(tag)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TagSearchView(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = TagSearchSerializer
+
+    def post(self, request):
+        """
+        Search a Tag by tag name
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tags = serializer.save()
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class WorkshopTagsUpdateView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowWorkshopHeadOrContact,)
+    serializer_class = WorkshopTagsUpdateSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Workshop.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'workshop': self.get_object()
+        }
+
+    # pylint: disable=unused-argument
+    def put(self, request, pk):
+        """
+        Update the tags of a workshop. Only the Club POR Holders\
+        or Workshop Contacts can perform this action.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 class WorkshopActiveAndPastView(generics.GenericAPIView):
@@ -185,7 +271,7 @@ class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
     delete:
     Delete the workshop. Only the Club POR Holders and Workshop Contacts can perform this action.
     """
-    permission_classes = (AllowWorkshopHeadAndContacts,)
+    permission_classes = (AllowWorkshopHeadOrContact,)
     serializer_class = WorkshopDetailSerializer
     # pylint: disable=no-member
     queryset = Workshop.objects.all()
@@ -208,7 +294,7 @@ class WorkshopContactsUpdateView(generics.GenericAPIView):
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'workshop':self.get_object()
+            'workshop': self.get_object()
         }
 
     # pylint: disable=unused-argument
@@ -239,7 +325,7 @@ class WorkshopInterestedToggleView(generics.GenericAPIView):
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'workshop':self.get_object()
+            'workshop': self.get_object()
         }
 
     # pylint: disable=unused-argument

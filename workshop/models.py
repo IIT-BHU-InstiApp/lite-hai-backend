@@ -1,5 +1,16 @@
+import re
 from django.db import models
+from django.core.exceptions import ValidationError
 from authentication.models import UserProfile
+
+def validate_kebab_case(string):
+    """
+    Validate whether the string is in kebab-case
+    """
+    pattern = re.compile(r"^[a-z0-9]+(\-[a-z0-9]+)*$")
+    if not pattern.match(string):
+        raise ValidationError(
+            "The string must contain only dashes or lowercase english alphabets or digits")
 
 
 class Council(models.Model):
@@ -12,6 +23,12 @@ class Council(models.Model):
                                           verbose_name='Joint General Secretary')
     small_image_url = models.URLField(null=True, blank=True)
     large_image_url = models.URLField(null=True, blank=True)
+    website_url = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(null=True, blank=True)
+    twitter_url = models.URLField(null=True, blank=True)
+    instagram_url = models.URLField(null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -28,9 +45,23 @@ class Club(models.Model):
     subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
     small_image_url = models.URLField(null=True, blank=True)
     large_image_url = models.URLField(null=True, blank=True)
+    website_url = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(null=True, blank=True)
+    twitter_url = models.URLField(null=True, blank=True)
+    instagram_url = models.URLField(null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+
+class Tag(models.Model):
+    tag_name = models.CharField(max_length=50, validators=[validate_kebab_case])
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='tags')
+
+    def __str__(self):
+        return f'{self.tag_name} - {self.club}'
 
 
 class Workshop(models.Model):
@@ -46,6 +77,7 @@ class Workshop(models.Model):
     interested_users = models.ManyToManyField(UserProfile, blank=True,
                                               related_name='interested_workshops')
     image_url = models.URLField(null=True, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_workshops')
 
     def __str__(self):
         return self.title

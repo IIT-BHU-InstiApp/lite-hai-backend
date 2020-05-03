@@ -1,6 +1,6 @@
 from datetime import date
 from rest_framework import serializers
-from .models import UserProfile, Club, Council, Workshop
+from .models import UserProfile, Club, Council, Workshop, Tag
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,11 +22,21 @@ class ClubSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
 
 
+class TagSerializer(serializers.ModelSerializer):
+    club = ClubSerializer()
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name', 'club')
+
+
 class WorkshopSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
+    tags = TagSerializer(read_only=True, many=True)
+
     class Meta:
         model = Workshop
-        fields = ('id', 'club', 'title', 'date', 'time',)
+        fields = ('id', 'club', 'title', 'date', 'time', 'tags')
 
 
 class WorkshopActiveAndPastSerializer(serializers.Serializer):
@@ -35,7 +45,7 @@ class WorkshopActiveAndPastSerializer(serializers.Serializer):
 
 
 class ClubDetailSerializer(serializers.ModelSerializer):
-    council = CouncilSerializer()
+    council = CouncilSerializer(read_only=True, required=False)
     secy = serializers.SerializerMethodField()
     joint_secy = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
@@ -77,9 +87,12 @@ class ClubDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Club
+        read_only_fields = ('name', 'council', 'small_image_url', 'large_image_url')
         fields = (
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
-            'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users')
+            'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users',
+            'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
+            'linkedin_url', 'youtube_url')
 
 
 class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
@@ -158,9 +171,63 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Council
+        read_only_fields = ('name', 'small_image_url', 'large_image_url')
         fields = (
             'id', 'name', 'description', 'gensec', 'joint_gensec',
-            'clubs', 'small_image_url', 'large_image_url')
+            'clubs', 'small_image_url', 'large_image_url', 'website_url', 'facebook_url',
+            'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
+
+
+class TagCreateSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        """
+        Validate whether the user can create the tag for the club,
+        and whether the tag already exists
+        """
+        tag_name = attrs['tag_name']
+        club = attrs['club']
+        request = self.context['request']
+        profile = UserProfile.objects.get(user=request.user)
+        if (club not in profile.get_club_privileges() and
+                club not in profile.get_workshop_privileges().values_list('club', flat=True)):
+            raise serializers.ValidationError("You are not allowed to create tag for this club")
+        if Tag.objects.filter(tag_name=tag_name, club=club):
+            raise serializers.ValidationError("The tag already exists for this club")
+        return attrs
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        tag = Tag.objects.create(tag_name=data['tag_name'], club=data['club'])
+        return tag
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name', 'club')
+
+
+class TagSearchSerializer(serializers.ModelSerializer):
+    def save(self, **kwargs):
+        data = self.validated_data
+        tag_name = data['tag_name']
+        club = data['club']
+        tags = Tag.objects.filter(tag_name__icontains=tag_name, club=club)
+        return tags
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name', 'club')
+
+
+class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
+    def save(self, **kwargs):
+        data = self.validated_data
+        # pylint: disable=no-member
+        workshop = self.context['workshop']
+        workshop.tags.set(data['tags'])
+
+    class Meta:
+        model = Workshop
+        fields = ('tags',)
 
 
 class WorkshopCreateSerializer(serializers.ModelSerializer):
@@ -176,6 +243,18 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
                 "You are not authorized to create workshops for this club")
         return club
 
+    def validate(self, attrs):
+        """
+        Validates whether the tags belong to the club for which the workshop is created
+        """
+        club = attrs['club']
+        tags = attrs.get('tags', [])
+        for tag in tags:
+            if tag.club != club:
+                raise serializers.ValidationError(
+                    f"The tag {tag.tag_name} does not belong to this club")
+        return attrs
+
     def save(self, **kwargs):
         data = self.validated_data
         # pylint: disable=no-member
@@ -186,6 +265,7 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
             image_url=data.get('image_url', '')
         )
         workshop.contacts.set(data.get('contacts', []))
+        workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
 
@@ -193,7 +273,7 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts', 'image_url')
+            'location', 'audience', 'resources', 'contacts', 'image_url', 'tags')
 
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
@@ -204,6 +284,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
     interested_users = serializers.SerializerMethodField()
     is_workshop_contact = serializers.SerializerMethodField()
     is_por_holder = serializers.SerializerMethodField()
+    tags = TagSerializer(read_only=True, many=True)
 
     def get_is_interested(self, obj):
         """
@@ -259,11 +340,11 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workshop
-        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users')
+        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'tags')
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
-            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder')
+            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags')
 
 
 class WorkshopContactsUpdateSerializer(serializers.ModelSerializer):
