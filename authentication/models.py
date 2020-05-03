@@ -31,3 +31,10 @@ class UserProfile(models.Model):
         for council in council_joint_gensec.all():
             clubs = clubs | council.clubs.all()
         return clubs
+
+    def get_workshop_privileges(self):
+        """
+        Get the privileges of the user for modifying workshops
+        """
+        workshops = self.organized_workshops.all()
+        return workshops
