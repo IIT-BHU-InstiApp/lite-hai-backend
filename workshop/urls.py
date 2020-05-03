@@ -4,7 +4,8 @@ from .views import (
     ClubSubscriptionToggleView, TagCreateView, TagSearchView, WorkshopTagsUpdateView,
     WorkshopActiveAndPastView, WorkshopPastView, WorkshopCreateView, WorkshopDetailView,
     WorkshopActiveView, WorkshopContactsUpdateView, WorkshopInterestedToggleView,
-    WorkshopInterestedView, WorkshopSearchView, WorkshopDateSearchView)
+    WorkshopInterestedView, WorkshopSearchView, WorkshopDateSearchView, WorkshopResourceCreateView,
+    WorkshopResourceView)
 
 urlpatterns = [
     path('councils/', CouncilView.as_view()),
@@ -22,7 +23,9 @@ urlpatterns = [
     path('workshops/<int:pk>/update-tags/', WorkshopTagsUpdateView.as_view()),
     path('workshops/<int:pk>/update-contacts/', WorkshopContactsUpdateView.as_view()),
     path('workshops/<int:pk>/toggle-interested/', WorkshopInterestedToggleView.as_view()),
+    path('workshops/<int:pk>/resources/', WorkshopResourceCreateView.as_view()),
     path('workshops/interested/', WorkshopInterestedView.as_view()),
     path('workshops/search/', WorkshopSearchView.as_view()),
     path('workshops/search/date/', WorkshopDateSearchView.as_view()),
+    path('resources/<int:pk>/', WorkshopResourceView.as_view()),
 ]

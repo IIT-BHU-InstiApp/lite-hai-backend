@@ -1,6 +1,6 @@
 from datetime import date
 from rest_framework import serializers
-from .models import UserProfile, Club, Council, Workshop, Tag
+from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -273,13 +273,33 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts', 'image_url', 'tags')
+            'location', 'audience', 'resources', 'contacts', 'image_url', 'tags',
+            'link')
 
+
+class WorkshopResourceSerializer(serializers.ModelSerializer):
+    # pylint: disable=unused-argument
+    def add_resource(self, **kwargs):
+        """
+        Handles the creation of a resource
+        """
+        data = self.validated_data
+        # pylint: disable=no-member
+        return WorkshopResource.objects.create(
+            name=data['name'], link=data['link'], resource_type=data['resource_type'],
+            workshop=self.context['workshop'])
+
+    class Meta:
+        model = WorkshopResource
+        fields = (
+            'id', 'name', 'link', 'resource_type'
+        )
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
     time = serializers.TimeField(allow_null=True, default=None)
     club = ClubSerializer(read_only=True, required=False)
     contacts = UserProfileSerializer(many=True, read_only=True)
+    resources = serializers.SerializerMethodField()
     is_interested = serializers.SerializerMethodField()
     interested_users = serializers.SerializerMethodField()
     is_workshop_contact = serializers.SerializerMethodField()
@@ -338,13 +358,21 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
 
         return False
 
+    def get_resources(self, obj):
+        """
+        All the resources for a workshop
+        """
+        return WorkshopResourceSerializer(obj.resources, many=True).data
+
     class Meta:
         model = Workshop
-        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'tags')
+        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'resources',
+                            'tags')
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time',
             'location', 'audience', 'resources', 'contacts', 'image_url',
-            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags')
+            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags',
+            'link')
 
 
 class WorkshopContactsUpdateSerializer(serializers.ModelSerializer):

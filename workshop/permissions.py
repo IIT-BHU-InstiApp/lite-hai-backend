@@ -6,8 +6,6 @@ class AllowWorkshopHead(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
         if request.user.is_anonymous:
             return False
         # pylint: disable=no-member
@@ -23,8 +21,6 @@ class AllowWorkshopHeadOrContact(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
         if request.user.is_anonymous:
             return False
         # pylint: disable=no-member
@@ -59,5 +55,21 @@ class AllowAnyClubHeadOrContact(permissions.BasePermission):
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         if profile.get_club_privileges() or profile.get_workshop_privileges():
+            return True
+        return False
+
+class AllowWorkshopHeadOrContactForResource(permissions.BasePermission):
+    message = "You are not authorized to perform this task"
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_anonymous:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        print(profile)
+        # pylint: disable=no-member
+        club = obj.workshop.club
+        if (club in profile.get_club_privileges()
+                or obj.workshop in profile.organized_workshops.all()):
             return True
         return False
