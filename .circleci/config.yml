@@ -1,7 +1,7 @@
 anchor_for_job_defaults: &job_defaults
   working_directory: /home/circleci/workshops-app-backend
   docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.8
 
 version: 2
 jobs:
@@ -9,22 +9,24 @@ jobs:
     <<: *job_defaults
     steps:
       - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install -r requirements.txt
+            sudo pip install pipenv
+            pipenv install
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - "venv"
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.8/site-packages"
       - run:
           name: Running tests
           command: |
-            . venv/bin/activate
-            pylint --load-plugins pylint_django team workshops workshop authentication
+            pipenv run pylint --load-plugins pylint_django team workshops workshop authentication
 
 workflows:
   version: 2
