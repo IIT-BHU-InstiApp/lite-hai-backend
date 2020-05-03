@@ -71,6 +71,8 @@ class Workshop(models.Model):
     date = models.DateField()
     time = models.TimeField(blank=True, null=True)
     location = models.CharField(blank=True, max_length=50)
+    latitude = models.DecimalField(blank=True, null=True, max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(blank=True, null=True, max_digits=9, decimal_places=6)
     audience = models.CharField(blank=True, max_length=50)
     resources = models.TextField(null=True, blank=True)
     contacts = models.ManyToManyField(UserProfile, blank=True, related_name='organized_workshops')

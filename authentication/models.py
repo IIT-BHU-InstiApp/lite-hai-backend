@@ -15,6 +15,16 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.name
 
+    def get_council_privileges(self):
+        """
+        Get the privileges of the user for managing Council details
+        Councils - General Secretary / Joint General Secretary
+        """
+        # pylint: disable=no-member
+        councils = self.council_gensec.all()
+        councils = councils | self.council_joint_gensec.all()
+        return councils
+
     def get_club_privileges(self):
         """
         Get the privileges of the user for creating workshops
