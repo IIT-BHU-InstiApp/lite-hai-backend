@@ -15,6 +15,7 @@ firebase-admin = "*"
 pyaescrypt = "*"
 python-decouple = "*"
 drf-yasg = "*"
+pylint-django = "*"
 
 [requires]
 python_version = "3.8"

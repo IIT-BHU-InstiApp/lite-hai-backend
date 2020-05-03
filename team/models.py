@@ -13,7 +13,7 @@ class Role(models.Model):
     role = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.role
+        return '%s' % self.role
 
 
 class TeamMember(models.Model):
@@ -23,10 +23,10 @@ class TeamMember(models.Model):
     github_username = models.CharField(max_length=50)
     github_image_url = models.URLField(null=True, blank=True, editable=False)
 
-    # pylint: disable=arguments-differ
+    # pylint: disable=arguments-differ, signature-differs
     def save(self, *args, **kwargs):
         self.github_image_url = get_github_profile_pic_url(self.github_username)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return '%s' % self.name
