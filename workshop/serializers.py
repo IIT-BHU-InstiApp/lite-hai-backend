@@ -50,6 +50,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
     joint_secy = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
     subscribed_users = serializers.SerializerMethodField()
+    is_por_holder = serializers.SerializerMethodField()
 
     def get_secy(self, obj):
         """
@@ -84,6 +85,19 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         """
         return obj.subscribed_users.count()
 
+    def get_is_por_holder(self, obj):
+        """
+        Returns True if the user is the POR Holder of the Club or Club's Council
+        """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+        if obj in profile.get_club_privileges():
+            return True
+        return False
+
 
     class Meta:
         model = Club
@@ -91,7 +105,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'description', 'council', 'secy', 'joint_secy',
             'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users',
-            'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
+            'is_por_holder', 'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
             'linkedin_url', 'youtube_url')
 
 
@@ -145,6 +159,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
     gensec = serializers.SerializerMethodField()
     joint_gensec = serializers.SerializerMethodField()
     clubs = serializers.SerializerMethodField()
+    is_por_holder = serializers.SerializerMethodField()
 
     def get_gensec(self, obj):
         """
@@ -169,13 +184,26 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
         serializer = ClubSerializer(obj.clubs, many=True)
         return serializer.data
 
+    def get_is_por_holder(self, obj):
+        """
+        Returns True if the user is the POR Holder of the Club or Club's Council
+        """
+        user = self.context['request'].user
+        if user.is_anonymous:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+        if obj in profile.get_council_privileges():
+            return True
+        return False
+
     class Meta:
         model = Council
         read_only_fields = ('name', 'small_image_url', 'large_image_url')
         fields = (
             'id', 'name', 'description', 'gensec', 'joint_gensec',
-            'clubs', 'small_image_url', 'large_image_url', 'website_url', 'facebook_url',
-            'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
+            'clubs', 'small_image_url', 'large_image_url', 'is_por_holder', 'website_url',
+            'facebook_url', 'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
 
 
 class TagCreateSerializer(serializers.ModelSerializer):
@@ -261,6 +289,7 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         workshop = Workshop.objects.create(
             title=data['title'], description=data.get('description', ''), club=data['club'],
             date=data['date'], time=data.get('time', None), location=data.get('location', ''),
+            latitude=data.get('latitude', None), longitude=data.get('longitude', None),
             audience=data.get('audience', ''), resources=data.get('resources', ''),
             image_url=data.get('image_url', '')
         )
@@ -272,8 +301,8 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workshop
         fields = (
-            'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts', 'image_url', 'tags')
+            'id', 'title', 'description', 'club', 'date', 'time', 'location', 'latitude',
+            'longitude', 'audience', 'resources', 'contacts', 'image_url', 'tags')
 
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
@@ -342,8 +371,8 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         model = Workshop
         read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'tags')
         fields = (
-            'id', 'title', 'description', 'club', 'date', 'time',
-            'location', 'audience', 'resources', 'contacts', 'image_url',
+            'id', 'title', 'description', 'club', 'date', 'time', 'location',
+            'latitude', 'longitude', 'audience', 'resources', 'contacts', 'image_url',
             'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags')
 
 
