@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from authentication.models import UserProfile
 from .models import Workshop, Council, Club
 from .serializers import (
-    CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer,
+    CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
@@ -36,6 +36,22 @@ class ClubDetailView(generics.RetrieveAPIView):
             'view': self,
             'club':self.get_object()
         }
+
+
+class ClubDetailWorkshopView(generics.RetrieveAPIView):
+    """
+    Get the Name, Description, Council, Secretaries, Workshops, Image URL\
+    and Subscribed Users details of a Club.
+    """
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = ClubDetailWorkshopSerializer
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
 
 
 class ClubSubscriptionToggleView(generics.GenericAPIView):
