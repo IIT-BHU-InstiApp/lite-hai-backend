@@ -27,9 +27,32 @@ jobs:
           name: Running tests
           command: |
             pipenv run pylint --load-plugins pylint_django team workshops workshop authentication
+  unit-tests:
+    <<: *job_defaults
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.8/site-packages
+      - restore_cache:
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          command: |
+            sudo pip install pipenv
+            pipenv install
+      - save_cache:
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.8/site-packages"
+      - run:
+          name: Running tests
+          command: |
+            pipenv run python manage.py test
 
 workflows:
   version: 2
   ci_tests:
     jobs:
       - lint-checks
+      - unit-tests

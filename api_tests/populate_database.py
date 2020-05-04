@@ -1,4 +1,5 @@
 from datetime import datetime
+from rest_framework.authtoken.models import Token
 from authentication.models import UserProfile, User
 from team.models import Role, TeamMember
 from workshop.models import Council, Club, Tag, Workshop
@@ -92,6 +93,11 @@ def populate_database():
     secy_user = User.objects.create_user(username=SECY_USERNAME, email=SECY_EMAIL)
     contact_user = User.objects.create_user(username=CONTACT_USERNAME, email=CONTACT_EMAIL)
     general_user = User.objects.create_user(username=GENERAL_USERNAME, email=GENERAL_EMAIL)
+
+    # Generate Tokens
+    Token.objects.get_or_create(user=secy_user)
+    Token.objects.get_or_create(user=contact_user)
+    Token.objects.get_or_create(user=general_user)
 
     # Create UserProfiles
     # pylint: disable=no-member
