@@ -65,8 +65,9 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(WorkshopResource)
 class WorkshopResourceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'link')
+    list_display = ('name', 'link', 'workshop', 'resource_type')
     search_fields = ('name',)
+    list_filter = ('resource_type',)
 
 
 @admin.register(Workshop)
