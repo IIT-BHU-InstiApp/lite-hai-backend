@@ -73,7 +73,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         Get if the user has subscribed the club
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return None
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -90,7 +90,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         Returns True if the user is the POR Holder of the Club or Club's Council
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -189,7 +189,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
         Returns True if the user is the POR Holder of the Club or Club's Council
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -341,7 +341,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         """
         # pylint: disable=no-member
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return None
         profile = UserProfile.objects.get(user=user)
         return profile in obj.interested_users.all()
@@ -357,7 +357,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         If the user making the request is a workshop contact
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -368,7 +368,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         If the user is a por holder of the club or council
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)

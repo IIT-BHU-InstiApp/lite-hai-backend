@@ -6,7 +6,7 @@ class AllowWorkshopHead(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
+        if not request.user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
@@ -21,7 +21,9 @@ class AllowWorkshopHeadOrContact(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
@@ -37,7 +39,7 @@ class AllowAnyClubHead(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_permission(self, request, view):
-        if request.user.is_anonymous:
+        if not request.user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
@@ -50,7 +52,7 @@ class AllowAnyClubHeadOrContact(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_permission(self, request, view):
-        if request.user.is_anonymous:
+        if not request.user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
@@ -62,7 +64,9 @@ class AllowWorkshopHeadOrContactForResource(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_anonymous:
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
