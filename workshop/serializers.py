@@ -1,6 +1,6 @@
 from datetime import date
 from rest_framework import serializers
-from .models import UserProfile, Club, Council, Workshop, Tag
+from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,7 +73,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         Get if the user has subscribed the club
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return None
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -90,7 +90,7 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         Returns True if the user is the POR Holder of the Club or Club's Council
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -189,7 +189,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
         Returns True if the user is the POR Holder of the Club or Club's Council
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -302,13 +302,33 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         model = Workshop
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time', 'location', 'latitude',
-            'longitude', 'audience', 'resources', 'contacts', 'image_url', 'tags')
+            'longitude', 'audience', 'resources', 'contacts', 'image_url', 'tags',
+            'link')
 
+
+class WorkshopResourceSerializer(serializers.ModelSerializer):
+    # pylint: disable=unused-argument
+    def add_resource(self, **kwargs):
+        """
+        Handles the creation of a resource
+        """
+        data = self.validated_data
+        # pylint: disable=no-member
+        return WorkshopResource.objects.create(
+            name=data['name'], link=data['link'], resource_type=data['resource_type'],
+            workshop=self.context['workshop'])
+
+    class Meta:
+        model = WorkshopResource
+        fields = (
+            'id', 'name', 'link', 'resource_type'
+        )
 
 class WorkshopDetailSerializer(serializers.ModelSerializer):
     time = serializers.TimeField(allow_null=True, default=None)
     club = ClubSerializer(read_only=True, required=False)
     contacts = UserProfileSerializer(many=True, read_only=True)
+    resources = serializers.SerializerMethodField()
     is_interested = serializers.SerializerMethodField()
     interested_users = serializers.SerializerMethodField()
     is_workshop_contact = serializers.SerializerMethodField()
@@ -321,7 +341,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         """
         # pylint: disable=no-member
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return None
         profile = UserProfile.objects.get(user=user)
         return profile in obj.interested_users.all()
@@ -337,7 +357,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         If the user making the request is a workshop contact
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -348,7 +368,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         If the user is a por holder of the club or council
         """
         user = self.context['request'].user
-        if user.is_anonymous:
+        if not user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
@@ -367,13 +387,21 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
 
         return False
 
+    def get_resources(self, obj):
+        """
+        All the resources for a workshop
+        """
+        return WorkshopResourceSerializer(obj.resources, many=True).data
+
     class Meta:
         model = Workshop
-        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'tags')
+        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'resources',
+                            'tags')
         fields = (
             'id', 'title', 'description', 'club', 'date', 'time', 'location',
             'latitude', 'longitude', 'audience', 'resources', 'contacts', 'image_url',
-            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags')
+            'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags',
+            'link')
 
 
 class WorkshopContactsUpdateSerializer(serializers.ModelSerializer):

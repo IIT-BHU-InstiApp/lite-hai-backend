@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Council, Club, Tag, Workshop
+from .models import Council, Club, Tag, WorkshopResource, Workshop
 
 @admin.register(Council)
 class CouncilAdmin(admin.ModelAdmin):
@@ -55,11 +55,20 @@ class ClubAdmin(admin.ModelAdmin):
     get_joint_secy.short_description = 'Joint Secretary'
     get_subscribed_users.short_description = 'Subscribed Users'
 
+
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('tag_name', 'club')
     search_fields = ('tag_name',)
     list_filter = ('club',)
+
+
+@admin.register(WorkshopResource)
+class WorkshopResourceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'link', 'workshop', 'resource_type')
+    search_fields = ('name',)
+    list_filter = ('resource_type',)
+
 
 @admin.register(Workshop)
 class WorkshopAdmin(admin.ModelAdmin):

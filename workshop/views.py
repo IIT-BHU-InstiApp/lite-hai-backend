@@ -4,16 +4,17 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from authentication.models import UserProfile
-from .models import Workshop, Council, Club
+from .models import Workshop, Council, Club, WorkshopResource
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, TagCreateSerializer, TagSearchSerializer,
-    TagSerializer, WorkshopTagsUpdateSerializer)
+    TagSerializer, WorkshopTagsUpdateSerializer, WorkshopResourceSerializer)
 from .permissions import (
-    AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadOrContact, AllowAnyClubHeadOrContact)
+    AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadOrContact, AllowAnyClubHeadOrContact,
+    AllowWorkshopHeadOrContactForResource)
 
 
 class ClubDetailView(generics.RetrieveUpdateAPIView):
@@ -386,3 +387,58 @@ class WorkshopDateSearchView(generics.GenericAPIView):
         workshops = serializer.save()
         serializer = WorkshopSerializer(workshops, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class WorkshopResourceCreateView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowWorkshopHeadOrContact,)
+    serializer_class = WorkshopResourceSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Workshop.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'workshop': self.get_object()
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
+        """
+        Add a resource to a workshop with given id.\
+        Only Club POR Holder or Workshop Contact can perform this action.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        resource = serializer.add_resource()
+        serialized_response = WorkshopResourceSerializer(instance=resource)
+        return Response(serialized_response.data, status=status.HTTP_200_OK)
+
+
+class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get:
+    Get the resource of a workshop, with particular resource id.
+
+    put:
+    Update the resource of a workshop, with particular resource id..
+    Only the Club POR Holders and Workshop Contacts can update this. (Full Update)
+
+    patch:
+    Update the resource of a workshop, with particular resource id..
+    Only the Club POR Holders and Workshop Contacts can update this. (Partial Update)
+
+    delete:
+    Delete the workshop resource.\
+    Only the Club POR Holders and Workshop Contacts can perform this action.
+    """
+    permission_classes = (AllowWorkshopHeadOrContactForResource, )
+    serializer_class = WorkshopResourceSerializer
+    # pylint: disable=no-member
+    queryset = WorkshopResource.objects.all()

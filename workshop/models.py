@@ -31,7 +31,7 @@ class Council(models.Model):
     youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return '%s' % self.name
 
 
 class Club(models.Model):
@@ -53,7 +53,7 @@ class Club(models.Model):
     youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return '%s' % self.name
 
 
 class Tag(models.Model):
@@ -74,12 +74,24 @@ class Workshop(models.Model):
     latitude = models.DecimalField(blank=True, null=True, max_digits=9, decimal_places=6)
     longitude = models.DecimalField(blank=True, null=True, max_digits=9, decimal_places=6)
     audience = models.CharField(blank=True, max_length=50)
-    resources = models.TextField(null=True, blank=True)
     contacts = models.ManyToManyField(UserProfile, blank=True, related_name='organized_workshops')
     interested_users = models.ManyToManyField(UserProfile, blank=True,
                                               related_name='interested_workshops')
     image_url = models.URLField(null=True, blank=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='tagged_workshops')
+    link = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return self.title
+        return '%s' % self.title
+
+
+class WorkshopResource(models.Model):
+    RESOURCE_TYPES = [
+        ('Prerequisite', 'Prerequisite'),
+        ('Material', 'Material')
+    ]
+    name = models.CharField(max_length=50)
+    link = models.URLField()
+    workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE,
+                                 related_name='resources')
+    resource_type = models.CharField(choices=RESOURCE_TYPES, max_length=20)
