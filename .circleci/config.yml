@@ -54,7 +54,7 @@ jobs:
       - run:
           name: Running tests
           command: |
-            pipenv run python manage.py test
+            pipenv run python manage.py test --settings=api_tests.settings
 
 workflows:
   version: 2
