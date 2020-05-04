@@ -435,7 +435,8 @@ class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
     Only the Club POR Holders and Workshop Contacts can update this. (Partial Update)
 
     delete:
-    Delete the workshop resource. Only the Club POR Holders and Workshop Contacts can perform this action.
+    Delete the workshop resource.\
+    Only the Club POR Holders and Workshop Contacts can perform this action.
     """
     permission_classes = (AllowWorkshopHeadOrContactForResource, )
     serializer_class = WorkshopResourceSerializer
