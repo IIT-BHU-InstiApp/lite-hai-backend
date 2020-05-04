@@ -2,6 +2,10 @@ anchor_for_job_defaults: &job_defaults
   working_directory: /home/circleci/workshops-app-backend
   docker:
       - image: circleci/python:3.8
+      - image: mdillon/postgis:9.6
+  environment:
+      POSTGRES_USER: circleci
+      POSTGRES_DB: circle_test
 
 version: 2
 jobs:
@@ -48,7 +52,7 @@ jobs:
       - run:
           name: Running tests
           command: |
-            pipenv run python manage.py test
+            pipenv run python manage.py test --settings=api_tests.settings
 
 workflows:
   version: 2
