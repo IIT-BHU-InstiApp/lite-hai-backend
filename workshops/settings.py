@@ -158,6 +158,8 @@ STATIC_URL = '/static/'
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
+
+# This was required for circleci tests to run
 del DATABASES['default']['OPTIONS']['sslmode']
 
 # Firebase Credentials
