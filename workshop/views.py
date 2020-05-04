@@ -389,7 +389,7 @@ class WorkshopDateSearchView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class WorkshopResourceCreateView(generics.GenericAPIView):
-    permission_classes = (permissions.IsAuthenticated, AllowAnyClubHeadOrContact,)
+    permission_classes = (permissions.IsAuthenticated, AllowWorkshopHeadOrContact,)
     serializer_class = WorkshopResourceSerializer
     lookup_field = 'pk'
     # pylint: disable=no-member
@@ -411,7 +411,8 @@ class WorkshopResourceCreateView(generics.GenericAPIView):
     # pylint: disable=unused-argument
     def post(self, request, pk):
         """
-        Handles the post request
+        Add a resource to a workshop with given id.\
+        Only Club POR Holder or Workshop Contact can perform this action.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -421,7 +422,22 @@ class WorkshopResourceCreateView(generics.GenericAPIView):
 
 
 class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, AllowWorkshopHeadOrContactForResource, )
+    """
+    get:
+    Get the resource of a workshop, with particular resource id.
+
+    put:
+    Update the resource of a workshop, with particular resource id..
+    Only the Club POR Holders and Workshop Contacts can update this. (Full Update)
+
+    patch:
+    Update the resource of a workshop, with particular resource id..
+    Only the Club POR Holders and Workshop Contacts can update this. (Partial Update)
+
+    delete:
+    Delete the workshop resource. Only the Club POR Holders and Workshop Contacts can perform this action.
+    """
+    permission_classes = (AllowWorkshopHeadOrContactForResource, )
     serializer_class = WorkshopResourceSerializer
     # pylint: disable=no-member
     queryset = WorkshopResource.objects.all()
