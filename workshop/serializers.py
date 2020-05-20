@@ -1,5 +1,6 @@
 from datetime import date
 from rest_framework import serializers
+from drf_yasg.utils import swagger_serializer_method
 from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -52,25 +53,29 @@ class ClubDetailSerializer(serializers.ModelSerializer):
     subscribed_users = serializers.SerializerMethodField()
     is_por_holder = serializers.SerializerMethodField()
 
+    # @swagger_serializer_method(serializer_or_field=UserProfileSerializer)
     def get_secy(self, obj):
         """
-        Get the the value of secy field
+        Secretary of the Club
         """
         if obj.secy is None:
             return None
         serializer = UserProfileSerializer(obj.secy)
         return serializer.data
 
+    @swagger_serializer_method(serializer_or_field=UserProfileSerializer(many=True))
     def get_joint_secy(self, obj):
         """
-        Get the the value of joint_secy field
+        Joint Secretary of the Club
         """
         serializer = UserProfileSerializer(obj.joint_secy, many=True)
         return serializer.data
 
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_subscribed(self, obj):
         """
-        Get if the user has subscribed the club
+        true, if the user has subscribed the club, otherwise false
+        null, in case of anonymous login
         """
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -79,15 +84,17 @@ class ClubDetailSerializer(serializers.ModelSerializer):
         profile = UserProfile.objects.get(user=user)
         return profile in obj.subscribed_users.all()
 
+    @swagger_serializer_method(serializer_or_field=serializers.IntegerField)
     def get_subscribed_users(self, obj):
         """
-        Get the total number of subscribed users
+        Total number of users subscribed to the club
         """
         return obj.subscribed_users.count()
 
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_por_holder(self, obj):
         """
-        Returns True if the user is the POR Holder of the Club or Club's Council
+        true, if the user is the POR Holder of the Club or Club's Council, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -113,9 +120,10 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
     active_workshops = serializers.SerializerMethodField()
     past_workshops = serializers.SerializerMethodField()
 
+    @swagger_serializer_method(serializer_or_field=WorkshopSerializer(many=True))
     def get_active_workshops(self, obj):
         """
-        Get the the value of active workshops field
+        Active Workshops of the Club
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
@@ -123,9 +131,10 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
         serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
+    @swagger_serializer_method(serializer_or_field=WorkshopSerializer(many=True))
     def get_past_workshops(self, obj):
         """
-        Get the the value of past_workshops field
+        Past Workshops of the Club
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
@@ -161,32 +170,36 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
     clubs = serializers.SerializerMethodField()
     is_por_holder = serializers.SerializerMethodField()
 
+    @swagger_serializer_method(serializer_or_field=UserProfileSerializer)
     def get_gensec(self, obj):
         """
-        Get the the value of secy field
+        General Secretary of the Council
         """
         if obj.gensec is None:
             return None
         serializer = UserProfileSerializer(obj.gensec)
         return serializer.data
 
+    @swagger_serializer_method(serializer_or_field=UserProfileSerializer(many=True))
     def get_joint_gensec(self, obj):
         """
-        Get the the value of joint_secy field
+        Joint General Secretary of the Council
         """
         serializer = UserProfileSerializer(obj.joint_gensec, many=True)
         return serializer.data
 
+    @swagger_serializer_method(serializer_or_field=ClubSerializer(many=True))
     def get_clubs(self, obj):
         """
-        Get the the value of clubs field
+        Clubs present in the Council
         """
         serializer = ClubSerializer(obj.clubs, many=True)
         return serializer.data
 
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_por_holder(self, obj):
         """
-        Returns True if the user is the POR Holder of the Club or Club's Council
+        true, if the user is the POR Holder of the Council, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -335,9 +348,11 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
     is_por_holder = serializers.SerializerMethodField()
     tags = TagSerializer(read_only=True, many=True)
 
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_interested(self, obj):
         """
-        Get if the user is interested for the workshop
+        true, if the user is interested for the workshop, otherwise false
+        null, in case of anonymous login
         """
         # pylint: disable=no-member
         user = self.context['request'].user
@@ -346,15 +361,17 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         profile = UserProfile.objects.get(user=user)
         return profile in obj.interested_users.all()
 
+    @swagger_serializer_method(serializer_or_field=serializers.IntegerField)
     def get_interested_users(self, obj):
         """
-        Get the total number of interested users for the workshop
+        Total number of users interested for the workshop
         """
         return obj.interested_users.count()
 
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_workshop_contact(self, obj):
         """
-        If the user making the request is a workshop contact
+        true, if the user making the request is a workshop contact, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -363,9 +380,10 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         profile = UserProfile.objects.get(user=user)
         return profile in obj.contacts.all()
 
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_por_holder(self, obj):
         """
-        If the user is a por holder of the club or council
+        true, if the user is a POR holder of the Club or Club's Council, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -387,9 +405,10 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
 
         return False
 
+    @swagger_serializer_method(serializer_or_field=WorkshopResourceSerializer(many=True))
     def get_resources(self, obj):
         """
-        All the resources for a workshop
+        All the resources for the workshop
         """
         return WorkshopResourceSerializer(obj.resources, many=True).data
 

@@ -1,5 +1,6 @@
 from django.core.validators import RegexValidator
 from rest_framework import serializers
+from drf_yasg.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
 from .models import UserProfile, User
@@ -63,16 +64,18 @@ class ProfileSerializer(serializers.ModelSerializer):
     subscriptions = serializers.SerializerMethodField()
     club_privileges = serializers.SerializerMethodField()
 
+    @swagger_serializer_method(serializer_or_field=ClubSerializer(many=True))
     def get_subscriptions(self, obj):
         """
-        Get the user subscriptions for the clubs.
+        User subscriptions for the clubs.
         """
         clubs = obj.subscriptions.all()
         return ClubSerializer(clubs, many=True).data
 
+    @swagger_serializer_method(serializer_or_field=ClubSerializer(many=True))
     def get_club_privileges(self, obj):
         """
-        Get the privileges of the user for creating workshops.
+        Privileges of the user for creating workshops.
         Clubs - Secretary / Joint Secretary,
         Councils - General Secretary / Joint General Secretary.
         """

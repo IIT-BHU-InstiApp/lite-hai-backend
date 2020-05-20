@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_yasg.utils import swagger_serializer_method
 from .models import TeamMember, Role
 
 class TeamMemberSerializer(serializers.ModelSerializer):
@@ -10,9 +11,10 @@ class TeamMemberSerializer(serializers.ModelSerializer):
 class RoleSerializer(serializers.ModelSerializer):
     team_members = serializers.SerializerMethodField()
 
+    @swagger_serializer_method(serializer_or_field=TeamMemberSerializer(many=True))
     def get_team_members(self, obj):
         """
-        Get the team members for a particular role
+        Team members for a particular role
         """
         serializer = TeamMemberSerializer(obj.team_members, many=True)
         return serializer.data
