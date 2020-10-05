@@ -14,7 +14,7 @@ from .serializers import (
     TagSerializer, WorkshopTagsUpdateSerializer, WorkshopResourceSerializer)
 from .permissions import (
     AllowAnyClubHead, AllowWorkshopHead, AllowWorkshopHeadOrContact, AllowAnyClubHeadOrContact,
-    AllowWorkshopHeadOrContactForResource)
+    AllowWorkshopHeadOrContactForResource, AllowCouncilHead)
 
 
 class ClubDetailView(generics.RetrieveUpdateAPIView):
@@ -116,7 +116,7 @@ class CouncilDetailView(generics.RetrieveUpdateAPIView):
     """
     # pylint: disable=no-member
     queryset = Council.objects.all()
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.AllowAny, AllowCouncilHead)
     serializer_class = CouncilDetailSerializer
 
 
