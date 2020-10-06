@@ -1,6 +1,5 @@
 from django.core.validators import RegexValidator
-from rest_framework.exceptions import PermissionDenied
-from rest_framework import serializers, status
+from rest_framework import serializers
 from drf_yasg.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
