@@ -1,7 +1,8 @@
 from django.core.validators import RegexValidator
-from rest_framework import serializers
+from rest_framework import serializers, status
 from drf_yasg.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
+from utils.exception import CustomException
 from .utils import Student, FirebaseAPI
 from .models import UserProfile, User
 
@@ -25,7 +26,7 @@ class LoginSerializer(serializers.Serializer):
         try:
             return FirebaseAPI.verify_id_token(access_token)
         except:
-            raise serializers.ValidationError("Invalid Firebase Token")
+            raise CustomException("Invalid Firebase token!")
 
     def validate(self, attrs):
         id_token = attrs.get('id_token', None)
@@ -40,8 +41,9 @@ class LoginSerializer(serializers.Serializer):
         else:
             email = jwt['email']
             if not Student.verify_email(email):
-                raise serializers.ValidationError(
-                    "Please login using @itbhu.ac.in student email id only")
+                raise CustomException(
+                    "Please login using @itbhu.ac.in student email id only",
+                    )
             name = jwt['name']
             user = User()
             user.username = jwt['uid']
@@ -111,7 +113,7 @@ class ProfileSearchSerializer(serializers.Serializer):
         Validate the search_string field, length must be greater than 3.
         """
         if len(search_string) < 3:
-            raise serializers.ValidationError("The length of search field must be atleast 3")
+            raise CustomException("The length of search field must be atleast 3")
         return search_string
 
     def save(self, **kwargs):
