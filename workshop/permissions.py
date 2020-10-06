@@ -78,17 +78,32 @@ class AllowWorkshopHeadOrContactForResource(permissions.BasePermission):
             return True
         return False
 
-
-class AllowCouncilHead(permissions.BasePermission):
+class AllowParticularClubHead(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
-    def has_permission(self, request, view):
+    def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
         if not request.user.is_authenticated:
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        if profile.get_council_privileges():
+        club = obj
+        if club in profile.get_club_privileges:
+            return True
+        return False
+
+class AllowParticularCouncilHead(permissions.BasePermission):
+    message = "You are not authorized to perform this task"
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        council = obj
+        if council in profile.get_council_privileges:
             return True
         return False
