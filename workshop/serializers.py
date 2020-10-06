@@ -1,7 +1,7 @@
 from datetime import date
 from rest_framework import serializers, status
+from rest_framework.exceptions import PermissionDenied
 from drf_yasg.utils import swagger_serializer_method
-from utils.exception import CustomException
 from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -232,9 +232,9 @@ class TagCreateSerializer(serializers.ModelSerializer):
         profile = UserProfile.objects.get(user=request.user)
         if (club not in profile.get_club_privileges() and
                 club not in profile.get_workshop_privileges().values_list('club', flat=True)):
-            raise CustomException("You are not allowed to create tag for this club", status_code=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied("You are not allowed to create tag for this club")
         if Tag.objects.filter(tag_name=tag_name, club=club):
-            raise CustomException("The tag already exists for this club")
+            raise serializers.ValidationError("The tag already exists for this club")
         return attrs
 
     def save(self, **kwargs):
@@ -281,8 +281,8 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         if club not in profile.get_club_privileges():
-            raise CustomException(
-                "You are not authorized to create workshops for this club", status_code=status.HTTP_403_FORBIDDEN)
+            raise PermissionDenied(
+                "You are not authorized to create workshops for this club")
         return club
 
     def validate(self, attrs):
@@ -293,7 +293,7 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         tags = attrs.get('tags', [])
         for tag in tags:
             if tag.club != club:
-                raise CustomException(
+                raise serializers.ValidationError(
                     f"The tag {tag.tag_name} does not belong to this club")
         return attrs
 
@@ -461,7 +461,7 @@ class WorkshopSearchSerializer(serializers.Serializer):
         Validate the search_string field, length must be greater than 3
         """
         if len(search_string) < 3:
-            raise CustomException("The length of search field must be atleast 3")
+            raise serializers.ValidationError("The length of search field must be atleast 3")
         return search_string
 
     def save(self, **kwargs):
@@ -489,7 +489,7 @@ class WorkshopDateSearchSerializer(serializers.Serializer):
         start_date = attrs['start_date']
         end_date = attrs['end_date']
         if start_date > end_date:
-            raise CustomException("Start Date cannot be greater than End Date")
+            raise serializers.ValidationError("Start Date cannot be greater than End Date")
         return attrs
 
     def save(self, **kwargs):
