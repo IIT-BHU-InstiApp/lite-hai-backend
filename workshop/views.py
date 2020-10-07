@@ -31,7 +31,7 @@ class ClubDetailView(generics.RetrieveUpdateAPIView):
     """
     # pylint: disable=no-member
     queryset = Club.objects.all()
-    permission_classes = (AllowParticularClubHead)
+    permission_classes = (AllowParticularClubHead,)
     serializer_class = ClubDetailSerializer
 
     def get_object(self):
@@ -116,7 +116,7 @@ class CouncilDetailView(generics.RetrieveUpdateAPIView):
     """
     # pylint: disable=no-member
     queryset = Council.objects.all()
-    permission_classes = (AllowParticularCouncilHead)
+    permission_classes = (AllowParticularCouncilHead,)
     serializer_class = CouncilDetailSerializer
 
 

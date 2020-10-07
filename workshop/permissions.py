@@ -89,7 +89,7 @@ class AllowParticularClubHead(permissions.BasePermission):
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         club = obj
-        if club in profile.get_club_privileges:
+        if club in profile.get_club_privileges():
             return True
         return False
 
@@ -104,6 +104,6 @@ class AllowParticularCouncilHead(permissions.BasePermission):
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         council = obj
-        if council in profile.get_council_privileges:
+        if council in profile.get_council_privileges():
             return True
         return False
