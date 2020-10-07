@@ -1,5 +1,6 @@
 from datetime import date
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from drf_yasg.utils import swagger_serializer_method
 from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
@@ -231,7 +232,7 @@ class TagCreateSerializer(serializers.ModelSerializer):
         profile = UserProfile.objects.get(user=request.user)
         if (club not in profile.get_club_privileges() and
                 club not in profile.get_workshop_privileges().values_list('club', flat=True)):
-            raise serializers.ValidationError("You are not allowed to create tag for this club")
+            raise PermissionDenied("You are not allowed to create tag for this club")
         if Tag.objects.filter(tag_name=tag_name, club=club):
             raise serializers.ValidationError("The tag already exists for this club")
         return attrs
@@ -280,7 +281,7 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         if club not in profile.get_club_privileges():
-            raise serializers.ValidationError(
+            raise PermissionDenied(
                 "You are not authorized to create workshops for this club")
         return club
 
