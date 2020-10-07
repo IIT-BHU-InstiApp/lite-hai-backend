@@ -15,11 +15,11 @@ jobs:
         os: [ubuntu-18.04]
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - uses: dschep/install-pipenv-action@v1
       - name: Install dependencies
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: install
+        run: pipenv install
       - name: Run lint checks
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: run pylint --load-plugins pylint_django team workshops workshop authentication
+        run: pipenv run pylint --load-plugins pylint_django team workshops workshop authentication
