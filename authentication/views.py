@@ -1,10 +1,10 @@
+from fcm_django.models import FCMDevice
 from rest_framework import permissions
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from workshop.permissions import AllowAnyClubHead
-from fcm_django.models import FCMDevice
 from .models import UserProfile
 from .serializers import (
     LoginSerializer, ProfileSerializer, ResponseSerializer, ProfileSearchSerializer)
@@ -18,7 +18,7 @@ def create_auth_token(user):
     return token
 
 
-def send_notification(message,title):
+def send_notification(message, title):
     """
     Send notification to all users using Firebase Cloud Messaging
     """
