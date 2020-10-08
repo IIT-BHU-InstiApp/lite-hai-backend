@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'workshop',
+    'fcm_django',
     'team'
 ]
 
@@ -93,6 +94,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
     )
+}
+
+FCM_DJANGO_SETTINGS = {
+        "FCM_SERVER_KEY": "AAAATGOzqK4:APA91bEgsBGpG7l_LEuISEDOBWbmsr3Okzbkt6gwYrP6FYf97mo4DdCdCRtuJXs6vLNWHX8IQWr3nALQMmUfi83a3KhgHCtN1P2roB_XuYP-RQvQYuLHCXjhnrZ6-m5cn4k_GHufPDaf"
 }
 
 SWAGGER_SETTINGS = {

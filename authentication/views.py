@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from workshop.permissions import AllowAnyClubHead
 from .models import UserProfile
+from fcm_django.models import FCMDevice
 from .serializers import (
     LoginSerializer, ProfileSerializer, ResponseSerializer, ProfileSearchSerializer)
 
@@ -16,6 +17,21 @@ def create_auth_token(user):
     token, _ = Token.objects.get_or_create(user=user)
     return token
 
+
+
+class NotificationView(generics.GenericAPIView):
+    authentication_classes = []
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request):
+        """
+        Checks the credentials (taking firebase **idToken** as input)\
+        and returns the **REST Token** (Authentication Token),\
+        if the credentials are valid.
+        """
+        devices = FCMDevice.objects.all()
+        devices.send_message(title="title", body="message")
+        return Response(response.data, status.HTTP_200_OK)
 
 class LoginView(generics.GenericAPIView):
     authentication_classes = []
