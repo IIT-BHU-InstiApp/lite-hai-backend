@@ -1,6 +1,6 @@
 from django.urls import path
 from django.conf.urls import url, include
-from .views import LoginView, ProfileView, ProfileSearchView,NotificationView
+from .views import LoginView, ProfileView, ProfileSearchView
 from fcm_django.api.rest_framework import FCMDeviceViewSet
 
 from rest_framework.routers import DefaultRouter
@@ -15,6 +15,5 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/search/', ProfileSearchView.as_view(), name='profile-search'),
     url(r'^', include(router.urls)),
-    path('notification/', NotificationView.as_view()),
   
 ]

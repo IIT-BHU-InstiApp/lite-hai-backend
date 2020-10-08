@@ -18,20 +18,13 @@ def create_auth_token(user):
     return token
 
 
-
-class NotificationView(generics.GenericAPIView):
-    authentication_classes = []
-    permission_classes = (permissions.AllowAny, )
-
-    def get(self, request):
-        """
-        Checks the credentials (taking firebase **idToken** as input)\
-        and returns the **REST Token** (Authentication Token),\
-        if the credentials are valid.
-        """
-        devices = FCMDevice.objects.all()
-        devices.send_message(title="title", body="message")
-        return Response(response.data, status.HTTP_200_OK)
+def send_notification(message,title):
+            """
+            Send notification to all users using Firebase Cloud Messaging
+            """
+            devices = FCMDevice.objects.all()
+            devices.send_message(title=title, body=message)
+            return True
 
 class LoginView(generics.GenericAPIView):
     authentication_classes = []
