@@ -273,6 +273,10 @@ class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
 
 
 class WorkshopCreateSerializer(serializers.ModelSerializer):
+    # pylint: disable=no-member
+    resources = serializers.PrimaryKeyRelatedField(many=True, required=False,
+        queryset=WorkshopResource.objects.all())
+
     def validate_club(self, club):
         """
         Validate the club field
@@ -304,11 +308,11 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
             title=data['title'], description=data.get('description', ''), club=data['club'],
             date=data['date'], time=data.get('time', None), location=data.get('location', ''),
             latitude=data.get('latitude', None), longitude=data.get('longitude', None),
-            audience=data.get('audience', ''), resources=data.get('resources', ''),
-            image_url=data.get('image_url', '')
+            audience=data.get('audience', ''), image_url=data.get('image_url', '')
         )
         workshop.contacts.set(data.get('contacts', []))
         workshop.tags.set(data.get('tags', []))
+        workshop.resources.set(data.get('resources', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
 
