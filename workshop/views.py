@@ -444,20 +444,11 @@ class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
     # pylint: disable=no-member
     queryset = WorkshopResource.objects.all()
 
-class ClubTagsView(generics.GenericAPIView):
+class ClubTagsView(generics.RetrieveAPIView):
+    """
+    Get list of tags of a particular club
+    """
+    queryset = Club.objects.all()
     permission_classes = (permissions.AllowAny, )
     serializer_class = ClubTagsSerializer
 
-    def get(self, request, pk):
-        """
-        Returns the list of tags of a particular club.
-        """
-        try:
-            club = Club.objects.get(id=pk)
-        except Club.DoesNotExist as dne:
-            raise NotFound(detail="Club not found!") from dne
-        tags = Tag.objects.filter(club=club)
-        if tags:
-            serializer = ClubTagsSerializer(tags, many=True)
-            return Response(serializer.data)
-        raise NotFound(detail="No tags found!")

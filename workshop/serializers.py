@@ -499,7 +499,16 @@ class WorkshopDateSearchSerializer(serializers.Serializer):
         return Workshop.objects.filter(date__gte=start_date, date__lte=end_date)
 
 class ClubTagsSerializer(serializers.ModelSerializer):
+    club_tags = serializers.SerializerMethodField()
 
+    def get_club_tags(self, club):
+        """
+        Tags of a particular club
+        """
+        tags = Tag.objects.filter(club=club)
+        serializer = TagSerializer(tags, many=True)
+        return serializer.data
     class Meta:
-        model = Tag
-        fields = ('id', 'tag_name')
+        model = Club
+        fields = ('club_tags',)
+
