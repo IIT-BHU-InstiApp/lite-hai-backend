@@ -497,3 +497,9 @@ class WorkshopDateSearchSerializer(serializers.Serializer):
         end_date = data['end_date']
         # pylint: disable=no-member
         return Workshop.objects.filter(date__gte=start_date, date__lte=end_date)
+
+class ClubTagsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name')
