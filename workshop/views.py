@@ -450,4 +450,3 @@ class ClubTagsView(generics.RetrieveAPIView):
     queryset = Club.objects.all()
     permission_classes = (permissions.AllowAny, )
     serializer_class = ClubTagsSerializer
-
