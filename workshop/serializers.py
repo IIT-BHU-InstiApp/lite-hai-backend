@@ -511,4 +511,3 @@ class ClubTagsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Club
         fields = ('club_tags',)
-

@@ -2,10 +2,9 @@ from datetime import date
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from authentication.models import UserProfile
-from .models import Workshop, Council, Club, WorkshopResource, Tag
+from .models import Workshop, Council, Club, WorkshopResource
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
     WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
