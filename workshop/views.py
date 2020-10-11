@@ -2,6 +2,7 @@ from datetime import date
 from rest_framework import generics
 from rest_framework import permissions
 from rest_framework import status
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from authentication.models import UserProfile
 from .models import Workshop, Council, Club, WorkshopResource, Tag
@@ -451,7 +452,12 @@ class ClubTagsView(generics.GenericAPIView):
         """
         Returns the list of tags of a particular club.
         """
-        club = Club.objects.get(id=pk)
+        try:
+            club = Club.objects.get(id=pk)
+        except Club.DoesNotExist as dne:
+            raise NotFound(detail="Club not found!") from dne
         tags = Tag.objects.filter(club=club)
-        serializer = ClubTagsSerializer(tags, many=True)
-        return Response(serializer.data)
+        if tags:
+            serializer = ClubTagsSerializer(tags, many=True)
+            return Response(serializer.data)
+        raise NotFound(detail="No tags found!")
