@@ -4,10 +4,10 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from authentication.models import UserProfile
-from .models import Workshop, Council, Club, WorkshopResource
+from .models import Workshop, Council, Club, WorkshopResource, Tag
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
-    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
+    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, TagCreateSerializer, TagSearchSerializer,
@@ -442,3 +442,16 @@ class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkshopResourceSerializer
     # pylint: disable=no-member
     queryset = WorkshopResource.objects.all()
+
+class ClubTagsView(generics.GenericAPIView):
+    permission_classes = (permissions.AllowAny, )
+    serializer_class = ClubTagsSerializer
+
+    def get(self, request, pk):
+        """
+        Returns the list of tags of a particular club.
+        """
+        club = Club.objects.get(id = pk)
+        tags = Tag.objects.filter(club = club)
+        serializer = ClubTagsSerializer(tags, many=True)
+        return Response(serializer.data)
