@@ -451,7 +451,7 @@ class ClubTagsView(generics.GenericAPIView):
         """
         Returns the list of tags of a particular club.
         """
-        club = Club.objects.get(id = pk)
-        tags = Tag.objects.filter(club = club)
+        club = Club.objects.get(id=pk)
+        tags = Tag.objects.filter(club=club)
         serializer = ClubTagsSerializer(tags, many=True)
         return Response(serializer.data)
