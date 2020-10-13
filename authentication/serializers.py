@@ -3,7 +3,7 @@ from rest_framework import serializers
 from drf_yasg.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
-from .models import UserProfile, User
+from .models import UserProfile
 
 phone_regex = RegexValidator(
     regex=r'^\+\d{9,15}$',
@@ -24,8 +24,9 @@ class LoginSerializer(serializers.Serializer):
         """
         try:
             return FirebaseAPI.verify_id_token(access_token)
-        except:
-            raise serializers.ValidationError("Invalid Firebase token!")
+        except serializers.ValidationError as e:
+            raise serializers.ValidationError(
+                "Invalid Firebase token!") from e
 
     def validate(self, attrs):
         id_token = attrs.get('id_token', None)
@@ -60,7 +61,8 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    phone_number = serializers.CharField(max_length=15, validators=[phone_regex,], allow_blank=True)
+    phone_number = serializers.CharField(max_length=15, validators=[
+                                         phone_regex, ], allow_blank=True)
     subscriptions = serializers.SerializerMethodField()
     club_privileges = serializers.SerializerMethodField()
 
@@ -88,7 +90,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         # pylint: disable=no-member
         instance.name = name
         instance.phone_number = phone_number
-        instance.photo_url = FirebaseAPI.get_photo_url(instance.uid) # update photo_url of user
+        instance.photo_url = FirebaseAPI.get_photo_url(
+            instance.uid)  # update photo_url of user
         instance.save()
         return instance
 
@@ -103,7 +106,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class ProfileSearchSerializer(serializers.Serializer):
-    search_by = serializers.ChoiceField(choices=['name', 'email'], default='email')
+    search_by = serializers.ChoiceField(
+        choices=['name', 'email'], default='email')
     search_string = serializers.CharField(max_length=255)
 
     def validate_search_string(self, search_string):
@@ -111,7 +115,8 @@ class ProfileSearchSerializer(serializers.Serializer):
         Validate the search_string field, length must be greater than 3.
         """
         if len(search_string) < 3:
-            raise serializers.ValidationError("The length of search field must be atleast 3")
+            raise serializers.ValidationError(
+                "The length of search field must be atleast 3")
         return search_string
 
     def save(self, **kwargs):
@@ -120,7 +125,9 @@ class ProfileSearchSerializer(serializers.Serializer):
         search_string = data['search_string']
         # pylint: disable=no-member
         if search_by == 'name':
-            profile = UserProfile.objects.filter(name__icontains=search_string)[:10]
+            profile = UserProfile.objects.filter(
+                name__icontains=search_string)[:10]
         elif search_by == 'email':
-            profile = UserProfile.objects.filter(email__icontains=search_string)[:10]
+            profile = UserProfile.objects.filter(
+                email__icontains=search_string)[:10]
         return profile
