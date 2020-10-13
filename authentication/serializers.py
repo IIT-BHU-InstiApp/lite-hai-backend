@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
 from .models import UserProfile
+from django.contrib.auth import get_user_model
 
 phone_regex = RegexValidator(
     regex=r'^\+\d{9,15}$',
@@ -44,7 +45,7 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     "Please login using @itbhu.ac.in student email id only")
             name = jwt['name']
-            user = User()
+            user = get_user_model()
             user.username = jwt['uid']
             user.email = email
             user.save()
