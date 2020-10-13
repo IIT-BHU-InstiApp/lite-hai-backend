@@ -7,7 +7,7 @@ from authentication.models import UserProfile
 from .models import Workshop, Council, Club, WorkshopResource
 from .serializers import (
     CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
-    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer,
+    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, TagCreateSerializer, TagSearchSerializer,
@@ -442,3 +442,11 @@ class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = WorkshopResourceSerializer
     # pylint: disable=no-member
     queryset = WorkshopResource.objects.all()
+
+class ClubTagsView(generics.RetrieveAPIView):
+    """
+    Get list of tags of a particular club
+    """
+    queryset = Club.objects.all()
+    permission_classes = (permissions.AllowAny, )
+    serializer_class = ClubTagsSerializer

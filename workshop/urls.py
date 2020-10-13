@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView,
+    CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView, ClubTagsView,
     ClubSubscriptionToggleView, TagCreateView, TagSearchView, WorkshopTagsUpdateView,
     WorkshopActiveAndPastView, WorkshopPastView, WorkshopCreateView, WorkshopDetailView,
     WorkshopActiveView, WorkshopContactsUpdateView, WorkshopInterestedToggleView,
@@ -12,6 +12,7 @@ urlpatterns = [
     path('councils/<int:pk>/', CouncilDetailView.as_view()),
     path('clubs/<int:pk>/', ClubDetailView.as_view()),
     path('clubs/<int:pk>/workshops/', ClubDetailWorkshopView.as_view()),
+    path('clubs/<int:pk>/tags/', ClubTagsView.as_view()),
     path('clubs/<int:pk>/toggle-subscribed/', ClubSubscriptionToggleView.as_view()),
     path('tags/create/', TagCreateView.as_view()),
     path('tags/search/', TagSearchView.as_view()),
