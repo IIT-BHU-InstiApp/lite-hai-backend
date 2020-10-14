@@ -14,9 +14,9 @@ djangorestframework = "*"
 firebase-admin = "*"
 pyaescrypt = "*"
 python-decouple = "*"
-drf-yasg = "*"
 pylint-django = "*"
 fcm-django = "*"
+drf-yasg2 = "*"
 
 [requires]
 python_version = "3.8"

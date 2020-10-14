@@ -1,7 +1,7 @@
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from drf_yasg.utils import swagger_serializer_method
+from drf_yasg2.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
 from .models import UserProfile
