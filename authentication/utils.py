@@ -58,7 +58,7 @@ class Student:
         """
         username = email.split('@')[0]
         domain = email.split('@')[1]
-        if domain not in ['itbhu.ac.in',]:
+        if domain not in ['itbhu.ac.in', ]:
             return False
         if '.' not in username:
             return False
@@ -78,8 +78,9 @@ class FirebaseAPI:
         try:
             decoded_token = auth.verify_id_token(id_token)
             return decoded_token
-        except ValueError:
-            raise ValidationError('Invalid Firebase ID Token.', HTTP_422_UNPROCESSABLE_ENTITY)
+        except ValueError as e:
+            raise ValidationError(
+                'Invalid Firebase ID Token.', HTTP_422_UNPROCESSABLE_ENTITY) from e
 
     @classmethod
     def delete_user_by_uid(cls, uid):
