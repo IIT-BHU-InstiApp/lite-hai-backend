@@ -2,10 +2,10 @@ Django==2.2.10
 django-cors-headers==3.1.1
 django-heroku==0.3.1
 djangorestframework==3.10.3
-drf-yasg==1.17.0
+drf-yasg2==1.19.1
 firebase-admin==3.0.0
 gunicorn==19.9.0
 pyAesCrypt==0.4.3
 pylint-django==2.0.13
 python-decouple==3.1
-fcm-django==0.3.4   
+fcm-django==0.3.4
