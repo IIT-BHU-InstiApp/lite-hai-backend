@@ -2,7 +2,6 @@ from datetime import date
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from drf_yasg.utils import swagger_serializer_method
-from rest_framework.authtoken.models import Token
 from authentication.utils import FirebaseAPI
 from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
@@ -160,7 +159,7 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
         profile = UserProfile.objects.get(
             user=user)
         club = self.context['club']
-      
+
         if club in profile.subscriptions.all():
             club.subscribed_users.remove(profile)
         else:
