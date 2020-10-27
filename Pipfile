@@ -15,7 +15,6 @@ firebase-admin = "*"
 pyaescrypt = "*"
 python-decouple = "*"
 pylint-django = "*"
-fcm-django = "*"
 drf-yasg2 = "*"
 
 [requires]
