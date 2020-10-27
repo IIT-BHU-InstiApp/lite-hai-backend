@@ -102,12 +102,12 @@ class FirebaseAPI:
         """
         Gets the message content
         """
-        club=data['club']
-        topic='C_'+str(club.id)
+        club = data['club']
+        topic = 'C_' + str(club.id)
         print(topic)
-        msg_notification=messaging.Notification(
+        msg_notification = messaging.Notification(
             title="New Workshop in "+str(club.name),
-            body=data['title']+" on "+str(data['date']),
+            body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
             image=data.get('image_url',''))
         message = messaging.Message(
             notification=msg_notification,
@@ -122,9 +122,9 @@ class FirebaseAPI:
         """
         Gets the message content on updating workshop
         """
-        topic='W_'+str(instance.id)
+        topic = 'W_' + str(instance.id)
         print(topic)
-        msg_notification=messaging.Notification(
+        msg_notification = messaging.Notification(
             title=data['title']+" has been updated",
             body='Click here, Don\'t miss any detail',
             image=data.get('image_url',''))
