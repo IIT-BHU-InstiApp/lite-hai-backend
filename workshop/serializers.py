@@ -2,6 +2,7 @@ from datetime import date
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from drf_yasg2.utils import swagger_serializer_method
+from authentication.utils import FirebaseAPI
 from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -164,7 +165,6 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
         else:
             club.subscribed_users.add(profile)
 
-
 class CouncilDetailSerializer(serializers.ModelSerializer):
     gensec = serializers.SerializerMethodField()
     joint_gensec = serializers.SerializerMethodField()
@@ -231,7 +231,7 @@ class TagCreateSerializer(serializers.ModelSerializer):
         request = self.context['request']
         profile = UserProfile.objects.get(user=request.user)
         if (club not in profile.get_club_privileges() and
-                club not in profile.get_workshop_privileges().values_list('club', flat=True)):
+                club.id not in profile.get_workshop_privileges().values_list('club', flat=True)):
             raise PermissionDenied("You are not allowed to create tag for this club")
         if Tag.objects.filter(tag_name=tag_name, club=club):
             raise serializers.ValidationError("The tag already exists for this club")
@@ -310,6 +310,8 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
+        topic='C_'+str(data['club'])
+        FirebaseAPI.send_message(topic,data)
 
     class Meta:
         model = Workshop

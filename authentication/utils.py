@@ -1,4 +1,4 @@
-from firebase_admin import auth
+from firebase_admin import auth, messaging
 from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY
 from rest_framework.exceptions import ValidationError
 
@@ -96,3 +96,21 @@ class FirebaseAPI:
         """
         # pylint: disable=protected-access
         return auth.get_user(uid)._data['photoUrl']
+
+    @classmethod
+    def send_message(cls,topic, data):
+        """
+        Gets the message content
+        """
+        club=data['club']
+        msg_notification=messaging.Notification(
+            title="New Activity in "+str(club.name),
+            body=data['title']+" on "+str(data['date']),
+            image=data.get('image_url',''))
+        message = messaging.Message(
+            notification=msg_notification,
+            topic=topic
+        )
+
+        response = messaging.send(message)
+        print('Successfully sent message:', response)

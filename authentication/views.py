@@ -3,7 +3,6 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from fcm_django.models import FCMDevice
 from workshop.permissions import AllowAnyClubHead
 from .models import UserProfile
 from .serializers import (
@@ -16,15 +15,6 @@ def create_auth_token(user):
     # pylint: disable=no-member
     token, _ = Token.objects.get_or_create(user=user)
     return token
-
-
-def send_notification(message, title):
-    """
-    Send notification to all users using Firebase Cloud Messaging
-    """
-    devices = FCMDevice.objects.all()
-    devices.send_message(title=title, body=message)
-    return True
 
 class LoginView(generics.GenericAPIView):
     authentication_classes = []
