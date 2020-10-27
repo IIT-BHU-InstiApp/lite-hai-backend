@@ -98,14 +98,13 @@ class FirebaseAPI:
         return auth.get_user(uid)._data['photoUrl']
 
     @classmethod
-    def send_message(cls, data):
+    def send_message(cls,topic, data):
         """
         Gets the message content
         """
         club=data['club']
-        topic='C_'+str(club)
         msg_notification=messaging.Notification(
-            title="New Workshop in "+str(club.name),
+            title="New Activity in "+str(club.name),
             body=data['title']+" on "+str(data['date']),
             image=data.get('image_url',''))
         message = messaging.Message(
