@@ -310,8 +310,7 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
-        topic='C_'+str(data['club'])
-        FirebaseAPI.send_message(topic,data)
+        FirebaseAPI.send_message(data)
 
     class Meta:
         model = Workshop
@@ -413,6 +412,10 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         All the resources for the workshop
         """
         return WorkshopResourceSerializer(obj.resources, many=True).data
+
+    def save(self,*args, **kwargs):
+        super().save(*args, **kwargs)
+        FirebaseAPI.send_workshop_update(self.instance,self.data)
 
     class Meta:
         model = Workshop

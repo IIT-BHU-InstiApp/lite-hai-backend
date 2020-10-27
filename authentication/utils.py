@@ -98,14 +98,35 @@ class FirebaseAPI:
         return auth.get_user(uid)._data['photoUrl']
 
     @classmethod
-    def send_message(cls,topic, data):
+    def send_message(cls, data):
         """
         Gets the message content
         """
         club=data['club']
+        topic='C_'+str(club.id)
+        print(topic)
         msg_notification=messaging.Notification(
-            title="New Activity in "+str(club.name),
+            title="New Workshop in "+str(club.name),
             body=data['title']+" on "+str(data['date']),
+            image=data.get('image_url',''))
+        message = messaging.Message(
+            notification=msg_notification,
+            topic=topic
+        )
+
+        response = messaging.send(message)
+        print('Successfully sent message:', response)
+
+    @classmethod
+    def send_workshop_update(cls, instance, data):
+        """
+        Gets the message content on updating workshop
+        """
+        topic='W_'+str(instance.id)
+        print(topic)
+        msg_notification=messaging.Notification(
+            title=data['title']+" has been updated",
+            body='Click here, Don\'t miss any detail',
             image=data.get('image_url',''))
         message = messaging.Message(
             notification=msg_notification,
