@@ -33,13 +33,6 @@ if DEBUG:
 else:
     SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-if DEBUG:
-    FCM_SERVER_KEY = ''
-else:
-    FCM_SERVER_KEY = config('FCM_SERVER_KEY')
-
-
 
 ALLOWED_HOSTS = ['*']
 
@@ -59,7 +52,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'workshop',
-    'fcm_django',
     'team'
 ]
 
@@ -102,10 +94,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
     )
-}
-
-FCM_DJANGO_SETTINGS = {
-        "FCM_SERVER_KEY": FCM_SERVER_KEY
 }
 
 SWAGGER_SETTINGS = {

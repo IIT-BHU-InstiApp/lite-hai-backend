@@ -252,7 +252,6 @@ class WorkshopCreateView(generics.GenericAPIView):
         serializer.save()
         return Response(status=status.HTTP_200_OK)
 
-
 class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
