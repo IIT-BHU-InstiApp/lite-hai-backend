@@ -1,3 +1,4 @@
+import logging
 from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
@@ -5,6 +6,8 @@ from drf_yasg2.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer
 from .utils import Student, FirebaseAPI
 from .models import UserProfile
+
+logger = logging.getLogger('django')
 
 phone_regex = RegexValidator(
     regex=r'^\+\d{9,15}$',
@@ -58,6 +61,7 @@ class LoginSerializer(serializers.Serializer):
                 year_of_joining=year_of_joining, photo_url=jwt['picture'])
 
         attrs['user'] = current_user
+        logger.info('[POST Response] User Login : %s', current_user)
         return attrs
 
 
@@ -94,6 +98,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.photo_url = FirebaseAPI.get_photo_url(
             instance.uid)  # update photo_url of user
         instance.save()
+        logger.info('[PUT/PATCH Response] (%s) : %s', instance, validated_data)
         return instance
 
     class Meta:
