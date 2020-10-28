@@ -1,7 +1,10 @@
-from firebase_admin import auth, messaging
+import logging
+from firebase_admin import auth, messaging, exceptions
 from rest_framework.status import HTTP_422_UNPROCESSABLE_ENTITY
 from rest_framework.exceptions import ValidationError
+from google.auth.exceptions import TransportError
 
+logger = logging.getLogger('django')
 
 class Student:
 
@@ -102,10 +105,9 @@ class FirebaseAPI:
         """
         Gets the message content
         """
-        club = data['club']
-        topic = 'C_' + str(club.id)
-        print(topic)
-        msg_notification = messaging.Notification(
+        club=data['club']
+        topic='C_'+str(club.id)
+        msg_notification=messaging.Notification(
             title="New Workshop in "+str(club.name),
             body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
             image=data.get('image_url',''))
@@ -114,8 +116,12 @@ class FirebaseAPI:
             topic=topic
         )
 
-        response = messaging.send(message)
-        print('Successfully sent message:', response)
+        try:
+            response = messaging.send(message)
+            logger.info('Successfully sent message: %s', response)
+        except (exceptions.FirebaseError, TransportError) as e:
+            logger.warning('Could not send notification!')
+            logger.error(e)
 
     @classmethod
     def send_workshop_update(cls, instance, data):
@@ -123,7 +129,6 @@ class FirebaseAPI:
         Gets the message content on updating workshop
         """
         topic = 'W_' + str(instance.id)
-        print(topic)
         msg_notification = messaging.Notification(
             title=data['title']+" has been updated",
             body='Click here, Don\'t miss any detail',
@@ -132,6 +137,9 @@ class FirebaseAPI:
             notification=msg_notification,
             topic=topic
         )
-
-        response = messaging.send(message)
-        print('Successfully sent message:', response)
+        try:
+            response = messaging.send(message)
+            logger.info('Successfully sent message: %s', response)
+        except (exceptions.FirebaseError, TransportError) as e:
+            logger.warning('Could not send notification!')
+            logger.error(e)

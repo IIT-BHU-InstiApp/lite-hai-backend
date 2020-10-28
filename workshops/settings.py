@@ -174,3 +174,23 @@ with open("service_account.json.aes", "rb") as encrypted_file:
 
 cred = credentials.Certificate(os.path.join(BASE_DIR, 'service_account.json'))
 default_app = firebase_admin.initialize_app(cred)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
