@@ -118,9 +118,9 @@ class FirebaseAPI:
 
         try:
             response = messaging.send(message)
-            logger.info('Successfully sent message: %s', response)
+            logger.info('[Topic %s] Successfully sent message: %s', topic, response)
         except (exceptions.FirebaseError, TransportError) as e:
-            logger.warning('Could not send notification!')
+            logger.warning('[Topic %s] Could not send notification!', topic)
             logger.error(e)
 
     @classmethod
@@ -139,7 +139,7 @@ class FirebaseAPI:
         )
         try:
             response = messaging.send(message)
-            logger.info('Successfully sent message: %s', response)
+            logger.info('[Topic %s] Successfully sent message: %s', topic, response)
         except (exceptions.FirebaseError, TransportError) as e:
-            logger.warning('Could not send notification!')
+            logger.warning('[Topic %s] Could not send notification!', topic)
             logger.error(e)

@@ -167,7 +167,7 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
             club.subscribed_users.remove(profile)
         else:
             club.subscribed_users.add(profile)
-        logger.info('Toggled Club subscription')
+        logger.info('[GET Response] (%s) : Toggled Club subscription', profile)
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
     gensec = serializers.SerializerMethodField()
@@ -331,11 +331,12 @@ class WorkshopResourceSerializer(serializers.ModelSerializer):
         Handles the creation of a resource
         """
         data = self.validated_data
-        logger.info(str(data))
+        workshop = self.context['workshop']
+        logger.info('[POST Response] Resource Added (%s) : %s', workshop, data)
         # pylint: disable=no-member
         return WorkshopResource.objects.create(
             name=data['name'], link=data['link'], resource_type=data['resource_type'],
-            workshop=self.context['workshop'])
+            workshop=workshop)
 
     class Meta:
         model = WorkshopResource

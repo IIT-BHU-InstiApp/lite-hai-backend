@@ -61,7 +61,7 @@ class LoginSerializer(serializers.Serializer):
                 year_of_joining=year_of_joining, photo_url=jwt['picture'])
 
         attrs['user'] = current_user
-        logger.info(str(attrs))
+        logger.info('[POST Response] User Login : %s', current_user)
         return attrs
 
 
@@ -98,7 +98,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.photo_url = FirebaseAPI.get_photo_url(
             instance.uid)  # update photo_url of user
         instance.save()
-        logger.info(str(validated_data))
+        logger.info('[PUT/PATCH Response] (%s) : %s', instance, validated_data)
         return instance
 
     class Meta:
