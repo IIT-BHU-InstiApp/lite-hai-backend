@@ -249,8 +249,9 @@ class WorkshopCreateView(generics.GenericAPIView):
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        workshop = serializer.save()
+        serializer = WorkshopSerializer(workshop)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
