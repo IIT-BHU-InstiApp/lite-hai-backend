@@ -6,18 +6,18 @@ from rest_framework.response import Response
 from authentication.models import UserProfile
 from .models import Workshop, Council, Club, WorkshopResource, Entity
 from .serializers import (
-    CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer, 
-    EntityTagSearchSerializer, EntityTagsSerializer, EntityWorkshopActiveAndPastSerializer, 
-    EntityWorkshopCreateSerializer, EntityWorkshopSerializer,
-    WorkshopSerializer, WorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
+    CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
+    EntityTagSearchSerializer, EntityTagsSerializer,
+    EntityWorkshopCreateSerializer, WorkshopSerializer,
+    WorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, TagCreateSerializer, TagSearchSerializer,
     TagSerializer, WorkshopTagsUpdateSerializer, WorkshopResourceSerializer,
-    EntityDetailSerializer, EntityDetailWorkshopSerializer, EntitySubscriptionToggleSerializer, 
-    EntityTagCreateSerializer, EntityTagSerializer)
+    EntityDetailSerializer, EntitySubscriptionToggleSerializer,
+    EntityTagCreateSerializer, EntityTagSerializer, EntitySerializer)
 from .permissions import (
-    AllowAnyClubHead, AllowAnyEntityHead, AllowAnyEntityHeadOrContact, AllowWorkshopHead,  
+    AllowAnyClubHead, AllowAnyEntityHead, AllowAnyEntityHeadOrContact, AllowWorkshopHead,
     AllowAnyClubHeadOrContact, AllowWorkshopHeadOrContactForResource, AllowParticularCouncilHead,
     AllowParticularClubHead, AllowParticularEntityHead, AllowWorkshopHeadOrContact,)
 
@@ -99,21 +99,6 @@ class ClubDetailWorkshopView(generics.RetrieveAPIView):
         return super().get_object()
 
 
-class EntityDetailWorkshopView(generics.RetrieveAPIView):
-    """
-    Get the Active and Past Workshop details of an Entity
-    """
-    # pylint: disable=no-member
-    queryset = Entity.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = EntityDetailWorkshopSerializer
-
-    def get_object(self):
-        if getattr(self, 'swagger_fake_view', False):
-            return None
-        return super().get_object()
-
-
 class ClubSubscriptionToggleView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = ClubSubscriptionToggleSerializer
@@ -182,6 +167,16 @@ class CouncilView(generics.ListAPIView):
     queryset = Council.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = CouncilSerializer
+
+
+class EntityView(generics.ListAPIView):
+    """
+    Get the Name and Image URL of all Entities.
+    """
+    # pylint: disable=no-member
+    queryset = Entity.objects.all()
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = EntitySerializer
 
 
 class CouncilDetailView(generics.RetrieveUpdateAPIView):
@@ -338,35 +333,6 @@ class WorkshopActiveAndPastView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class EntityWorkshopActiveAndPastView(generics.GenericAPIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = EntityWorkshopActiveAndPastSerializer
-
-    def get_object(self):
-        if getattr(self, 'swagger_fake_view', False):
-            return None
-        return super().get_object()
-
-    # pylint: disable=unused-argument
-    def get(self, *args, **kwargs):
-        """
-        Get both Active and Past Workshops.
-        """
-        # pylint: disable=no-member
-        active_workshops = Workshop.objects.filter(
-            date__gte=date.today()).order_by('date', 'time')
-        past_workshops = Workshop.objects.filter(
-            date__lt=date.today()).order_by('-date', '-time')
-        active_workshops_serializer = EntityWorkshopSerializer(active_workshops, many=True)
-        past_workshops_serializer = EntityWorkshopSerializer(past_workshops, many=True)
-        serializer = EntityWorkshopActiveAndPastSerializer(data={
-            "active_workshops": active_workshops_serializer.data,
-            "past_workshops": past_workshops_serializer.data
-        })
-        serializer.is_valid()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class WorkshopActiveView(generics.ListAPIView):
     """
     Get the Active Workshops of clubs.
@@ -377,32 +343,12 @@ class WorkshopActiveView(generics.ListAPIView):
     queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time')
 
 
-class EntityWorkshopActiveView(generics.ListAPIView):
-    """
-    Get the Active Workshops of entities.
-    """
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = EntityWorkshopSerializer
-    # pylint: disable=no-member
-    queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time')
-
-
 class WorkshopPastView(generics.ListAPIView):
     """
     Get the Past Workshops of clubs.
     """
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
-    # pylint: disable=no-member
-    queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time')
-
-
-class EntityWorkshopPastView(generics.ListAPIView):
-    """
-    Get the Past Workshops of entities.
-    """
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = EntityWorkshopSerializer
     # pylint: disable=no-member
     queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time')
 
@@ -534,18 +480,6 @@ class WorkshopInterestedView(generics.ListAPIView):
         return UserProfile.objects.get(user=self.request.user).interested_workshops.all()
 
 
-class EntityWorkshopInterestedView(generics.ListAPIView):
-    """
-    Show all the entity workshops in which the user is interested.
-    """
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = EntityWorkshopSerializer
-
-    def get_queryset(self):
-        # pylint: disable=no-member
-        return UserProfile.objects.get(user=self.request.user).interested_workshops.all()
-
-
 class WorkshopSearchView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSearchSerializer
@@ -569,29 +503,6 @@ class WorkshopSearchView(generics.GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class EntityWorkshopSearchView(generics.GenericAPIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = WorkshopSearchSerializer
-
-    def post(self, request):
-        """
-        Search an entity workshop based on Title, Location or Audience.
-        """
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        workshops = serializer.save()
-        active_workshops = workshops.filter(date__gte=date.today()).order_by('date', 'time')
-        past_workshops = workshops.filter(date__lt=date.today()).order_by('-date', '-time')
-        active_workshops_serializer = EntityWorkshopSerializer(active_workshops, many=True)
-        past_workshops_serializer = EntityWorkshopSerializer(past_workshops, many=True)
-        serializer = EntityWorkshopActiveAndPastSerializer(data={
-            "active_workshops": active_workshops_serializer.data,
-            "past_workshops": past_workshops_serializer.data
-        })
-        serializer.is_valid()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class WorkshopDateSearchView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopDateSearchSerializer
@@ -604,21 +515,6 @@ class WorkshopDateSearchView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         workshops = serializer.save()
         serializer = WorkshopSerializer(workshops, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class EntityWorkshopDateSearchView(generics.GenericAPIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = WorkshopDateSearchSerializer
-
-    def post(self, request):
-        """
-        Search an entity workshop between the Start Date and End Date.
-        """
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        workshops = serializer.save()
-        serializer = EntityWorkshopSerializer(workshops, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

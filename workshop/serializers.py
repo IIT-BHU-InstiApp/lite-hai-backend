@@ -43,7 +43,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class EntityTagSerializer(serializers.ModelSerializer):
-    club = ClubSerializer()
+    entity = EntitySerializer()
 
     class Meta:
         model = Tag
@@ -52,30 +52,17 @@ class EntityTagSerializer(serializers.ModelSerializer):
 
 class WorkshopSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
+    entity = EntitySerializer(read_only = True)
     tags = TagSerializer(read_only=True, many=True)
 
     class Meta:
         model = Workshop
-        fields = ('id', 'club', 'title', 'date', 'time', 'tags')
-
-
-class EntityWorkshopSerializer(serializers.ModelSerializer):
-    entity = EntitySerializer(read_only=True)
-    tags = TagSerializer(read_only=True, many=True)
-
-    class Meta:
-        model = Workshop
-        fields = ('id', 'entity', 'title', 'date', 'time', 'tags')
+        fields = ('id', 'club', 'entity', 'title', 'date', 'time', 'tags')
 
 
 class WorkshopActiveAndPastSerializer(serializers.Serializer):
     active_workshops = WorkshopSerializer()
     past_workshops = WorkshopSerializer()
-
-
-class EntityWorkshopActiveAndPastSerializer(serializers.Serializer):
-    active_workshops = EntityWorkshopSerializer()
-    past_workshops = EntityWorkshopSerializer()
 
 
 class ClubDetailSerializer(serializers.ModelSerializer):
@@ -249,37 +236,6 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
         fields = ('active_workshops', 'past_workshops')
 
 
-class EntityDetailWorkshopSerializer(serializers.ModelSerializer):
-    active_workshops = serializers.SerializerMethodField()
-    past_workshops = serializers.SerializerMethodField()
-
-    @swagger_serializer_method(serializer_or_field=EntityWorkshopSerializer(many=True))
-    def get_active_workshops(self, obj):
-        """
-        Active Workshops of the Entity
-        """
-        # pylint: disable=no-member
-        queryset = Workshop.objects.filter(
-            entity=obj, date__gte=date.today()).order_by('date', 'time')
-        serializer = EntityWorkshopSerializer(queryset, many=True)
-        return serializer.data
-
-    @swagger_serializer_method(serializer_or_field=EntityWorkshopSerializer(many=True))
-    def get_past_workshops(self, obj):
-        """
-        Past Workshops of the Club
-        """
-        # pylint: disable=no-member
-        queryset = Workshop.objects.filter(
-            entity=obj, date__lt=date.today()).order_by('-date', '-time')
-        serializer = EntityWorkshopSerializer(queryset, many=True)
-        return serializer.data
-
-    class Meta:
-        model = Club
-        fields = ('active_workshops', 'past_workshops')
-
-
 class ClubSubscriptionToggleSerializer(serializers.Serializer):
     def toggle_subscription(self):
         """
@@ -412,13 +368,13 @@ class EntityTagCreateSerializer(serializers.ModelSerializer):
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        if (entity not in profile.get_entity_privileges()):
+        if entity not in profile.get_entity_privileges():
             raise PermissionDenied("You are not allowed to create tag for this entity")
         # pylint: disable=no-member
         if Tag.objects.filter(tag_name=tag_name, entity = entity):
             raise serializers.ValidationError("The tag already exists for this entity")
         return attrs
-    
+
     def save(self, **kwargs):
         data = self.validated_data
         # pylint: disable=no-member
@@ -556,7 +512,8 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
-        FirebaseAPI.send_message(data)
+        # TODO: Make changes in the Firebase API to make it work for workshops of entities as well
+        # FirebaseAPI.send_message(data)
 
     class Meta:
         model = Workshop

@@ -1,11 +1,14 @@
 from django.urls import path
 from .views import (
     CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView, ClubTagsView,
-    ClubSubscriptionToggleView, EntityDetailView, EntityDetailWorkshopView, EntitySubscriptionToggleView, EntityTagCreateView, EntityTagSearchView, EntityTagsView, EntityWorkshopActiveAndPastView, EntityWorkshopActiveView, EntityWorkshopCreateView, EntityWorkshopDateSearchView, EntityWorkshopInterestedView, EntityWorkshopPastView, EntityWorkshopSearchView, TagCreateView, TagSearchView, WorkshopTagsUpdateView,
+    ClubSubscriptionToggleView, EntityDetailView, EntitySubscriptionToggleView, 
+    EntityTagCreateView, EntityTagSearchView, EntityTagsView, EntityView,  EntityWorkshopCreateView,
+    TagCreateView, TagSearchView, WorkshopTagsUpdateView,
     WorkshopActiveAndPastView, WorkshopPastView, WorkshopCreateView, WorkshopDetailView,
     WorkshopActiveView, WorkshopContactsUpdateView, WorkshopInterestedToggleView,
     WorkshopInterestedView, WorkshopSearchView, WorkshopDateSearchView, WorkshopResourceCreateView,
     WorkshopResourceView)
+# from .views import *
 
 urlpatterns = [
     path('councils/', CouncilView.as_view()),
@@ -30,19 +33,13 @@ urlpatterns = [
     path('workshops/search/date/', WorkshopDateSearchView.as_view()),
     path('resources/<int:pk>/', WorkshopResourceView.as_view()),
 
+    path('entities', EntityView.as_view()),
     path('entities/<int:pk>/', EntityDetailView.as_view()),
-    path('entities/<int:pk>/workshops/', EntityDetailWorkshopView.as_view()),
     path('entities/<int:pk>/tags/', EntityTagsView.as_view()),
     path('entities/<int:pk>/toggle-subscribed/', EntitySubscriptionToggleView.as_view()),
 
-    # Separate end points should not be there
+    # TODO: Try moving these to the corresponding club endpoints
     path('tags/entities/create/', EntityTagCreateView.as_view()),
     path('tags/entities/search/', EntityTagSearchView.as_view()),
-    path('workshops/entities/', EntityWorkshopActiveAndPastView.as_view()),
-    path('workshops/entities/active/', EntityWorkshopActiveView.as_view()),
-    path('workshops/entities/past/', EntityWorkshopPastView.as_view()),
     path('workshops/entities/create/', EntityWorkshopCreateView.as_view()),
-    path('workshops/entities/interested/', EntityWorkshopInterestedView.as_view()),
-    path('workshops/entities/search/', EntityWorkshopSearchView.as_view()),
-    path('workshops/entities/search/date/', EntityWorkshopDateSearchView.as_view()),
 ]

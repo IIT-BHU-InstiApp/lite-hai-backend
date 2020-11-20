@@ -80,8 +80,10 @@ class Entity(models.Model):
 
 class Tag(models.Model):
     tag_name = models.CharField(max_length=50, validators=[validate_kebab_case])
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='tags', blank = True,  null = True)
-    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_tags', blank = True, null = True)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='tags',
+                             blank = True,  null = True)
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_tags',
+                                blank = True, null = True)
 
     def __str__(self):
         return f'{self.tag_name} - {self.club}'
