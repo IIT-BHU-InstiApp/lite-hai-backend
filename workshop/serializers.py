@@ -512,7 +512,6 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
-        # TODO: Make changes in the Firebase API to make it work for workshops of entities as well
         # FirebaseAPI.send_message(data)
 
     class Meta:
@@ -600,18 +599,11 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         profile = UserProfile.objects.get(user=user)
 
         if obj.club is not None:
-            if profile == obj.club.secy:
-                return True
-            if profile in obj.club.joint_secy.all():
-                return True
-            if profile == obj.club.council.gensec:
-                return True
-            if profile in obj.club.council.joint_gensec.all():
+            if (profile == obj.club.secy or profile in obj.club.joint_secy.all() or
+            profile == obj.club.council.gensec or profile in obj.club.council.joint_gensec.all()):
                 return True
         elif obj.entity is not None:
-            if profile == obj.entity.secy:
-                return True
-            if profile == obj.entity.joint_secy.all():
+            if (profile == obj.entity.secy or profile in obj.entity.joint_secy.all()):
                 return True
 
         return False

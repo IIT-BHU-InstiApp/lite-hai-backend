@@ -38,7 +38,6 @@ urlpatterns = [
     path('entities/<int:pk>/tags/', EntityTagsView.as_view()),
     path('entities/<int:pk>/toggle-subscribed/', EntitySubscriptionToggleView.as_view()),
 
-    # TODO: Try moving these to the corresponding club endpoints
     path('tags/entities/create/', EntityTagCreateView.as_view()),
     path('tags/entities/search/', EntityTagSearchView.as_view()),
     path('workshops/entities/create/', EntityWorkshopCreateView.as_view()),
