@@ -602,16 +602,16 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         if obj.club is not None:
             if profile == obj.club.secy:
                 return True
-            elif profile in obj.club.joint_secy.all():
+            if profile in obj.club.joint_secy.all():
                 return True
-            elif profile == obj.club.council.gensec:
+            if profile == obj.club.council.gensec:
                 return True
-            elif profile in obj.club.council.joint_gensec.all():
+            if profile in obj.club.council.joint_gensec.all():
                 return True
         elif obj.entity is not None:
             if profile == obj.entity.secy:
                 return True
-            elif profile == obj.entity.joint_secy.all():
+            if profile == obj.entity.joint_secy.all():
                 return True
 
         return False
