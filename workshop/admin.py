@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Council, Club, Tag, WorkshopResource, Workshop
+from .models import Council, Club, Tag, WorkshopResource, Workshop, Entity
 
 @admin.register(Council)
 class CouncilAdmin(admin.ModelAdmin):
@@ -50,6 +50,37 @@ class ClubAdmin(admin.ModelAdmin):
         '__str__', 'name', 'council', 'get_secy', 'get_joint_secy', 'get_subscribed_users')
     search_fields = ('name', 'secy__name', 'joint_secy__name',)
     list_filter = ('council',)
+
+    get_secy.short_description = 'Secretary'
+    get_joint_secy.short_description = 'Joint Secretary'
+    get_subscribed_users.short_description = 'Subscribed Users'
+
+
+@admin.register(Entity)
+class EntityAdmin(admin.ModelAdmin):
+    def get_secy(self, obj):
+        """
+        Get the Secretary of an Entity
+        """
+        if obj.secy is None:
+            return None
+        return obj.secy.name
+
+    def get_joint_secy(self, obj):
+        """
+        Get the Joint Secretary of an Entity
+        """
+        return ',\n'.join([o.name for o in obj.joint_secy.all()])
+
+    def get_subscribed_users(self, obj):
+        """
+        Get the count of subscribed users for an Entity
+        """
+        return obj.subscribed_users.count()
+
+    list_display = (
+        '__str__', 'name', 'get_secy', 'get_joint_secy', 'get_subscribed_users')
+    search_fields = ('name', 'secy__name', 'joint_secy__name',)
 
     get_secy.short_description = 'Secretary'
     get_joint_secy.short_description = 'Joint Secretary'
