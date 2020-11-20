@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView, ClubTagsView,
-    ClubSubscriptionToggleView, EntityDetailView, EntitySubscriptionToggleView, 
+    ClubSubscriptionToggleView, EntityDetailView, EntitySubscriptionToggleView,
     EntityTagCreateView, EntityTagSearchView, EntityTagsView, EntityView,  EntityWorkshopCreateView,
     TagCreateView, TagSearchView, WorkshopTagsUpdateView,
     WorkshopActiveAndPastView, WorkshopPastView, WorkshopCreateView, WorkshopDetailView,
