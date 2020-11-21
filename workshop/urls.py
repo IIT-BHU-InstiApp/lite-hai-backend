@@ -1,10 +1,10 @@
 from django.urls import path
 from .views import (
     CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView, ClubTagsView,
-    ClubSubscriptionToggleView, EntityDetailView, EntitySubscriptionToggleView,
+    ClubSubscriptionToggleView, EntityDetailView, EntityDetailWorkshopView, EntitySubscriptionToggleView,
     EntityTagCreateView, EntityTagSearchView, EntityTagsView, EntityView,  EntityWorkshopCreateView,
-    TagCreateView, TagSearchView, WorkshopTagsUpdateView,
-    WorkshopActiveAndPastView, WorkshopPastView, WorkshopCreateView, WorkshopDetailView,
+    ClubTagCreateView, ClubTagSearchView, WorkshopTagsUpdateView,
+    WorkshopActiveAndPastView, WorkshopPastView, ClubWorkshopCreateView, WorkshopDetailView,
     WorkshopActiveView, WorkshopContactsUpdateView, WorkshopInterestedToggleView,
     WorkshopInterestedView, WorkshopSearchView, WorkshopDateSearchView, WorkshopResourceCreateView,
     WorkshopResourceView)
@@ -17,12 +17,12 @@ urlpatterns = [
     path('clubs/<int:pk>/workshops/', ClubDetailWorkshopView.as_view()),
     path('clubs/<int:pk>/tags/', ClubTagsView.as_view()),
     path('clubs/<int:pk>/toggle-subscribed/', ClubSubscriptionToggleView.as_view()),
-    path('tags/create/', TagCreateView.as_view()),
-    path('tags/search/', TagSearchView.as_view()),
+    path('tags/create/', ClubTagCreateView.as_view()),
+    path('tags/search/', ClubTagSearchView.as_view()),
     path('workshops/', WorkshopActiveAndPastView.as_view()),
     path('workshops/active/', WorkshopActiveView.as_view()),
     path('workshops/past/', WorkshopPastView.as_view()),
-    path('workshops/create/', WorkshopCreateView.as_view()),
+    path('workshops/create/', ClubWorkshopCreateView.as_view()),
     path('workshops/<int:pk>/', WorkshopDetailView.as_view()),
     path('workshops/<int:pk>/update-tags/', WorkshopTagsUpdateView.as_view()),
     path('workshops/<int:pk>/update-contacts/', WorkshopContactsUpdateView.as_view()),
@@ -37,6 +37,7 @@ urlpatterns = [
     path('entities/<int:pk>/', EntityDetailView.as_view()),
     path('entities/<int:pk>/tags/', EntityTagsView.as_view()),
     path('entities/<int:pk>/toggle-subscribed/', EntitySubscriptionToggleView.as_view()),
+    path('entities/<int:pk>/workshops', EntityDetailWorkshopView.as_view()),
 
     path('tags/entities/create/', EntityTagCreateView.as_view()),
     path('tags/entities/search/', EntityTagSearchView.as_view()),

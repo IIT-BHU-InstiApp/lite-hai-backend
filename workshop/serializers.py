@@ -36,18 +36,11 @@ class EntitySerializer(serializers.ModelSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     club = ClubSerializer()
-
-    class Meta:
-        model = Tag
-        fields = ('id', 'tag_name', 'club')
-
-
-class EntityTagSerializer(serializers.ModelSerializer):
     entity = EntitySerializer()
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'entity')
+        fields = ('id', 'tag_name', 'club', 'entity')
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
@@ -236,6 +229,37 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
         fields = ('active_workshops', 'past_workshops')
 
 
+class EntityDetailWorkshopSerializer(serializers.ModelSerializer):
+    active_workshops = serializers.SerializerMethodField()
+    past_workshops = serializers.SerializerMethodField()
+
+    @swagger_serializer_method(serializer_or_field=WorkshopSerializer(many=True))
+    def get_active_workshops(self, obj):
+        """
+        Active Workshops of the Entity
+        """
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(
+            entity=obj, date__gte=date.today()).order_by('date', 'time')
+        serializer = WorkshopSerializer(queryset, many=True)
+        return serializer.data
+
+    @swagger_serializer_method(serializer_or_field=WorkshopSerializer(many=True))
+    def get_past_workshops(self, obj):
+        """
+        Past Workshops of the Entity
+        """
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(
+            entity=obj, date__lt=date.today()).order_by('-date', '-time')
+        serializer = WorkshopSerializer(queryset, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Club
+        fields = ('active_workshops', 'past_workshops')
+
+
 class ClubSubscriptionToggleSerializer(serializers.Serializer):
     def toggle_subscription(self):
         """
@@ -327,7 +351,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
             'facebook_url', 'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
 
 
-class TagCreateSerializer(serializers.ModelSerializer):
+class ClubTagCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """
         Validate whether the user can create the tag for the club,
@@ -386,7 +410,7 @@ class EntityTagCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'tag_name', 'entity')
 
 
-class TagSearchSerializer(serializers.ModelSerializer):
+class ClubTagSearchSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         tag_name = data['tag_name']
@@ -426,7 +450,7 @@ class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
         fields = ('tags',)
 
 
-class WorkshopCreateSerializer(serializers.ModelSerializer):
+class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
     def validate_club(self, club):
         """
         Validate the club field
@@ -590,7 +614,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_por_holder(self, obj):
         """
-        true, if the user is a POR holder of the Club or Club's Council, otherwise false
+        true, if the user is a POR holder of the Club or Club's Council (or) a POR holder of an entity, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
