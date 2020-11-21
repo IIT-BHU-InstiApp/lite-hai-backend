@@ -138,7 +138,7 @@ class EntityDetailSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=UserProfileSerializer(many=True))
     def get_point_of_contact(self, obj):
         """
-        Joint Secretary of the Entity
+        Point of Contact of the Entity
         """
         serializer = UserProfileSerializer(obj.point_of_contact, many=True)
         return serializer.data
