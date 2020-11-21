@@ -130,28 +130,17 @@ class ClubDetailSerializer(serializers.ModelSerializer):
 
 
 class EntityDetailSerializer(serializers.ModelSerializer):
-    secy = serializers.SerializerMethodField()
-    joint_secy = serializers.SerializerMethodField()
+    point_of_contact = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
     subscribed_users = serializers.SerializerMethodField()
     is_por_holder = serializers.SerializerMethodField()
 
-    # @swagger_serializer_method(serializer_or_field=UserProfileSerializer)
-    def get_secy(self, obj):
-        """
-        Secretary of the Entity
-        """
-        if obj.secy is None:
-            return None
-        serializer = UserProfileSerializer(obj.secy)
-        return serializer.data
-
     @swagger_serializer_method(serializer_or_field=UserProfileSerializer(many=True))
-    def get_joint_secy(self, obj):
+    def get_point_of_contact(self, obj):
         """
         Joint Secretary of the Entity
         """
-        serializer = UserProfileSerializer(obj.joint_secy, many=True)
+        serializer = UserProfileSerializer(obj.point_of_contact, many=True)
         return serializer.data
 
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
@@ -192,7 +181,7 @@ class EntityDetailSerializer(serializers.ModelSerializer):
         model = Entity
         read_only_fields = ('name', 'small_image_url', 'large_image_url')
         fields = (
-            'id', 'name', 'description', 'secy', 'joint_secy',
+            'id', 'name', 'description', 'point_of_contact',
             'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users',
             'is_por_holder', 'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
             'linkedin_url', 'youtube_url')
@@ -628,7 +617,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
             profile == obj.club.council.gensec or profile in obj.club.council.joint_gensec.all()):
                 return True
         elif obj.entity is not None:
-            if (profile == obj.entity.secy or profile in obj.entity.joint_secy.all()):
+            if profile in obj.entity.point_of_contact.all():
                 return True
 
         return False

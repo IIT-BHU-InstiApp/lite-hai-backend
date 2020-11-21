@@ -58,19 +58,11 @@ class ClubAdmin(admin.ModelAdmin):
 
 @admin.register(Entity)
 class EntityAdmin(admin.ModelAdmin):
-    def get_secy(self, obj):
+    def get_point_of_contact(self, obj):
         """
-        Get the Secretary of an Entity
+        Get the Point of Contact of an Entity
         """
-        if obj.secy is None:
-            return None
-        return obj.secy.name
-
-    def get_joint_secy(self, obj):
-        """
-        Get the Joint Secretary of an Entity
-        """
-        return ',\n'.join([o.name for o in obj.joint_secy.all()])
+        return ',\n'.join([o.name for o in obj.point_of_contact.all()])
 
     def get_subscribed_users(self, obj):
         """
@@ -79,11 +71,10 @@ class EntityAdmin(admin.ModelAdmin):
         return obj.subscribed_users.count()
 
     list_display = (
-        '__str__', 'name', 'get_secy', 'get_joint_secy', 'get_subscribed_users')
-    search_fields = ('name', 'secy__name', 'joint_secy__name',)
+        '__str__', 'name', 'get_point_of_contact', 'get_subscribed_users')
+    search_fields = ('name', 'point_of_contact__name',)
 
-    get_secy.short_description = 'Secretary'
-    get_joint_secy.short_description = 'Joint Secretary'
+    get_point_of_contact.short_description = 'Point of Contact'
     get_subscribed_users.short_description = 'Subscribed Users'
 
 

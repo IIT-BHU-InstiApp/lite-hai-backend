@@ -247,7 +247,7 @@ class EntityTagCreateView(generics.GenericAPIView):
 
     def post(self, request):
         """
-        Create Tag for an Entity - only Entity POR Holders or\
+        Create Tag for an Entity - only Entity Points of Contact or\
         any Workshop Contact are allowed to create a tag for the entity.
         """
         serializer = self.get_serializer(data=request.data)
@@ -310,7 +310,7 @@ class WorkshopTagsUpdateView(generics.GenericAPIView):
     # pylint: disable=unused-argument
     def put(self, request, pk):
         """
-        Update the tags of a workshop. Only the Club/Entity POR Holders\
+        Update the tags of a workshop. Only the Club POR Holders/Entity Points of Contact\
         or Workshop Contacts can perform this action.
         """
         serializer = self.get_serializer(data=request.data)
@@ -388,7 +388,7 @@ class EntityWorkshopCreateView(generics.GenericAPIView):
 
     def post(self, request):
         """
-        Create Workshops for an Entity - only Entity POR Holders are allowed to create a workshop.
+        Create Workshops for an Entity - only Entity Points of Contact are allowed to create a workshop.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -406,14 +406,17 @@ class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     put:
     Update the title, description, date, time, location, audience and resources of a workshop.
-    Only the Club/Entity POR Holders and Workshop Contacts can update this. (Full Update)
+    Only the Club POR Holders/Entity Points of Contact\
+    and Workshop Contacts can update this. (Full Update)
 
     patch:
     Update the title, description, date, time, location, audience and resources of a workshop.
-    Only the Club/Entity POR Holders and Workshop Contacts can update this. (Partial Update)
+    Only the Club POR Holders/Entity Points of Contact\
+    and Workshop Contacts can update this. (Partial Update)
 
     delete:
-    Delete the workshop. Only the Club/Entity POR Holders and Workshop Contacts can perform \
+    Delete the workshop. Only the Club POR Holders/Entity Points of Contact\
+    and Workshop Contacts can perform \
     this action.
     """
     permission_classes = (AllowWorkshopHeadOrContact,)
@@ -445,7 +448,7 @@ class WorkshopContactsUpdateView(generics.GenericAPIView):
     # pylint: disable=unused-argument
     def put(self, request, pk):
         """
-        Update the contacts of a workshop. Only the Club/Entity POR Holders can perform this action.
+        Update the contacts of a workshop. Only the Club POR Holders/Entity Points of Contact can perform this action.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -573,15 +576,18 @@ class WorkshopResourceView(generics.RetrieveUpdateDestroyAPIView):
 
     put:
     Update the resource of a workshop, with particular resource id..
-    Only the Club/Entity POR Holders and Workshop Contacts can update this. (Full Update)
+    Only the Club POR Holders/Entity Points of Contact\
+    and Workshop Contacts can update this. (Full Update)
 
     patch:
     Update the resource of a workshop, with particular resource id..
-    Only the Club/Entity POR Holders and Workshop Contacts can update this. (Partial Update)
+    Only the Club POR Holders/Entity Points of Contact\
+    and Workshop Contacts can update this. (Partial Update)
 
     delete:
     Delete the workshop resource.\
-    Only the Club/Entity POR Holders and Workshop Contacts can perform this action.
+    Only the Club POR Holders/Entity Points of Contact\
+    and Workshop Contacts can perform this action.
     """
     permission_classes = (AllowWorkshopHeadOrContactForResource, )
     serializer_class = WorkshopResourceSerializer

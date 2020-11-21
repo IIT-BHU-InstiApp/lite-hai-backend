@@ -53,9 +53,8 @@ class UserProfile(models.Model):
     def get_entity_privileges(self):
         """
         Get the privileges of the user for creating events
-        Entities - Secretary / Joint Secretary,
+        Entities - Point of Contact,
         """
         # pylint: disable=no-member
-        entities = self.entity_secy.all()
-        entities = entities | self.entity_joint_secy.all()
+        entities = self.entity_point_of_contact.all()
         return entities

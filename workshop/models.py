@@ -59,10 +59,9 @@ class Club(models.Model):
 class Entity(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
-    secy = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True,
-                             blank=True, related_name='entity_secy', verbose_name='Secretary')
-    joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='entity_joint_secy',
-                                        verbose_name='Joint Secretary')
+    point_of_contact = models.ManyToManyField(UserProfile, blank=True,
+                                        related_name='entity_point_of_contact',
+                                        verbose_name='Point of Contact')
     subscribed_users = models.ManyToManyField(UserProfile, blank=True,
                                               related_name='entity_subscriptions')
     small_image_url = models.URLField(null=True, blank=True)
