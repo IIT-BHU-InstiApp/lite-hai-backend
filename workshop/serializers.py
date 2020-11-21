@@ -510,7 +510,7 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
         data = self.validated_data
         # pylint: disable=no-member
         workshop = Workshop.objects.create(
-            title=data['title'], description=data.get('description', ''), 
+            title=data['title'], description=data.get('description', ''),
             entity=self.context['entity'], date=data['date'], time=data.get('time', None),
             location=data.get('location', ''), latitude=data.get('latitude', None),
             longitude=data.get('longitude', None), audience=data.get('audience', ''),
