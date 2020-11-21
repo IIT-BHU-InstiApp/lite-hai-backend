@@ -214,15 +214,25 @@ class CouncilDetailView(generics.RetrieveUpdateAPIView):
 class ClubTagCreateView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, AllowAnyClubHeadOrContact,)
     serializer_class = ClubTagCreateSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
 
     def get_serializer_context(self):
         return {
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
+            'club': self.get_object(),
         }
 
-    def post(self, request):
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
         """
         Create Tag for a Club - only Club POR Holders or\
         any Workshop Contact are allowed to create a tag for the club.
@@ -237,15 +247,25 @@ class ClubTagCreateView(generics.GenericAPIView):
 class EntityTagCreateView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, AllowAnyEntityHeadOrContact,)
     serializer_class = EntityTagCreateSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Entity.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
 
     def get_serializer_context(self):
         return {
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
+            'entity': self.get_object(),
         }
 
-    def post(self, request):
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
         """
         Create Tag for an Entity - only Entity Points of Contact or\
         any Workshop Contact are allowed to create a tag for the entity.
@@ -260,8 +280,25 @@ class EntityTagCreateView(generics.GenericAPIView):
 class ClubTagSearchView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = ClubTagSearchSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
 
-    def post(self, request):
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'club': self.get_object(),
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
         """
         Search a Tag by tag name for a club
         """
@@ -275,10 +312,27 @@ class ClubTagSearchView(generics.GenericAPIView):
 class EntityTagSearchView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = EntityTagSearchSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Entity.objects.all()
 
-    def post(self, request):
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'entity': self.get_object(),
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
         """
-        Search a Tag by tag name for a club
+        Search a Tag by tag name for an Entity
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -371,8 +425,25 @@ class WorkshopPastView(generics.ListAPIView):
 class ClubWorkshopCreateView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, AllowAnyClubHead,)
     serializer_class = ClubWorkshopCreateSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
 
-    def post(self, request):
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'club': self.get_object(),
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
         """
         Create Workshops for a Club - only Club POR Holders are allowed to create a workshop.
         """
@@ -386,16 +457,34 @@ class ClubWorkshopCreateView(generics.GenericAPIView):
 class EntityWorkshopCreateView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, AllowAnyEntityHead,)
     serializer_class = EntityWorkshopCreateSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Entity.objects.all()
 
-    def post(self, request):
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'entity': self.get_object(),
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
         """
         Create Workshops for an Entity - only Entity Points of Contact are allowed\
         to create a workshop.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_200_OK)
+        workshop = serializer.save()
+        serializer = WorkshopSerializer(workshop)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
