@@ -68,17 +68,26 @@ class LoginSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(max_length=15, validators=[
                                          phone_regex, ], allow_blank=True)
-    subscriptions = serializers.SerializerMethodField()
+    club_subscriptions = serializers.SerializerMethodField()
+    entity_subscriptions = serializers.SerializerMethodField()
     club_privileges = serializers.SerializerMethodField()
     entity_privileges = serializers.SerializerMethodField()
 
     @swagger_serializer_method(serializer_or_field=ClubSerializer(many=True))
-    def get_subscriptions(self, obj):
+    def get_club_subscriptions(self, obj):
         """
         User subscriptions for the clubs.
         """
-        clubs = obj.subscriptions.all()
+        clubs = obj.club_subscriptions.all()
         return ClubSerializer(clubs, many=True).data
+
+    @swagger_serializer_method(serializer_or_field=EntitySerializer(many=True))
+    def get_entity_subscriptions(self, obj):
+        """
+        User subscriptions for entities.
+        """
+        entities = obj.entity_subscriptions.all()
+        return EntitySerializer(entities, many=True).data
 
     @swagger_serializer_method(serializer_or_field=ClubSerializer(many=True))
     def get_club_privileges(self, obj):
@@ -114,11 +123,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         read_only_fields = (
-            'id', 'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges',
-            'entity_privileges', 'photo_url')
+            'id', 'email', 'department', 'year_of_joining', 'club_subscriptions',
+            'entity_subscriptions', 'club_privileges', 'entity_privileges', 'photo_url')
         fields = (
             'id', 'name', 'email', 'phone_number', 'department', 'year_of_joining',
-            'subscriptions', 'club_privileges', 'entity_privileges', 'photo_url')
+            'club_subscriptions', 'entity_subscriptions', 'club_privileges', 'entity_privileges',
+            'photo_url')
 
 
 class ProfileSearchSerializer(serializers.Serializer):
