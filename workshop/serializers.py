@@ -614,7 +614,8 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_por_holder(self, obj):
         """
-        true, if the user is a POR holder of the Club or Club's Council (or) a POR holder of an entity, otherwise false
+        true, if the user is a POR holder of the Club or Club's Council\
+        (or) a POR holder of an entity, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
