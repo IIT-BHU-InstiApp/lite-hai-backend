@@ -19,10 +19,11 @@ urlpatterns = [
     path('clubs/<int:pk>/tags/create/', ClubTagCreateView.as_view()),
     path('clubs/<int:pk>/tags/search/', ClubTagSearchView.as_view()),
     path('clubs/<int:pk>/toggle-subscribed/', ClubSubscriptionToggleView.as_view()),
+    path('clubs/<int:pk>/workshops/create/', ClubWorkshopCreateView.as_view()),
+
     path('workshops/', WorkshopActiveAndPastView.as_view()),
     path('workshops/active/', WorkshopActiveView.as_view()),
     path('workshops/past/', WorkshopPastView.as_view()),
-    path('workshops/create/', ClubWorkshopCreateView.as_view()),
     path('workshops/<int:pk>/', WorkshopDetailView.as_view()),
     path('workshops/<int:pk>/update-tags/', WorkshopTagsUpdateView.as_view()),
     path('workshops/<int:pk>/update-contacts/', WorkshopContactsUpdateView.as_view()),
@@ -40,6 +41,5 @@ urlpatterns = [
     path('entities/<int:pk>/tags/search/', EntityTagSearchView.as_view()),
     path('entities/<int:pk>/toggle-subscribed/', EntitySubscriptionToggleView.as_view()),
     path('entities/<int:pk>/workshops/', EntityDetailWorkshopView.as_view()),
-
-    path('workshops/entities/create/', EntityWorkshopCreateView.as_view()),
+    path('entities/<int:pk>/workshops/create/', EntityWorkshopCreateView.as_view()),
 ]

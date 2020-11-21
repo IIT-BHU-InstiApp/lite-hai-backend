@@ -441,23 +441,19 @@ class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
 
 
 class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
-    def validate_club(self, club):
+    def validate(self, attrs):
         """
         Validate the club field
+        Validates whether the tags belong to the club for which the workshop is created
         """
+        club = self.context['club']
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         if club not in profile.get_club_privileges():
             raise PermissionDenied(
                 "You are not authorized to create workshops for this club")
-        return club
 
-    def validate(self, attrs):
-        """
-        Validates whether the tags belong to the club for which the workshop is created
-        """
-        club = attrs['club']
         tags = attrs.get('tags', [])
         for tag in tags:
             if tag.club != club:
@@ -469,7 +465,7 @@ class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
         data = self.validated_data
         # pylint: disable=no-member
         workshop = Workshop.objects.create(
-            title=data['title'], description=data.get('description', ''), club=data['club'],
+            title=data['title'], description=data.get('description', ''), club=self.context['club'],
             date=data['date'], time=data.get('time', None), location=data.get('location', ''),
             latitude=data.get('latitude', None), longitude=data.get('longitude', None),
             audience=data.get('audience', ''), image_url=data.get('image_url', '')
@@ -478,35 +474,31 @@ class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
-        FirebaseAPI.send_message(data)
+        FirebaseAPI.send_message(data, self.context['club'])
         return workshop
 
     class Meta:
         model = Workshop
         fields = (
-            'id', 'title', 'description', 'club', 'date', 'time', 'location', 'latitude',
+            'id', 'title', 'description', 'date', 'time', 'location', 'latitude',
             'longitude', 'audience', 'contacts', 'image_url', 'tags',
             'link')
 
 
 class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
-    def validate_entity(self, entity):
+    def validate(self, attrs):
         """
         Validate the entity field
+        Validates whether the tags belong to the entity for which the workshop is created
         """
+        entity = self.context['entity']
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         if entity not in profile.get_entity_privileges():
             raise PermissionDenied(
                 "You are not authorized to create workshops for this entity")
-        return entity
 
-    def validate(self, attrs):
-        """
-        Validates whether the tags belong to the entity for which the workshop is created
-        """
-        entity = attrs['entity']
         tags = attrs.get('tags', [])
         for tag in tags:
             if tag.entity != entity:
@@ -518,21 +510,23 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
         data = self.validated_data
         # pylint: disable=no-member
         workshop = Workshop.objects.create(
-            title=data['title'], description=data.get('description', ''), entity=data['entity'],
-            date=data['date'], time=data.get('time', None), location=data.get('location', ''),
-            latitude=data.get('latitude', None), longitude=data.get('longitude', None),
-            audience=data.get('audience', ''), image_url=data.get('image_url', '')
+            title=data['title'], description=data.get('description', ''), 
+            entity=self.context['entity'], date=data['date'], time=data.get('time', None),
+            location=data.get('location', ''), latitude=data.get('latitude', None),
+            longitude=data.get('longitude', None), audience=data.get('audience', ''),
+            image_url=data.get('image_url', '')
         )
         workshop.contacts.set(data.get('contacts', []))
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
         # FirebaseAPI.send_message(data)
+        return workshop
 
     class Meta:
         model = Workshop
         fields = (
-            'id', 'title', 'description', 'entity', 'date', 'time', 'location', 'latitude',
+            'id', 'title', 'description', 'date', 'time', 'location', 'latitude',
             'longitude', 'audience', 'contacts', 'image_url', 'tags',
             'link')
 
