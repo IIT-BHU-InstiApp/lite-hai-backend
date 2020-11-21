@@ -87,10 +87,10 @@ class Tag(models.Model):
     def __str__(self):
         if self.club is not None:
             return f'{self.tag_name} - {self.club} [Club]'
-        elif self.entity is not None:
+        if self.entity is not None:
             return f'{self.tag_name} - {self.entity} [Entity]'
-        else:
-            return f'{self.tag_name}'
+        return f'{self.tag_name}'
+
 
 class Workshop(models.Model):
     title = models.CharField(max_length=50)
