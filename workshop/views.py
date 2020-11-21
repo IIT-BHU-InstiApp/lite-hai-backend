@@ -388,7 +388,8 @@ class EntityWorkshopCreateView(generics.GenericAPIView):
 
     def post(self, request):
         """
-        Create Workshops for an Entity - only Entity Points of Contact are allowed to create a workshop.
+        Create Workshops for an Entity - only Entity Points of Contact are allowed\
+        to create a workshop.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -448,7 +449,8 @@ class WorkshopContactsUpdateView(generics.GenericAPIView):
     # pylint: disable=unused-argument
     def put(self, request, pk):
         """
-        Update the contacts of a workshop. Only the Club POR Holders/Entity Points of Contact can perform this action.
+        Update the contacts of a workshop. Only the Club POR Holders/Entity Points of Contact \
+        can perform this action.
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
