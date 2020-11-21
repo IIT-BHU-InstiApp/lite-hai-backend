@@ -173,7 +173,7 @@ class EntityDetailSerializer(serializers.ModelSerializer):
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
-        if obj in profile.get_club_privileges():
+        if obj in profile.get_entity_privileges():
             return True
         return False
 
