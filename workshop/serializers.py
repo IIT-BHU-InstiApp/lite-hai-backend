@@ -347,7 +347,7 @@ class ClubTagCreateSerializer(serializers.ModelSerializer):
         and whether the tag already exists
         """
         tag_name = attrs['tag_name']
-        club = attrs['club']
+        club = self.context['club']
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
@@ -362,12 +362,12 @@ class ClubTagCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         # pylint: disable=no-member
-        tag = Tag.objects.create(tag_name=data['tag_name'], club=data['club'])
+        tag = Tag.objects.create(tag_name=data['tag_name'], club=self.context['club'])
         return tag
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'club')
+        fields = ('id', 'tag_name')
 
 
 class EntityTagCreateSerializer(serializers.ModelSerializer):
@@ -377,11 +377,12 @@ class EntityTagCreateSerializer(serializers.ModelSerializer):
         and whether the tag already exists
         """
         tag_name = attrs['tag_name']
-        entity = attrs['entity']
+        entity = self.context['entity']
         request = self.context['request']
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        if entity not in profile.get_entity_privileges():
+        if (entity not in profile.get_entity_privileges() and
+            entity.id not in profile.get_workshop_privileges().values_list('entity', flat=True)):
             raise PermissionDenied("You are not allowed to create tag for this entity")
         # pylint: disable=no-member
         if Tag.objects.filter(tag_name=tag_name, entity = entity):
@@ -391,40 +392,40 @@ class EntityTagCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         # pylint: disable=no-member
-        tag = Tag.objects.create(tag_name=data['tag_name'], entity=data['entity'])
+        tag = Tag.objects.create(tag_name=data['tag_name'], entity=self.context['entity'])
         return tag
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'entity')
+        fields = ('id', 'tag_name')
 
 
 class ClubTagSearchSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         tag_name = data['tag_name']
-        club = data['club']
+        club = self.context['club']
         # pylint: disable=no-member
         tags = Tag.objects.filter(tag_name__icontains=tag_name, club=club)
         return tags
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'club')
+        fields = ('id', 'tag_name')
 
 
 class EntityTagSearchSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         tag_name = data['tag_name']
-        entity = data['entity']
+        entity = self.context['entity']
         # pylint: disable=no-member
         tags = Tag.objects.filter(tag_name__icontains=tag_name, entity=entity)
         return tags
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'entity')
+        fields = ('id', 'tag_name')
 
 
 class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
