@@ -42,7 +42,8 @@ class Club(models.Model):
                              blank=True, related_name='club_secy', verbose_name='Secretary')
     joint_secy = models.ManyToManyField(UserProfile, blank=True, related_name='club_joint_secy',
                                         verbose_name='Joint Secretary')
-    subscribed_users = models.ManyToManyField(UserProfile, blank=True, related_name='subscriptions')
+    subscribed_users = models.ManyToManyField(UserProfile, blank=True,
+                                        related_name='club_subscriptions')
     small_image_url = models.URLField(null=True, blank=True)
     large_image_url = models.URLField(null=True, blank=True)
     website_url = models.URLField(null=True, blank=True)
