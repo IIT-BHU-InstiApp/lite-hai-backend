@@ -59,6 +59,19 @@ class AllowAnyClubHead(permissions.BasePermission):
         return False
 
 
+class AllowAnyClubOrEntityHead(permissions.BasePermission):
+    message = "You are not authorized to perform this task"
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        if profile.get_club_privileges() or profile.get_entity_privileges():
+            return True
+        return False
+
+
 class AllowAnyClubHeadOrContact(permissions.BasePermission):
     message = "You are not authorized to perform this task"
 
