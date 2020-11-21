@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     year_of_joining = models.CharField(max_length=10)
     photo_url = models.URLField(null=True, blank=True, editable=False)
 
+    # pylint: disable=invalid-str-returned
     def __str__(self):
         return self.name
 
@@ -45,5 +46,15 @@ class UserProfile(models.Model):
         """
         Get the privileges of the user for modifying workshops
         """
+        # pylint: disable=no-member
         workshops = self.organized_workshops.all()
         return workshops
+
+    def get_entity_privileges(self):
+        """
+        Get the privileges of the user for creating events
+        Entities - Point of Contact,
+        """
+        # pylint: disable=no-member
+        entities = self.entity_point_of_contact.all()
+        return entities

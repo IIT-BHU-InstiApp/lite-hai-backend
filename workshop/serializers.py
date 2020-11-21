@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from drf_yasg2.utils import swagger_serializer_method
 from authentication.utils import FirebaseAPI
-from .models import UserProfile, Club, Council, Workshop, Tag, WorkshopResource
+from .models import Entity, UserProfile, Club, Council, Workshop, Tag, WorkshopResource
 
 logger = logging.getLogger('django')
 
@@ -28,21 +28,29 @@ class ClubSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'council', 'small_image_url', 'large_image_url')
 
 
+class EntitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entity
+        fields = ('id', 'name', 'small_image_url', 'large_image_url')
+
+
 class TagSerializer(serializers.ModelSerializer):
     club = ClubSerializer()
+    entity = EntitySerializer()
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'club')
+        fields = ('id', 'tag_name', 'club', 'entity')
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
     club = ClubSerializer(read_only=True)
+    entity = EntitySerializer(read_only = True)
     tags = TagSerializer(read_only=True, many=True)
 
     class Meta:
         model = Workshop
-        fields = ('id', 'club', 'title', 'date', 'time', 'tags')
+        fields = ('id', 'club', 'entity', 'title', 'date', 'time', 'tags')
 
 
 class WorkshopActiveAndPastSerializer(serializers.Serializer):
@@ -121,6 +129,64 @@ class ClubDetailSerializer(serializers.ModelSerializer):
             'linkedin_url', 'youtube_url')
 
 
+class EntityDetailSerializer(serializers.ModelSerializer):
+    point_of_contact = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+    subscribed_users = serializers.SerializerMethodField()
+    is_por_holder = serializers.SerializerMethodField()
+
+    @swagger_serializer_method(serializer_or_field=UserProfileSerializer(many=True))
+    def get_point_of_contact(self, obj):
+        """
+        Point of Contact of the Entity
+        """
+        serializer = UserProfileSerializer(obj.point_of_contact, many=True)
+        return serializer.data
+
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get_is_subscribed(self, obj):
+        """
+        true, if the user has subscribed to the entity, otherwise false
+        null, in case of anonymous login
+        """
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return None
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+        return profile in obj.subscribed_users.all()
+
+    @swagger_serializer_method(serializer_or_field=serializers.IntegerField)
+    def get_subscribed_users(self, obj):
+        """
+        Total number of users subscribed to the entity
+        """
+        return obj.subscribed_users.count()
+
+    @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
+    def get_is_por_holder(self, obj):
+        """
+        true, if the user is the POR Holder of the Entity, otherwise false
+        """
+        user = self.context['request'].user
+        if not user.is_authenticated:
+            return False
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=user)
+        if obj in profile.get_entity_privileges():
+            return True
+        return False
+
+    class Meta:
+        model = Entity
+        read_only_fields = ('name', 'small_image_url', 'large_image_url')
+        fields = (
+            'id', 'name', 'description', 'point_of_contact',
+            'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users',
+            'is_por_holder', 'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
+            'linkedin_url', 'youtube_url')
+
+
 class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
     active_workshops = serializers.SerializerMethodField()
     past_workshops = serializers.SerializerMethodField()
@@ -152,10 +218,41 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
         fields = ('active_workshops', 'past_workshops')
 
 
+class EntityDetailWorkshopSerializer(serializers.ModelSerializer):
+    active_workshops = serializers.SerializerMethodField()
+    past_workshops = serializers.SerializerMethodField()
+
+    @swagger_serializer_method(serializer_or_field=WorkshopSerializer(many=True))
+    def get_active_workshops(self, obj):
+        """
+        Active Workshops of the Entity
+        """
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(
+            entity=obj, date__gte=date.today()).order_by('date', 'time')
+        serializer = WorkshopSerializer(queryset, many=True)
+        return serializer.data
+
+    @swagger_serializer_method(serializer_or_field=WorkshopSerializer(many=True))
+    def get_past_workshops(self, obj):
+        """
+        Past Workshops of the Entity
+        """
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(
+            entity=obj, date__lt=date.today()).order_by('-date', '-time')
+        serializer = WorkshopSerializer(queryset, many=True)
+        return serializer.data
+
+    class Meta:
+        model = Club
+        fields = ('active_workshops', 'past_workshops')
+
+
 class ClubSubscriptionToggleSerializer(serializers.Serializer):
     def toggle_subscription(self):
         """
-        Toggles the subscription of the user
+        Toggles the Club subscription of the user
         """
         user = self.context['request'].user
         # pylint: disable=no-member
@@ -168,6 +265,25 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
         else:
             club.subscribed_users.add(profile)
         logger.info('[GET Response] (%s) : Toggled Club subscription', profile)
+
+
+class EntitySubscriptionToggleSerializer(serializers.Serializer):
+    def toggle_subscription(self):
+        """
+        Toggles the Entity subscription of the user
+        """
+        user = self.context['request'].user
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(
+            user=user)
+        entity = self.context['entity']
+
+        if entity in profile.entity_subscriptions.all():
+            entity.subscribed_users.remove(profile)
+        else:
+            entity.subscribed_users.add(profile)
+        logger.info('[GET Response] (%s) : Toggled Entity subscription', profile)
+
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
     gensec = serializers.SerializerMethodField()
@@ -224,7 +340,7 @@ class CouncilDetailSerializer(serializers.ModelSerializer):
             'facebook_url', 'twitter_url', 'instagram_url', 'linkedin_url', 'youtube_url')
 
 
-class TagCreateSerializer(serializers.ModelSerializer):
+class ClubTagCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """
         Validate whether the user can create the tag for the club,
@@ -233,16 +349,19 @@ class TagCreateSerializer(serializers.ModelSerializer):
         tag_name = attrs['tag_name']
         club = attrs['club']
         request = self.context['request']
+        # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
         if (club not in profile.get_club_privileges() and
                 club.id not in profile.get_workshop_privileges().values_list('club', flat=True)):
             raise PermissionDenied("You are not allowed to create tag for this club")
+        # pylint: disable=no-member
         if Tag.objects.filter(tag_name=tag_name, club=club):
             raise serializers.ValidationError("The tag already exists for this club")
         return attrs
 
     def save(self, **kwargs):
         data = self.validated_data
+        # pylint: disable=no-member
         tag = Tag.objects.create(tag_name=data['tag_name'], club=data['club'])
         return tag
 
@@ -251,17 +370,61 @@ class TagCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'tag_name', 'club')
 
 
-class TagSearchSerializer(serializers.ModelSerializer):
+class EntityTagCreateSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        """
+        Validate whether the user can create the tag for the entity,
+        and whether the tag already exists
+        """
+        tag_name = attrs['tag_name']
+        entity = attrs['entity']
+        request = self.context['request']
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        if entity not in profile.get_entity_privileges():
+            raise PermissionDenied("You are not allowed to create tag for this entity")
+        # pylint: disable=no-member
+        if Tag.objects.filter(tag_name=tag_name, entity = entity):
+            raise serializers.ValidationError("The tag already exists for this entity")
+        return attrs
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        # pylint: disable=no-member
+        tag = Tag.objects.create(tag_name=data['tag_name'], entity=data['entity'])
+        return tag
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name', 'entity')
+
+
+class ClubTagSearchSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         tag_name = data['tag_name']
         club = data['club']
+        # pylint: disable=no-member
         tags = Tag.objects.filter(tag_name__icontains=tag_name, club=club)
         return tags
 
     class Meta:
         model = Tag
         fields = ('id', 'tag_name', 'club')
+
+
+class EntityTagSearchSerializer(serializers.ModelSerializer):
+    def save(self, **kwargs):
+        data = self.validated_data
+        tag_name = data['tag_name']
+        entity = data['entity']
+        # pylint: disable=no-member
+        tags = Tag.objects.filter(tag_name__icontains=tag_name, entity=entity)
+        return tags
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name', 'entity')
 
 
 class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
@@ -276,7 +439,7 @@ class WorkshopTagsUpdateSerializer(serializers.ModelSerializer):
         fields = ('tags',)
 
 
-class WorkshopCreateSerializer(serializers.ModelSerializer):
+class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
     def validate_club(self, club):
         """
         Validate the club field
@@ -325,6 +488,54 @@ class WorkshopCreateSerializer(serializers.ModelSerializer):
             'link')
 
 
+class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
+    def validate_entity(self, entity):
+        """
+        Validate the entity field
+        """
+        request = self.context['request']
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        if entity not in profile.get_entity_privileges():
+            raise PermissionDenied(
+                "You are not authorized to create workshops for this entity")
+        return entity
+
+    def validate(self, attrs):
+        """
+        Validates whether the tags belong to the entity for which the workshop is created
+        """
+        entity = attrs['entity']
+        tags = attrs.get('tags', [])
+        for tag in tags:
+            if tag.entity != entity:
+                raise serializers.ValidationError(
+                    f"The tag {tag.tag_name} does not belong to this entity")
+        return attrs
+
+    def save(self, **kwargs):
+        data = self.validated_data
+        # pylint: disable=no-member
+        workshop = Workshop.objects.create(
+            title=data['title'], description=data.get('description', ''), entity=data['entity'],
+            date=data['date'], time=data.get('time', None), location=data.get('location', ''),
+            latitude=data.get('latitude', None), longitude=data.get('longitude', None),
+            audience=data.get('audience', ''), image_url=data.get('image_url', '')
+        )
+        workshop.contacts.set(data.get('contacts', []))
+        workshop.tags.set(data.get('tags', []))
+        # By default, add the creator of the workshop as the contact for the workshop
+        workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
+        # FirebaseAPI.send_message(data)
+
+    class Meta:
+        model = Workshop
+        fields = (
+            'id', 'title', 'description', 'entity', 'date', 'time', 'location', 'latitude',
+            'longitude', 'audience', 'contacts', 'image_url', 'tags',
+            'link')
+
+
 class WorkshopResourceSerializer(serializers.ModelSerializer):
     # pylint: disable=unused-argument
     def add_resource(self, **kwargs):
@@ -345,9 +556,11 @@ class WorkshopResourceSerializer(serializers.ModelSerializer):
             'id', 'name', 'link', 'resource_type'
         )
 
+
 class WorkshopDetailSerializer(serializers.ModelSerializer):
     time = serializers.TimeField(allow_null=True, default=None)
     club = ClubSerializer(read_only=True, required=False)
+    entity = EntitySerializer(read_only = True, required = False)
     contacts = UserProfileSerializer(many=True, read_only=True)
     resources = serializers.SerializerMethodField()
     is_interested = serializers.SerializerMethodField()
@@ -391,7 +604,8 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
     @swagger_serializer_method(serializer_or_field=serializers.BooleanField)
     def get_is_por_holder(self, obj):
         """
-        true, if the user is a POR holder of the Club or Club's Council, otherwise false
+        true, if the user is a POR holder of the Club or Club's Council\
+        (or) a POR holder of an entity, otherwise false
         """
         user = self.context['request'].user
         if not user.is_authenticated:
@@ -399,17 +613,13 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=user)
 
-        if profile == obj.club.secy:
-            return True
-
-        if profile in obj.club.joint_secy.all():
-            return True
-
-        if profile == obj.club.council.gensec:
-            return True
-
-        if profile in obj.club.council.joint_gensec.all():
-            return True
+        if obj.club is not None:
+            if (profile == obj.club.secy or profile in obj.club.joint_secy.all() or
+            profile == obj.club.council.gensec or profile in obj.club.council.joint_gensec.all()):
+                return True
+        elif obj.entity is not None:
+            if profile in obj.entity.point_of_contact.all():
+                return True
 
         return False
 
@@ -426,10 +636,10 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workshop
-        read_only_fields = ('club', 'contacts', 'is_interested', 'interested_users', 'resources',
-                            'tags')
+        read_only_fields = ('club', 'entity', 'contacts', 'is_interested', 'interested_users',
+                            'resources', 'tags')
         fields = (
-            'id', 'title', 'description', 'club', 'date', 'time', 'location',
+            'id', 'title', 'description', 'club', 'entity', 'date', 'time', 'location',
             'latitude', 'longitude', 'audience', 'resources', 'contacts', 'image_url',
             'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags',
             'link')
@@ -480,6 +690,8 @@ class WorkshopSearchSerializer(serializers.Serializer):
         search_by = data['search_by']
         search_string = data['search_string']
         # pylint: disable=no-member
+        workshop = Workshop.objects.none()
+        # pylint: disable=no-member
         if search_by == 'title':
             workshop = Workshop.objects.filter(title__icontains=search_string)
         elif search_by == 'location':
@@ -510,6 +722,7 @@ class WorkshopDateSearchSerializer(serializers.Serializer):
         # pylint: disable=no-member
         return Workshop.objects.filter(date__gte=start_date, date__lte=end_date)
 
+
 class ClubTagsSerializer(serializers.ModelSerializer):
     club_tags = serializers.SerializerMethodField()
 
@@ -517,9 +730,26 @@ class ClubTagsSerializer(serializers.ModelSerializer):
         """
         Tags of a particular club
         """
+        # pylint: disable=no-member
         tags = Tag.objects.filter(club=club)
         serializer = TagSerializer(tags, many=True)
         return serializer.data
     class Meta:
         model = Club
         fields = ('club_tags',)
+
+
+class EntityTagsSerializer(serializers.ModelSerializer):
+    entity_tags = serializers.SerializerMethodField()
+
+    def get_entity_tags(self, entity):
+        """
+        Tags of a particular entity
+        """
+        # pylint: disable=no-member
+        tags = Tag.objects.filter(entity=entity)
+        serializer = TagSerializer(tags, many=True)
+        return serializer.data
+    class Meta:
+        model = Entity
+        fields = ('entity_tags',)

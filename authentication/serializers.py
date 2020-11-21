@@ -3,7 +3,7 @@ from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from drf_yasg2.utils import swagger_serializer_method
-from workshop.serializers import ClubSerializer
+from workshop.serializers import ClubSerializer, EntitySerializer
 from .utils import Student, FirebaseAPI
 from .models import UserProfile
 
@@ -70,6 +70,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                                          phone_regex, ], allow_blank=True)
     subscriptions = serializers.SerializerMethodField()
     club_privileges = serializers.SerializerMethodField()
+    entity_privileges = serializers.SerializerMethodField()
 
     @swagger_serializer_method(serializer_or_field=ClubSerializer(many=True))
     def get_subscriptions(self, obj):
@@ -89,6 +90,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         clubs = obj.get_club_privileges()
         return ClubSerializer(clubs, many=True).data
 
+    @swagger_serializer_method(serializer_or_field=EntitySerializer(many=True))
+    def get_entity_privileges(self, obj):
+        """
+        Privileges of the user for creating workshops.
+        Entities - Points of Contact
+        """
+        entities = obj.get_entity_privileges()
+        return EntitySerializer(entities, many=True).data
+
     def update(self, instance, validated_data):
         name = validated_data['name']
         phone_number = validated_data['phone_number']
@@ -105,10 +115,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         read_only_fields = (
             'id', 'email', 'department', 'year_of_joining', 'subscriptions', 'club_privileges',
-            'photo_url')
+            'entity_privileges', 'photo_url')
         fields = (
             'id', 'name', 'email', 'phone_number', 'department', 'year_of_joining',
-            'subscriptions', 'club_privileges', 'photo_url')
+            'subscriptions', 'club_privileges', 'entity_privileges', 'photo_url')
 
 
 class ProfileSearchSerializer(serializers.Serializer):
@@ -130,6 +140,7 @@ class ProfileSearchSerializer(serializers.Serializer):
         search_by = data['search_by']
         search_string = data['search_string']
         # pylint: disable=no-member
+        profile = UserProfile.objects.none()
         if search_by == 'name':
             profile = UserProfile.objects.filter(
                 name__icontains=search_string)[:10]

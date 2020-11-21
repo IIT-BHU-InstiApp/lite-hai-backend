@@ -56,18 +56,49 @@ class Club(models.Model):
         return '%s' % self.name
 
 
-class Tag(models.Model):
-    tag_name = models.CharField(max_length=50, validators=[validate_kebab_case])
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='tags')
+class Entity(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True)
+    point_of_contact = models.ManyToManyField(UserProfile, blank=True,
+                                        related_name='entity_point_of_contact',
+                                        verbose_name='Point of Contact')
+    subscribed_users = models.ManyToManyField(UserProfile, blank=True,
+                                              related_name='entity_subscriptions')
+    small_image_url = models.URLField(null=True, blank=True)
+    large_image_url = models.URLField(null=True, blank=True)
+    website_url = models.URLField(null=True, blank=True)
+    facebook_url = models.URLField(null=True, blank=True)
+    twitter_url = models.URLField(null=True, blank=True)
+    instagram_url = models.URLField(null=True, blank=True)
+    linkedin_url = models.URLField(null=True, blank=True)
+    youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.tag_name} - {self.club}'
+        return '%s' % self.name
+
+
+class Tag(models.Model):
+    tag_name = models.CharField(max_length=50, validators=[validate_kebab_case])
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='tags',
+                             blank = True,  null = True)
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_tags',
+                                blank = True, null = True)
+
+    def __str__(self):
+        if self.club is not None:
+            return f'{self.tag_name} - {self.club} [Club]'
+        if self.entity is not None:
+            return f'{self.tag_name} - {self.entity} [Entity]'
+        return f'{self.tag_name}'
 
 
 class Workshop(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='workshops')
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_workshops',
+                               blank=True, null = True)
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='workshops',
+                             blank=True, null = True)
     date = models.DateField()
     time = models.TimeField(blank=True, null=True)
     location = models.CharField(blank=True, max_length=50)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Council, Club, Tag, WorkshopResource, Workshop
+from .models import Council, Club, Tag, WorkshopResource, Workshop, Entity
 
 @admin.register(Council)
 class CouncilAdmin(admin.ModelAdmin):
@@ -53,6 +53,28 @@ class ClubAdmin(admin.ModelAdmin):
 
     get_secy.short_description = 'Secretary'
     get_joint_secy.short_description = 'Joint Secretary'
+    get_subscribed_users.short_description = 'Subscribed Users'
+
+
+@admin.register(Entity)
+class EntityAdmin(admin.ModelAdmin):
+    def get_point_of_contact(self, obj):
+        """
+        Get the Point of Contact of an Entity
+        """
+        return ',\n'.join([o.name for o in obj.point_of_contact.all()])
+
+    def get_subscribed_users(self, obj):
+        """
+        Get the count of subscribed users for an Entity
+        """
+        return obj.subscribed_users.count()
+
+    list_display = (
+        '__str__', 'name', 'get_point_of_contact', 'get_subscribed_users')
+    search_fields = ('name', 'point_of_contact__name',)
+
+    get_point_of_contact.short_description = 'Point of Contact'
     get_subscribed_users.short_description = 'Subscribed Users'
 
 
