@@ -101,9 +101,9 @@ class FirebaseAPI:
         return auth.get_user(uid)._data['photoUrl']
 
     @classmethod
-    def send_message(cls, data, club):
+    def send_club_message(cls, data, club):
         """
-        Gets the message content
+        Gets the message content for Clubs
         """
         topic='C_'+str(club.id)
         msg_notification=messaging.Notification(
@@ -115,6 +115,27 @@ class FirebaseAPI:
             topic=topic
         )
 
+        try:
+            response = messaging.send(message)
+            logger.info('[Topic %s] Successfully sent message: %s', topic, response)
+        except (exceptions.FirebaseError, TransportError) as e:
+            logger.warning('[Topic %s] Could not send notification!', topic)
+            logger.error(e)
+
+    @classmethod
+    def send_entity_message(cls, data, entity):
+        """
+        Gets the message content for Entities
+        """
+        topic = 'E_'+str(entity.id)
+        msg_notification=messaging.Notification(
+            title="New Workshop in "+str(entity.name),
+            body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+            image=data.get('image_url',''))
+        message = messaging.Message(
+            notification=msg_notification,
+            topic=topic
+        )
         try:
             response = messaging.send(message)
             logger.info('[Topic %s] Successfully sent message: %s', topic, response)
