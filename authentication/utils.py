@@ -101,15 +101,21 @@ class FirebaseAPI:
         return auth.get_user(uid)._data['photoUrl']
 
     @classmethod
-    def send_message(cls, data, club):
+    def send_club_message(cls, data, club):
         """
-        Gets the message content
+        Gets the message content for Clubs
         """
         topic='C_'+str(club.id)
-        msg_notification=messaging.Notification(
-            title="New Workshop in "+str(club.name),
-            body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
-            image=data.get('image_url',''))
+        if data.get('is_workshop', True):
+            msg_notification=messaging.Notification(
+                title="New Workshop in "+str(club.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
+        else:
+            msg_notification=messaging.Notification(
+                title="New Event in "+str(club.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
         message = messaging.Message(
             notification=msg_notification,
             topic=topic
@@ -123,9 +129,36 @@ class FirebaseAPI:
             logger.error(e)
 
     @classmethod
+    def send_entity_message(cls, data, entity):
+        """
+        Gets the message content for Entities
+        """
+        topic = 'E_'+str(entity.id)
+        if data.get('is_workshop', True):
+            msg_notification=messaging.Notification(
+                title="New Workshop in "+str(entity.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
+        else:
+            msg_notification=messaging.Notification(
+                title="New Event in "+str(entity.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
+        message = messaging.Message(
+            notification=msg_notification,
+            topic=topic
+        )
+        try:
+            response = messaging.send(message)
+            logger.info('[Topic %s] Successfully sent message: %s', topic, response)
+        except (exceptions.FirebaseError, TransportError) as e:
+            logger.warning('[Topic %s] Could not send notification!', topic)
+            logger.error(e)
+
+    @classmethod
     def send_workshop_update(cls, instance, data):
         """
-        Gets the message content on updating workshop
+        Gets the message content on updating workshop or event
         """
         topic = 'W_' + str(instance.id)
         msg_notification = messaging.Notification(

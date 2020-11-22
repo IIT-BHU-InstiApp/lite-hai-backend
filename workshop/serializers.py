@@ -475,7 +475,7 @@ class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
-        FirebaseAPI.send_message(data, self.context['club'])
+        FirebaseAPI.send_club_message(data, self.context['club'])
         return workshop
 
     class Meta:
@@ -521,7 +521,7 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
         workshop.tags.set(data.get('tags', []))
         # By default, add the creator of the workshop as the contact for the workshop
         workshop.contacts.add(UserProfile.objects.get(user=self.context['request'].user))
-        # FirebaseAPI.send_message(data)
+        FirebaseAPI.send_entity_message(data, self.context['entity'])
         return workshop
 
     class Meta:
