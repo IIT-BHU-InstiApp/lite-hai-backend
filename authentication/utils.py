@@ -106,10 +106,16 @@ class FirebaseAPI:
         Gets the message content for Clubs
         """
         topic='C_'+str(club.id)
-        msg_notification=messaging.Notification(
-            title="New Workshop in "+str(club.name),
-            body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
-            image=data.get('image_url',''))
+        if data.get('is_workshop', True):
+            msg_notification=messaging.Notification(
+                title="New Workshop in "+str(club.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
+        else:
+            msg_notification=messaging.Notification(
+                title="New Event in "+str(club.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
         message = messaging.Message(
             notification=msg_notification,
             topic=topic
@@ -128,10 +134,16 @@ class FirebaseAPI:
         Gets the message content for Entities
         """
         topic = 'E_'+str(entity.id)
-        msg_notification=messaging.Notification(
-            title="New Workshop in "+str(entity.name),
-            body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
-            image=data.get('image_url',''))
+        if data.get('is_workshop', True):
+            msg_notification=messaging.Notification(
+                title="New Workshop in "+str(entity.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
+        else:
+            msg_notification=messaging.Notification(
+                title="New Event in "+str(entity.name),
+                body=data['title']+" on "+str(data['date'].strftime('%d-%m-%Y')),
+                image=data.get('image_url',''))
         message = messaging.Message(
             notification=msg_notification,
             topic=topic
@@ -146,7 +158,7 @@ class FirebaseAPI:
     @classmethod
     def send_workshop_update(cls, instance, data):
         """
-        Gets the message content on updating workshop
+        Gets the message content on updating workshop or event
         """
         topic = 'W_' + str(instance.id)
         msg_notification = messaging.Notification(
