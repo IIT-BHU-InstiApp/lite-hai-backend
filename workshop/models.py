@@ -100,6 +100,7 @@ class Workshop(models.Model):
                                blank=True, null = True)
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='workshops',
                              blank=True, null = True)
+    is_workshop = models.BooleanField(default=True) # True if it is a workshop, False for an event
     date = models.DateField()
     time = models.TimeField(blank=True, null=True)
     location = models.CharField(blank=True, max_length=50)

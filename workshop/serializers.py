@@ -50,7 +50,7 @@ class WorkshopSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workshop
-        fields = ('id', 'club', 'entity', 'title', 'date', 'time', 'tags')
+        fields = ('id', 'club', 'entity', 'is_workshop', 'title', 'date', 'time', 'tags')
 
 
 class WorkshopActiveAndPastSerializer(serializers.Serializer):
@@ -468,7 +468,8 @@ class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
             title=data['title'], description=data.get('description', ''), club=self.context['club'],
             date=data['date'], time=data.get('time', None), location=data.get('location', ''),
             latitude=data.get('latitude', None), longitude=data.get('longitude', None),
-            audience=data.get('audience', ''), image_url=data.get('image_url', '')
+            audience=data.get('audience', ''), image_url=data.get('image_url', ''),
+            is_workshop = data.get('is_workshop', True)
         )
         workshop.contacts.set(data.get('contacts', []))
         workshop.tags.set(data.get('tags', []))
@@ -480,9 +481,9 @@ class ClubWorkshopCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workshop
         fields = (
-            'id', 'title', 'description', 'date', 'time', 'location', 'latitude',
-            'longitude', 'audience', 'contacts', 'image_url', 'tags',
-            'link')
+            'id', 'title', 'description', 'is_workshop', 'date', 'time',
+            'location', 'latitude', 'longitude', 'audience', 'contacts',
+            'image_url', 'tags', 'link')
 
 
 class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
@@ -514,7 +515,7 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
             entity=self.context['entity'], date=data['date'], time=data.get('time', None),
             location=data.get('location', ''), latitude=data.get('latitude', None),
             longitude=data.get('longitude', None), audience=data.get('audience', ''),
-            image_url=data.get('image_url', '')
+            image_url=data.get('image_url', ''), is_workshop = data.get('is_workshop', True)
         )
         workshop.contacts.set(data.get('contacts', []))
         workshop.tags.set(data.get('tags', []))
@@ -526,7 +527,7 @@ class EntityWorkshopCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Workshop
         fields = (
-            'id', 'title', 'description', 'date', 'time', 'location', 'latitude',
+            'id', 'title', 'description', 'is_workshop', 'date', 'time', 'location', 'latitude',
             'longitude', 'audience', 'contacts', 'image_url', 'tags',
             'link')
 
@@ -637,7 +638,7 @@ class WorkshopDetailSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'club', 'entity', 'date', 'time', 'location',
             'latitude', 'longitude', 'audience', 'resources', 'contacts', 'image_url',
             'is_interested', 'interested_users', 'is_workshop_contact', 'is_por_holder', 'tags',
-            'link')
+            'link', 'is_workshop')
 
 
 class WorkshopContactsUpdateSerializer(serializers.ModelSerializer):
@@ -677,7 +678,7 @@ class WorkshopSearchSerializer(serializers.Serializer):
         Validate the search_string field, length must be greater than 3
         """
         if len(search_string) < 3:
-            raise serializers.ValidationError("The length of search field must be atleast 3")
+            raise serializers.ValidationError("The length of search field must be at least 3")
         return search_string
 
     def save(self, **kwargs):
