@@ -13,7 +13,7 @@ from .serializers import (
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, ClubTagCreateSerializer, ClubTagSearchSerializer,
-    TagSerializer, WorkshopTagsUpdateSerializer, WorkshopResourceSerializer,
+    WorkshopTagsUpdateSerializer, WorkshopResourceSerializer,
     EntityDetailSerializer, EntitySubscriptionToggleSerializer,
     EntityTagCreateSerializer, EntitySerializer)
 from .permissions import (
@@ -240,7 +240,7 @@ class ClubTagCreateView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tag = serializer.save()
-        serializer = TagSerializer(tag)
+        serializer = ClubTagCreateSerializer(tag)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -273,7 +273,7 @@ class EntityTagCreateView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tag = serializer.save()
-        serializer = TagSerializer(tag)
+        serializer = EntityTagCreateSerializer(tag)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -305,7 +305,7 @@ class ClubTagSearchView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tags = serializer.save()
-        serializer = TagSerializer(tags, many=True)
+        serializer = ClubTagSearchSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -337,7 +337,7 @@ class EntityTagSearchView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tags = serializer.save()
-        serializer = TagSerializer(tags, many=True)
+        serializer = EntityTagSearchSerializer(tags, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -450,7 +450,7 @@ class ClubWorkshopCreateView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         workshop = serializer.save()
-        serializer = WorkshopSerializer(workshop)
+        serializer = ClubWorkshopCreateSerializer(workshop)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -483,7 +483,7 @@ class EntityWorkshopCreateView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         workshop = serializer.save()
-        serializer = WorkshopSerializer(workshop)
+        serializer = EntityWorkshopCreateSerializer(workshop)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
