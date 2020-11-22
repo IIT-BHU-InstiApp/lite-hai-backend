@@ -80,9 +80,9 @@ class EntityAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('tag_name', 'club')
+    list_display = ('tag_name', 'club', 'entity')
     search_fields = ('tag_name',)
-    list_filter = ('club',)
+    list_filter = ('club', 'entity',)
 
 
 @admin.register(WorkshopResource)
@@ -113,7 +113,7 @@ class WorkshopAdmin(admin.ModelAdmin):
         return obj.interested_users.count()
 
     list_display = (
-        '__str__', 'title', 'club', 'date', 'time',
+        '__str__', 'title', 'club', 'date', 'time', 'is_workshop',
         'get_interested_users', 'get_contacts', 'get_tags')
     search_fields = ('title', 'contacts__name', 'tags__tag_name')
     list_filter = ('club',)
