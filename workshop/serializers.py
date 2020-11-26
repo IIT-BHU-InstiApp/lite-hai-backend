@@ -260,7 +260,7 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
             user=user)
         club = self.context['club']
 
-        if club in profile.subscriptions.all():
+        if club in profile.club_subscriptions.all():
             club.subscribed_users.remove(profile)
         else:
             club.subscribed_users.add(profile)
