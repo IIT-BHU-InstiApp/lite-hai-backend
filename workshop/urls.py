@@ -1,13 +1,13 @@
 from django.urls import path
 from .views import (
-    ClubTagDeleteView, CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView, ClubTagsView,
-    ClubSubscriptionToggleView, EntityDetailView, EntityDetailWorkshopView,
-    EntityTagCreateView, EntityTagDeleteView, EntityTagSearchView, EntityTagsView, EntityView,  EntityWorkshopCreateView,
+    ClubTagDeleteView, CouncilView, CouncilDetailView, ClubDetailView, ClubDetailWorkshopView,
+    ClubTagsView, ClubSubscriptionToggleView, EntityDetailView, EntityDetailWorkshopView,
+    EntityTagCreateView, EntityTagDeleteView, EntityTagSearchView, EntityTagsView, EntityView,
     ClubTagCreateView, ClubTagSearchView, WorkshopTagsUpdateView, EntitySubscriptionToggleView,
     WorkshopActiveAndPastView, WorkshopPastView, ClubWorkshopCreateView, WorkshopDetailView,
     WorkshopActiveView, WorkshopContactsUpdateView, WorkshopInterestedToggleView,
     WorkshopInterestedView, WorkshopSearchView, WorkshopDateSearchView, WorkshopResourceCreateView,
-    WorkshopResourceView)
+    WorkshopResourceView, EntityWorkshopCreateView,)
 # from .views import *
 
 urlpatterns = [

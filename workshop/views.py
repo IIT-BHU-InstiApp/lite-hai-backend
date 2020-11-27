@@ -6,14 +6,14 @@ from rest_framework.response import Response
 from authentication.models import UserProfile
 from .models import Workshop, Council, Club, WorkshopResource, Entity
 from .serializers import (
-    ClubTagDeleteSerializer, CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer, EntityTagDeleteSerializer,
+    ClubTagDeleteSerializer, CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer,
     EntityTagSearchSerializer, EntityTagsSerializer, EntityDetailWorkshopSerializer,
-    EntityWorkshopCreateSerializer, WorkshopSerializer,
+    EntityWorkshopCreateSerializer, WorkshopSerializer, ClubDetailWorkshopSerializer,
     ClubWorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, ClubTagCreateSerializer, ClubTagSearchSerializer,
-    WorkshopTagsUpdateSerializer, WorkshopResourceSerializer,
+    WorkshopTagsUpdateSerializer, WorkshopResourceSerializer, EntityTagDeleteSerializer,
     EntityDetailSerializer, EntitySubscriptionToggleSerializer,
     EntityTagCreateSerializer, EntitySerializer)
 from .permissions import (

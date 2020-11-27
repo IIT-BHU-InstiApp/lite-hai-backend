@@ -464,7 +464,6 @@ class EntityTagDeleteSerializer(serializers.ModelSerializer):
         fields = ('id',)
 
 
-
 class ClubTagSearchSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
