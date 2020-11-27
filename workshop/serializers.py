@@ -31,7 +31,7 @@ class ClubSerializer(serializers.ModelSerializer):
 class EntitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entity
-        fields = ('id', 'name', 'small_image_url', 'large_image_url', 
+        fields = ('id', 'name', 'small_image_url', 'large_image_url',
                 'is_permanent', 'is_highlighted')
 
 
