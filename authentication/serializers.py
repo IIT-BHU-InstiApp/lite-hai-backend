@@ -1,5 +1,6 @@
 import logging
 from django.core.validators import RegexValidator
+# pylint: disable=imported-auth-user
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from drf_yasg2.utils import swagger_serializer_method
