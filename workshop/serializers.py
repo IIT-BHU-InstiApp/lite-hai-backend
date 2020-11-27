@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from drf_yasg2.utils import swagger_serializer_method
 from authentication.utils import FirebaseAPI
 from .models import Entity, UserProfile, Club, Council, Workshop, Tag, WorkshopResource
@@ -400,6 +400,68 @@ class EntityTagCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'tag_name')
+
+
+class ClubTagDeleteSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        """
+        Validate whether the user can delete the tag for the club.
+        """
+        club = self.context['club']
+        request = self.context['request']
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        if (club not in profile.get_club_privileges() and
+                club.id not in profile.get_workshop_privileges().values_list('club', flat=True)):
+            raise PermissionDenied("You are not allowed to delete tag for this club")
+        return attrs
+
+    def delete(self):
+        '''
+        Deletion of club tag
+        '''
+        data = self.validated_data
+        # pylint: disable=no-member
+        try:
+            Tag.objects.get(tag_name = data['tag_name'], club=self.context['club']).delete()
+        except Tag.DoesNotExist:
+            # pylint: disable=raise-missing-from
+            raise NotFound("This Tag does not exist for this club")
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name',)
+
+
+class EntityTagDeleteSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        """
+        Validate whether the user can delete the tag for the entity.
+        """
+        entity = self.context['entity']
+        request = self.context['request']
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        if (entity not in profile.get_entity_privileges() and
+            entity.id not in profile.get_workshop_privileges().values_list('entity', flat=True)):
+            raise PermissionDenied("You are not allowed to delete tag for this entity")
+        return attrs
+
+    def delete(self):
+        '''
+        Deletion of entity tag
+        '''
+        data = self.validated_data
+        # pylint: disable=no-member
+        try:
+            Tag.objects.get(tag_name = data['tag_name'], entity = self.context['entity']).delete()
+        except Tag.DoesNotExist:
+            # pylint: disable=raise-missing-from
+            raise NotFound("This Tag does not exist for this entity")
+
+    class Meta:
+        model = Tag
+        fields = ('id', 'tag_name',)
 
 
 class ClubTagSearchSerializer(serializers.ModelSerializer):

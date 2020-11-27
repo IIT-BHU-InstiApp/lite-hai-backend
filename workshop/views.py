@@ -6,14 +6,14 @@ from rest_framework.response import Response
 from authentication.models import UserProfile
 from .models import Workshop, Council, Club, WorkshopResource, Entity
 from .serializers import (
-    CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer, ClubDetailWorkshopSerializer,
+    ClubTagDeleteSerializer, CouncilSerializer, CouncilDetailSerializer, ClubDetailSerializer,
     EntityTagSearchSerializer, EntityTagsSerializer, EntityDetailWorkshopSerializer,
-    EntityWorkshopCreateSerializer, WorkshopSerializer,
+    EntityWorkshopCreateSerializer, WorkshopSerializer, ClubDetailWorkshopSerializer,
     ClubWorkshopCreateSerializer, WorkshopDetailSerializer, ClubTagsSerializer,
     WorkshopActiveAndPastSerializer, ClubSubscriptionToggleSerializer,
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, ClubTagCreateSerializer, ClubTagSearchSerializer,
-    WorkshopTagsUpdateSerializer, WorkshopResourceSerializer,
+    WorkshopTagsUpdateSerializer, WorkshopResourceSerializer, EntityTagDeleteSerializer,
     EntityDetailSerializer, EntitySubscriptionToggleSerializer,
     EntityTagCreateSerializer, EntitySerializer)
 from .permissions import (
@@ -275,6 +275,70 @@ class EntityTagCreateView(generics.GenericAPIView):
         tag = serializer.save()
         serializer = EntityTagCreateSerializer(tag)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ClubTagDeleteView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowAnyClubHeadOrContact,)
+    serializer_class = ClubTagDeleteSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Club.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'club': self.get_object(),
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
+        """
+        Delete Tag for a Club - only Club POR Holders or\
+        any Workshop Contact are allowed to delete a tag for the club.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EntityTagDeleteView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowAnyEntityHeadOrContact,)
+    serializer_class = EntityTagDeleteSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Entity.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'entity': self.get_object(),
+        }
+
+    # pylint: disable=unused-argument
+    def post(self, request, pk):
+        """
+        Delete Tag for an Entity - only Entity POR Holders or\
+        any Workshop Contact are allowed to delete a tag for the entity.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ClubTagSearchView(generics.GenericAPIView):
