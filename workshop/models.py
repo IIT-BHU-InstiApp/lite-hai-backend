@@ -60,6 +60,8 @@ class Club(models.Model):
 class Entity(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
+    is_permanent = models.BooleanField(default = False)
+    is_highlighted = models.BooleanField(default = False)
     point_of_contact = models.ManyToManyField(UserProfile, blank=True,
                                         related_name='entity_point_of_contact',
                                         verbose_name='Point of Contact')

@@ -31,7 +31,8 @@ class ClubSerializer(serializers.ModelSerializer):
 class EntitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Entity
-        fields = ('id', 'name', 'small_image_url', 'large_image_url')
+        fields = ('id', 'name', 'small_image_url', 'large_image_url', 
+                'is_permanent', 'is_highlighted')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -179,9 +180,10 @@ class EntityDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entity
-        read_only_fields = ('name', 'small_image_url', 'large_image_url')
+        read_only_fields = ('name', 'small_image_url', 'large_image_url', 'is_permanent',
+            'is_highlighted', )
         fields = (
-            'id', 'name', 'description', 'point_of_contact',
+            'id', 'name', 'description', 'is_permanent', 'is_highlighted', 'point_of_contact',
             'small_image_url', 'large_image_url', 'is_subscribed', 'subscribed_users',
             'is_por_holder', 'website_url', 'facebook_url', 'twitter_url', 'instagram_url',
             'linkedin_url', 'youtube_url')
