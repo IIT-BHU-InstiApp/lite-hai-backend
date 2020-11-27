@@ -401,7 +401,6 @@ class EntityTagCreateSerializer(serializers.ModelSerializer):
 
 
 class ClubTagDeleteSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
     def validate(self, attrs):
         """
         Validate whether the user can delete the tag for the club.
@@ -422,18 +421,17 @@ class ClubTagDeleteSerializer(serializers.ModelSerializer):
         data = self.validated_data
         # pylint: disable=no-member
         try:
-            Tag.objects.get(id=data['id'], club=self.context['club']).delete()
+            Tag.objects.get(tag_name = data['tag_name'], club=self.context['club']).delete()
         except Tag.DoesNotExist:
             # pylint: disable=raise-missing-from
             raise NotFound("This Tag does not exist for this club")
 
     class Meta:
         model = Tag
-        fields = ('id',)
+        fields = ('id', 'tag_name',)
 
 
 class EntityTagDeleteSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
     def validate(self, attrs):
         """
         Validate whether the user can delete the tag for the entity.
@@ -454,14 +452,14 @@ class EntityTagDeleteSerializer(serializers.ModelSerializer):
         data = self.validated_data
         # pylint: disable=no-member
         try:
-            Tag.objects.get(id = data['id'], entity = self.context['entity']).delete()
+            Tag.objects.get(tag_name = data['tag_name'], entity = self.context['entity']).delete()
         except Tag.DoesNotExist:
             # pylint: disable=raise-missing-from
             raise NotFound("This Tag does not exist for this entity")
 
     class Meta:
         model = Tag
-        fields = ('id',)
+        fields = ('id', 'tag_name',)
 
 
 class ClubTagSearchSerializer(serializers.ModelSerializer):
