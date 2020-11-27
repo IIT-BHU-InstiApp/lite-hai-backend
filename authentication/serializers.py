@@ -1,6 +1,6 @@
 import logging
 from django.core.validators import RegexValidator
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from drf_yasg2.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer, EntitySerializer
@@ -48,7 +48,7 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     "Please login using @itbhu.ac.in student email id only")
             name = jwt['name']
-            user = get_user_model()
+            user = User()
             user.username = jwt['uid']
             user.email = email
             user.save()
