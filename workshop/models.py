@@ -96,7 +96,7 @@ class Tag(models.Model):
 
 
 class Workshop(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_workshops',
                                blank=True, null = True)
@@ -105,10 +105,10 @@ class Workshop(models.Model):
     is_workshop = models.BooleanField(default=True) # True if it is a workshop, False for an event
     date = models.DateField()
     time = models.TimeField(blank=True, null=True)
-    location = models.CharField(blank=True, max_length=50)
+    location = models.CharField(blank=True, max_length=500)
     latitude = models.DecimalField(blank=True, null=True, max_digits=9, decimal_places=6)
     longitude = models.DecimalField(blank=True, null=True, max_digits=9, decimal_places=6)
-    audience = models.CharField(blank=True, max_length=50)
+    audience = models.CharField(blank=True, max_length=500)
     contacts = models.ManyToManyField(UserProfile, blank=True, related_name='organized_workshops')
     interested_users = models.ManyToManyField(UserProfile, blank=True,
                                               related_name='interested_workshops')
@@ -125,7 +125,7 @@ class WorkshopResource(models.Model):
         ('Prerequisite', 'Prerequisite'),
         ('Material', 'Material')
     ]
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=500)
     link = models.URLField()
     workshop = models.ForeignKey(Workshop, on_delete=models.CASCADE,
                                  related_name='resources')
