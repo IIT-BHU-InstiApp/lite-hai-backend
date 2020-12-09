@@ -206,7 +206,8 @@ class CouncilDetailView(generics.RetrieveUpdateAPIView):
     Update the description of a Council (Partial Update).
     """
     # pylint: disable=no-member
-    queryset = Council.objects.select_related('gensec','joint_gensec').prefetch_related('clubs').all()
+    queryset = Council.objects.select_related('gensec',\
+        'joint_gensec').prefetch_related('clubs').all()
     permission_classes = (AllowParticularCouncilHead,)
     serializer_class = CouncilDetailSerializer
 
