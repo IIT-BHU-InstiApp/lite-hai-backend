@@ -35,7 +35,8 @@ class ClubDetailView(generics.RetrieveUpdateAPIView):
     Update the description of a Club (Partial Update).
     """
     # pylint: disable=no-member
-    queryset = Club.objects.all()
+    queryset = Club.objects.select_related('secy').\
+        prefetch_related('joint_secy').all()
     permission_classes = (AllowParticularClubHead,)
     serializer_class = ClubDetailSerializer
 
@@ -206,7 +207,8 @@ class CouncilDetailView(generics.RetrieveUpdateAPIView):
     Update the description of a Council (Partial Update).
     """
     # pylint: disable=no-member
-    queryset = Council.objects.all()
+    queryset = Council.objects.select_related('gensec') \
+        .prefetch_related('clubs','joint_gensec').all()
     permission_classes = (AllowParticularCouncilHead,)
     serializer_class = CouncilDetailSerializer
 
