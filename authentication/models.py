@@ -32,14 +32,14 @@ class UserProfile(models.Model):
         Councils - General Secretary / Joint General Secretary
         """
         # pylint: disable=no-member
-        clubs = self.club_secy.all()
-        clubs = clubs.union(self.club_joint_secy.all())
+        clubs = self.club_secy.all().select_related('council')
+        clubs = clubs.union(self.club_joint_secy.all().select_related('council'))
         council_gensec = self.council_gensec
         council_joint_gensec = self.council_joint_gensec
         for council in council_gensec.all():
-            clubs = clubs.union(council.clubs.all())
+            clubs = clubs.union(council.clubs.all().select_related('council'))
         for council in council_joint_gensec.all():
-            clubs = clubs.union(council.clubs.all())
+            clubs = clubs.union(council.clubs.all().select_related('council'))
         return clubs
 
     def get_workshop_privileges(self):
