@@ -35,15 +35,19 @@ class ClubDetailView(generics.RetrieveUpdateAPIView):
     Update the description of a Club (Partial Update).
     """
     # pylint: disable=no-member
-    queryset = Club.objects.select_related('secy').\
-        prefetch_related('joint_secy').all()
+    queryset = Club.objects.all().select_related('council', 'secy').\
+        prefetch_related('joint_secy')
     permission_classes = (AllowParticularClubHead,)
     serializer_class = ClubDetailSerializer
 
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -74,7 +78,11 @@ class EntityDetailView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -125,7 +133,11 @@ class ClubSubscriptionToggleView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -155,7 +167,11 @@ class EntitySubscriptionToggleView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -223,7 +239,11 @@ class ClubTagCreateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -256,7 +276,11 @@ class EntityTagCreateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -289,7 +313,11 @@ class ClubTagDeleteView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -321,7 +349,11 @@ class EntityTagDeleteView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -353,7 +385,11 @@ class ClubTagSearchView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -385,7 +421,11 @@ class EntityTagSearchView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -417,7 +457,11 @@ class WorkshopTagsUpdateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -455,9 +499,11 @@ class WorkshopActiveAndPastView(generics.GenericAPIView):
         """
         # pylint: disable=no-member
         active_workshops = Workshop.objects.filter(
-            date__gte=date.today()).order_by('date', 'time')
+            date__gte=date.today()).order_by('date', 'time') \
+            .select_related('club', 'entity', 'club__council').prefetch_related('tags')
         past_workshops = Workshop.objects.filter(
-            date__lt=date.today()).order_by('-date', '-time')
+            date__lt=date.today()).order_by('-date', '-time') \
+            .select_related('club', 'entity', 'club__council').prefetch_related('tags')
         active_workshops_serializer = WorkshopSerializer(active_workshops, many=True)
         past_workshops_serializer = WorkshopSerializer(past_workshops, many=True)
         serializer = WorkshopActiveAndPastSerializer(data={
@@ -475,7 +521,8 @@ class WorkshopActiveView(generics.ListAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
     # pylint: disable=no-member
-    queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time')
+    queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time') \
+                .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
 class WorkshopPastView(generics.ListAPIView):
@@ -485,7 +532,8 @@ class WorkshopPastView(generics.ListAPIView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
     # pylint: disable=no-member
-    queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time')
+    queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time') \
+                .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
 class ClubWorkshopCreateView(generics.GenericAPIView):
@@ -498,7 +546,11 @@ class ClubWorkshopCreateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -530,7 +582,11 @@ class EntityWorkshopCreateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -592,7 +648,11 @@ class WorkshopContactsUpdateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -624,7 +684,11 @@ class WorkshopInterestedToggleView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {
@@ -653,7 +717,8 @@ class WorkshopInterestedView(generics.ListAPIView):
 
     def get_queryset(self):
         # pylint: disable=no-member
-        return UserProfile.objects.get(user=self.request.user).interested_workshops.all()
+        return UserProfile.objects.get(user=self.request.user).interested_workshops.all() \
+                .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
 class WorkshopSearchView(generics.GenericAPIView):
@@ -667,8 +732,12 @@ class WorkshopSearchView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         workshops = serializer.save()
-        active_workshops = workshops.filter(date__gte=date.today()).order_by('date', 'time')
-        past_workshops = workshops.filter(date__lt=date.today()).order_by('-date', '-time')
+        active_workshops = workshops.filter(
+            date__gte=date.today()).order_by('date', 'time') \
+            .select_related('club', 'entity', 'club__council').prefetch_related('tags')
+        past_workshops = workshops.filter(
+            date__lt=date.today()).order_by('-date', '-time') \
+            .select_related('club', 'entity', 'club__council').prefetch_related('tags')
         active_workshops_serializer = WorkshopSerializer(active_workshops, many=True)
         past_workshops_serializer = WorkshopSerializer(past_workshops, many=True)
         serializer = WorkshopActiveAndPastSerializer(data={
@@ -704,7 +773,11 @@ class WorkshopResourceCreateView(generics.GenericAPIView):
     def get_object(self):
         if getattr(self, 'swagger_fake_view', False):
             return None
-        return super().get_object()
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
 
     def get_serializer_context(self):
         return {

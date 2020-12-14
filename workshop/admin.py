@@ -17,6 +17,10 @@ class CouncilAdmin(admin.ModelAdmin):
         """
         return ',\n'.join([o.name for o in obj.joint_gensec.all()])
 
+    def get_queryset(self, request):
+        return super().get_queryset(request) \
+               .select_related('gensec').prefetch_related('joint_gensec')
+
     list_display = ('__str__', 'name', 'get_gensec', 'get_joint_gensec',)
     search_fields = ('name', 'gensec__name', 'joint_gensec__name',)
 
@@ -46,6 +50,10 @@ class ClubAdmin(admin.ModelAdmin):
         """
         return obj.subscribed_users.count()
 
+    def get_queryset(self, request):
+        return super().get_queryset(request) \
+               .select_related('council', 'secy').prefetch_related('joint_secy', 'subscribed_users')
+
     list_display = (
         '__str__', 'name', 'council', 'get_secy', 'get_joint_secy', 'get_subscribed_users')
     search_fields = ('name', 'secy__name', 'joint_secy__name',)
@@ -70,6 +78,10 @@ class EntityAdmin(admin.ModelAdmin):
         """
         return obj.subscribed_users.count()
 
+    def get_queryset(self, request):
+        return super().get_queryset(request) \
+                      .prefetch_related('point_of_contact', 'subscribed_users')
+
     list_display = (
         '__str__', 'name', 'get_point_of_contact', 'get_subscribed_users')
     search_fields = ('name', 'point_of_contact__name',)
@@ -83,6 +95,9 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('tag_name', 'club', 'entity')
     search_fields = ('tag_name',)
     list_filter = ('club', 'entity',)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('club', 'entity')
 
 
 @admin.register(WorkshopResource)
@@ -111,6 +126,10 @@ class WorkshopAdmin(admin.ModelAdmin):
         Get the count of interested users for a workshop
         """
         return obj.interested_users.count()
+
+    def get_queryset(self, request):
+        return super().get_queryset(request) \
+               .select_related('club').prefetch_related('interested_users', 'contacts', 'tags')
 
     list_display = (
         '__str__', 'title', 'club', 'date', 'time', 'is_workshop',

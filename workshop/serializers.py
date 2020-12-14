@@ -36,12 +36,10 @@ class EntitySerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    club = ClubSerializer()
-    entity = EntitySerializer()
 
     class Meta:
         model = Tag
-        fields = ('id', 'tag_name', 'club', 'entity')
+        fields = ('id', 'tag_name')
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
@@ -200,7 +198,8 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
-            club=obj, date__gte=date.today()).order_by('date', 'time')
+            club=obj, date__gte=date.today()).order_by('date', 'time') \
+            .select_related('club', 'club__council').prefetch_related('tags')
         serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
@@ -211,7 +210,8 @@ class ClubDetailWorkshopSerializer(serializers.ModelSerializer):
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
-            club=obj, date__lt=date.today()).order_by('-date', '-time')
+            club=obj, date__lt=date.today()).order_by('-date', '-time') \
+            .select_related('club', 'club__council').prefetch_related('tags')
         serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
@@ -231,7 +231,8 @@ class EntityDetailWorkshopSerializer(serializers.ModelSerializer):
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
-            entity=obj, date__gte=date.today()).order_by('date', 'time')
+            entity=obj, date__gte=date.today()).order_by('date', 'time') \
+            .select_related('entity').prefetch_related('tags')
         serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
@@ -242,7 +243,8 @@ class EntityDetailWorkshopSerializer(serializers.ModelSerializer):
         """
         # pylint: disable=no-member
         queryset = Workshop.objects.filter(
-            entity=obj, date__lt=date.today()).order_by('-date', '-time')
+            entity=obj, date__lt=date.today()).order_by('-date', '-time') \
+            .select_related('entity').prefetch_related('tags')
         serializer = WorkshopSerializer(queryset, many=True)
         return serializer.data
 
@@ -780,7 +782,8 @@ class WorkshopDateSearchSerializer(serializers.Serializer):
         start_date = data['start_date']
         end_date = data['end_date']
         # pylint: disable=no-member
-        return Workshop.objects.filter(date__gte=start_date, date__lte=end_date)
+        return Workshop.objects.filter(date__gte=start_date, date__lte=end_date) \
+                .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
 class ClubTagsSerializer(serializers.ModelSerializer):

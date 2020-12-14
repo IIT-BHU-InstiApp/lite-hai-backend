@@ -79,7 +79,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         """
         User subscriptions for the clubs.
         """
-        clubs = obj.club_subscriptions.all()
+        clubs = obj.club_subscriptions.all().select_related('council')
         return ClubSerializer(clubs, many=True).data
 
     @swagger_serializer_method(serializer_or_field=EntitySerializer(many=True))

@@ -88,10 +88,6 @@ class Tag(models.Model):
                                 blank = True, null = True)
 
     def __str__(self):
-        if self.club is not None:
-            return f'{self.tag_name} - {self.club} [Club]'
-        if self.entity is not None:
-            return f'{self.tag_name} - {self.entity} [Entity]'
         return f'{self.tag_name}'
 
 
