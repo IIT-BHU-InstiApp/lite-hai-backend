@@ -523,7 +523,7 @@ class WorkshopActiveView(generics.ListAPIView):
 
     def get_queryset(self):
         # pylint: disable=no-member
-        queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time') \
+        return Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time') \
                     .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
@@ -536,7 +536,7 @@ class WorkshopPastView(generics.ListAPIView):
 
     def get_queryset(self):
         # pylint: disable=no-member
-        queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time') \
+        return Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time') \
                     .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
