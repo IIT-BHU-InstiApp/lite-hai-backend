@@ -223,8 +223,8 @@ class CouncilDetailView(generics.RetrieveUpdateAPIView):
     Update the description of a Council (Partial Update).
     """
     # pylint: disable=no-member
-    queryset = Council.objects.select_related('gensec') \
-        .prefetch_related('clubs','joint_gensec').all()
+    queryset = Council.objects.all().select_related('gensec') \
+        .prefetch_related('clubs','joint_gensec')
     permission_classes = (AllowParticularCouncilHead,)
     serializer_class = CouncilDetailSerializer
 
@@ -520,9 +520,11 @@ class WorkshopActiveView(generics.ListAPIView):
     """
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
-    # pylint: disable=no-member
-    queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time') \
-                .select_related('club', 'entity', 'club__council').prefetch_related('tags')
+
+    def get_queryset(self):
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(date__gte=date.today()).order_by('date', 'time') \
+                    .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
 class WorkshopPastView(generics.ListAPIView):
@@ -531,9 +533,11 @@ class WorkshopPastView(generics.ListAPIView):
     """
     permission_classes = (permissions.AllowAny,)
     serializer_class = WorkshopSerializer
-    # pylint: disable=no-member
-    queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time') \
-                .select_related('club', 'entity', 'club__council').prefetch_related('tags')
+
+    def get_queryset(self):
+        # pylint: disable=no-member
+        queryset = Workshop.objects.filter(date__lt=date.today()).order_by('-date', '-time') \
+                    .select_related('club', 'entity', 'club__council').prefetch_related('tags')
 
 
 class ClubWorkshopCreateView(generics.GenericAPIView):
