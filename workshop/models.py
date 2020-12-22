@@ -99,6 +99,16 @@ class Tag(models.Model):
 
 
 class Workshop(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['date', 'time']),
+            models.Index(fields=['-date', '-time']),
+            models.Index(fields=['club', '-date']),
+            models.Index(fields=['club', 'date']),
+            models.Index(fields=['title']),
+            models.Index(fields=['location']),
+            models.Index(fields=['audience']),
+        ]
     title = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_workshops',
