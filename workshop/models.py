@@ -81,7 +81,14 @@ class Entity(models.Model):
 
 
 class Tag(models.Model):
-    tag_name = models.CharField(max_length=50, validators=[validate_kebab_case])
+    class Meta:
+        indexes = [
+            models.Index(fields=['tag_name', 'club']),
+            models.Index(fields=['tag_name', 'entity']),
+            models.Index(fields=['club']),
+            models.Index(fields=['entity'])]
+    tag_name = models.CharField(
+        max_length=50, validators=[validate_kebab_case])
     club = models.ForeignKey(Club, on_delete=models.CASCADE, related_name='tags',
                              blank = True,  null = True)
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_tags',
@@ -92,6 +99,16 @@ class Tag(models.Model):
 
 
 class Workshop(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['date', 'time']),
+            models.Index(fields=['-date', '-time']),
+            models.Index(fields=['club', '-date']),
+            models.Index(fields=['club', 'date']),
+            models.Index(fields=['title']),
+            models.Index(fields=['location']),
+            models.Index(fields=['audience']),
+        ]
     title = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE, related_name='entity_workshops',
