@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'workshop',
-    'team'
+    'team',
+    'config'
 ]
 
 MIDDLEWARE = [
