@@ -22,4 +22,4 @@ jobs:
       - name: Install dependencies
         run: pipenv install
       - name: Run lint checks
-        run: pipenv run pylint --load-plugins pylint_django team workshops workshop authentication
+        run: pipenv run pylint --load-plugins pylint_django team workshops workshop authentication config
