@@ -29,7 +29,7 @@ schema_view = get_schema_view(
         """
 This is the official IIT BHU Workshops App API developed using Django Rest Framework.
 
-The source code can be found [here](https://github.com/nishantwrp/workshops-app-backend).
+The source code can be found [here](https://github.com/IIT-BHU-InstiApp/lite-hai-backend).
         """,
     ),
     public=True,
