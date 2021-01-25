@@ -15,7 +15,7 @@ from .serializers import (
     WorkshopInterestedToggleSerializer, ClubTagCreateSerializer, ClubTagSearchSerializer,
     WorkshopTagsUpdateSerializer, WorkshopResourceSerializer, EntityTagDeleteSerializer,
     EntityDetailSerializer, EntitySubscriptionToggleSerializer,
-    EntityTagCreateSerializer, EntitySerializer)
+    EntityTagCreateSerializer, EntitySerializer, CouncilSubscriptionToggleSerializer)
 from .permissions import (
     AllowAnyClubHead, AllowAnyEntityHead, AllowAnyEntityHeadOrContact, AllowWorkshopHead,
     AllowAnyClubHeadOrContact, AllowWorkshopHeadOrContactForResource, AllowParticularCouncilHead,
@@ -151,6 +151,39 @@ class ClubSubscriptionToggleView(generics.GenericAPIView):
     def get(self, *args, **kwargs):
         """
         Toggles the Club Subscription for current user.
+        """
+        serializer = self.get_serializer()
+        serializer.toggle_subscription()
+        return Response(status=status.HTTP_200_OK)
+
+
+class CouncilSubscriptionToggleView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = CouncilSubscriptionToggleSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Council.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'council': self.get_object()
+        }
+    # pylint: disable=unused-argument
+    def get(self, *args, **kwargs):
+        """
+        Toggles the Council Subscription for current user.
         """
         serializer = self.get_serializer()
         serializer.toggle_subscription()
