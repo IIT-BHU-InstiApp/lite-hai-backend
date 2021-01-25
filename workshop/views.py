@@ -14,8 +14,8 @@ from .serializers import (
     WorkshopSearchSerializer, WorkshopDateSearchSerializer, WorkshopContactsUpdateSerializer,
     WorkshopInterestedToggleSerializer, ClubTagCreateSerializer, ClubTagSearchSerializer,
     WorkshopTagsUpdateSerializer, WorkshopResourceSerializer, EntityTagDeleteSerializer,
-    EntityDetailSerializer, EntitySubscriptionToggleSerializer,
-    EntityTagCreateSerializer, EntitySerializer, CouncilSubscriptionToggleSerializer)
+    EntityDetailSerializer, EntitySubscriptionToggleSerializer,  CouncilUnsubscribeSerializer,
+    EntityTagCreateSerializer, EntitySerializer, CouncilSubscribeSerializer)
 from .permissions import (
     AllowAnyClubHead, AllowAnyEntityHead, AllowAnyEntityHeadOrContact, AllowWorkshopHead,
     AllowAnyClubHeadOrContact, AllowWorkshopHeadOrContactForResource, AllowParticularCouncilHead,
@@ -157,9 +157,9 @@ class ClubSubscriptionToggleView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class CouncilSubscriptionToggleView(generics.GenericAPIView):
+class CouncilSubscribeView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
-    serializer_class = CouncilSubscriptionToggleSerializer
+    serializer_class = CouncilSubscribeSerializer
     lookup_field = 'pk'
     # pylint: disable=no-member
     queryset = Council.objects.all()
@@ -186,7 +186,40 @@ class CouncilSubscriptionToggleView(generics.GenericAPIView):
         Toggles the Council Subscription for current user.
         """
         serializer = self.get_serializer()
-        serializer.toggle_subscription()
+        serializer.subscribe()
+        return Response(status=status.HTTP_200_OK)
+
+
+class CouncilUnsubscribeView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = CouncilUnsubscribeSerializer
+    lookup_field = 'pk'
+    # pylint: disable=no-member
+    queryset = Council.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        if hasattr(self, 'obj'):
+            return self.obj
+        obj = super().get_object()
+        setattr(self, 'obj', obj)
+        return obj
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'council': self.get_object()
+        }
+    # pylint: disable=unused-argument
+    def get(self, *args, **kwargs):
+        """
+        Toggles the Council Subscription for current user.
+        """
+        serializer = self.get_serializer()
+        serializer.unsubscribe()
         return Response(status=status.HTTP_200_OK)
 
 
