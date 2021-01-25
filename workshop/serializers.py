@@ -271,6 +271,41 @@ class ClubSubscriptionToggleSerializer(serializers.Serializer):
         logger.info('[GET Response] (%s) : Toggled Club subscription', profile)
 
 
+class CouncilSubscribeSerializer(serializers.Serializer):
+    def subscribe(self):
+        """
+        Subscribes the user to all the clubs in this council.
+        """
+        user = self.context['request'].user
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(
+            user=user)
+        council = self.context['council']
+
+        clubs = Club.objects.filter(council = council)
+        for club in clubs:
+            if club not in profile.club_subscriptions.all():
+                club.subscribed_users.add(profile)
+        logger.info('[GET Response] (%s) : Council subscribed', profile)
+
+
+class CouncilUnsubscribeSerializer(serializers.Serializer):
+    def unsubscribe(self):
+        """
+        Unsubscribes the user from all the clubs in this council.
+        """
+        user = self.context['request'].user
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(
+            user=user)
+        council = self.context['council']
+
+        clubs = Club.objects.filter(council = council)
+        for club in clubs:
+            if club in profile.club_subscriptions.all():
+                club.subscribed_users.remove(profile)
+        logger.info('[GET Response] (%s) : Council unsubscribed', profile)
+
 class EntitySubscriptionToggleSerializer(serializers.Serializer):
     def toggle_subscription(self):
         """
