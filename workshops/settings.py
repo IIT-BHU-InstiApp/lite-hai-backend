@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'authentication',
     'workshop',
     'team',
-    'config'
+    'config',
+    'grievance'
 ]
 
 MIDDLEWARE = [
