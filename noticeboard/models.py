@@ -6,6 +6,8 @@ class NoticeBoard(models.Model):
     date = models.DateTimeField()
     ping = models.BooleanField(default=False)
     link = models.URLField(null=True, blank=True)
-
+    upvote = models.IntegerField(default=0)
+    downvote = models.IntegerField(default=0)
+    
     def __str__(self):
         return self.name + ' - ' + self.description
