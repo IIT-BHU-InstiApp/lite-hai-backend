@@ -1,7 +1,7 @@
 from django.db import models
 
 class NoticeBoard(models.Model):
-    name = query = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
     date = models.DateTimeField()
     ping = models.BooleanField(default=False)
