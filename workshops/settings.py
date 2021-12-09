@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'workshop',
     'team',
     'noticeboard',
-    'config'
+    'config',
 ]
 
 MIDDLEWARE = [
