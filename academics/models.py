@@ -33,32 +33,23 @@ class AcademicSchedule(models.Model):
 
 
 class StudyMaterials(models.Model):
+    department = models.CharField(max_length=60, choices=dept_list)
     resource_url = models.URLField()
 
     class Meta:
         verbose_name_plural = 'Study Materials'
 
+    def __str__(self):
+        return f"{self.department} resources"
 
-# class Proffessor(models.Model):
-#     name = models.CharField(max_length=100)
-#     email = models.EmailField(max_length=255)
-#     phone_number = models.CharField(max_length=15, null=True, blank=True)
-#     department = models.CharField(max_length=60, null=True, blank=True)
 
-#     def __str__(self):
-#         return self.name
-
-# class HOD(models.Model):
-#     name = models.CharField(max_length=100)
-#     email = models.EmailField(max_length=255)
-
-class ProffsAndHODs(models.Model):
+class ProfsAndHODs(models.Model):
     department = models.CharField(max_length=60)
-    proffs_and_HODs = models.URLField(default='https://www.iitbhu.ac.in/dept')
+    profs_and_HODs = models.URLField(default='https://www.iitbhu.ac.in/dept')
 
     class Meta:
-        verbose_name = 'Proffs and HODs'
-        verbose_name_plural = 'Proffs and HODs'
+        verbose_name = 'Profs and HODs'
+        verbose_name_plural = 'Profs and HODs'
 
     def __str__(self):
         return f"{self.department} Professors"
