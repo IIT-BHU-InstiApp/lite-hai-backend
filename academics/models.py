@@ -59,3 +59,6 @@ class ProffsAndHODs(models.Model):
     class Meta:
         verbose_name = 'Proffs and HODs'
         verbose_name_plural = 'Proffs and HODs'
+
+    def __str__(self):
+        return f"{self.department} Professors"

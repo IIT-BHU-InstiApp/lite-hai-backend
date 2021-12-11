@@ -45,5 +45,12 @@ class StudyMaterialsView(generics.ListAPIView):
 
 
 class ProffsAndHODsView(generics.RetrieveAPIView):
+    '''
+    Accepts a parameter dept and returns a url of the professors of the given department.
+    'dept' is the acronym of the department same as in the email id and contains lower case letters only.
+    '''
+
     queryset = ProffsAndHODs.objects.all()
     serializer_class = ProffsAndHODsSerializer
+    lookup_field = 'department'
+    lookup_url_kwarg = 'dept'

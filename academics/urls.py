@@ -5,4 +5,4 @@ urlpatterns = [path('academics/academic-schedule/<int:pk>/',
                     AcademicScheduleView.as_view()),
                path('academics/study-materials/',
                     StudyMaterialsView.as_view()),
-               path('academics/proffs/<int:pk>', ProffsAndHODsView.as_view()), ]
+               path('academics/proffs/<str:dept>', ProffsAndHODsView.as_view()), ]
