@@ -58,3 +58,11 @@ class UserProfile(models.Model):
         # pylint: disable=no-member
         entities = self.entity_point_of_contact.all()
         return entities
+
+    def get_notice_privileges(self):
+        """
+        Get the privileges of the user for creating notice
+        """
+        # pylint: disable=no-member
+        notices = self.notice_contact.all()
+        return notices
