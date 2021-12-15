@@ -4,10 +4,11 @@ from rest_framework.exceptions import PermissionDenied
 from .models import NoticeBoard
 from authentication.models import UserProfile
 
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('id', 'name', 'email', 'phone_number', 'photo_url')
+        fields = ("id", "name", "email", "phone_number", "photo_url")
 
 
 class NoticeGetSerializer(serializers.ModelSerializer):
@@ -46,13 +47,18 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
         data = self.validated_data
         # pylint: disable=no-member
         noticeBoard = NoticeBoard.objects.create(
-            title=data['title'], description=data.get('description', ''), date=data['date'],
-            upvote=data.get('upvote', 0), downvote=data.get('downvote', 0),
-            notice_url=data.get('notice_url', ''),
+            title=data["title"],
+            description=data.get("description", ""),
+            date=data["date"],
+            upvote=data.get("upvote", 0),
+            downvote=data.get("downvote", 0),
+            notice_url=data.get("notice_url", ""),
         )
-        noticeBoard.contact.set(data.get('contact', []))
+        noticeBoard.contact.set(data.get("contact", []))
         # By default, add the creator of the workshop as the contact for the workshop
-        noticeBoard.contact.add(UserProfile.objects.get(user=self.context['request'].user))
+        noticeBoard.contact.add(
+            UserProfile.objects.get(user=self.context["request"].user)
+        )
         # FirebaseAPI.send_club_message(data, self.context['club'])
         return noticeBoard
 
