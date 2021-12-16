@@ -11,26 +11,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "email", "phone_number", "photo_url")
 
 
-class NoticeGetSerializer(serializers.ModelSerializer):
-    notice_contact = serializers.SerializerMethodField()
-
-    # @swagger_serializer_method(serializer_or_field=UserProfileSerializer)
-    def get_notice_contact(self, obj):
-        """
-        Secretary of the Club
-        """
-        if obj.notice_contact is None:
-            return None
-        serializer = UserProfileSerializer(obj.notice_contact)
-        return serializer.data
+class NoticeDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NoticeBoard
         fields = "__all__"
-
-
-# class NoticeVoteSerializer(serializers.ModelSerializer):
-#     pass
 
 
 class NoticeCreateSerializer(serializers.ModelSerializer):
@@ -52,7 +37,6 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
             date=data["date"],
             upvote=data.get("upvote", 0),
             downvote=data.get("downvote", 0),
-            notice_url=data.get("notice_url", ""),
         )
         noticeBoard.contact.set(data.get("contact", []))
         # By default, add the creator of the workshop as the contact for the workshop

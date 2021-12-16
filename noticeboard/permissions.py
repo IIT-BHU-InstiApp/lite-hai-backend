@@ -9,6 +9,6 @@ class AllowNoticeContact(permissions.BasePermission):
             return False
         # pylint: disable=no-member
         profile = UserProfile.objects.get(user=request.user)
-        if profile.get_notice_privileges():
+        if profile.can_post_notice:
             return True
         return False

@@ -1,11 +1,10 @@
 from rest_framework import generics
 from .models import NoticeBoard
-from .serializers import NoticeGetSerializer, NoticeCreateSerializer
+from .serializers import NoticeDetailSerializer, NoticeCreateSerializer
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from .permissions import AllowNoticeContact
-from authentication.models import UserProfile
 
 
 class NoticeGetView(generics.ListAPIView):
@@ -19,7 +18,7 @@ class NoticeGetView(generics.ListAPIView):
         .order_by("-offset")
     )
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = NoticeGetSerializer
+    serializer_class = NoticeDetailSerializer
 
 
 class NoticeUpvoteView(generics.GenericAPIView):
@@ -29,7 +28,7 @@ class NoticeUpvoteView(generics.GenericAPIView):
 
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = NoticeGetSerializer
+    serializer_class = NoticeDetailSerializer
 
     def get(self, request, pk):
         notice = self.queryset.get(id=pk)
@@ -57,7 +56,7 @@ class NoticeDownvoteView(generics.GenericAPIView):
 
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = NoticeGetSerializer
+    serializer_class = NoticeDetailSerializer
 
     def get(self, request, pk):
         notice = self.queryset.get(id=pk)
@@ -94,5 +93,5 @@ class NoticeUpdateView(generics.RetrieveUpdateDestroyAPIView):
     """
 
     permission_classes = (permissions.IsAuthenticated, AllowNoticeContact)
-    serializer_class = NoticeGetSerializer
+    serializer_class = NoticeDetailSerializer
     queryset = NoticeBoard.objects.all()

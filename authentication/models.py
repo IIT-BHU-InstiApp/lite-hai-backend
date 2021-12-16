@@ -10,6 +10,7 @@ class UserProfile(models.Model):
     department = models.CharField(max_length=60)
     year_of_joining = models.CharField(max_length=10)
     photo_url = models.URLField(null=True, blank=True, editable=False)
+    can_post_notice = models.BooleanField(default=False)
 
     # pylint: disable=invalid-str-returned
     def __str__(self):
@@ -58,11 +59,3 @@ class UserProfile(models.Model):
         # pylint: disable=no-member
         entities = self.entity_point_of_contact.all()
         return entities
-
-    def get_notice_privileges(self):
-        """
-        Get the privileges of the user for creating notice
-        """
-        # pylint: disable=no-member
-        notices = self.notice_contact.all()
-        return notices
