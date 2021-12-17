@@ -1,21 +1,21 @@
-from datetime import date
+# from datetime import date
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from .models import NoticeBoard
 from authentication.models import UserProfile
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ("id", "name", "email", "phone_number", "photo_url")
 
 
 class NoticeDetailSerializer(serializers.ModelSerializer):
-
+    voters = UserSerializer(many=True)
     class Meta:
         model = NoticeBoard
-        fields = "__all__"
+        fields = ("title", "description", "date", "upvote", "downvote", "voters")
 
 
 class NoticeCreateSerializer(serializers.ModelSerializer):
@@ -37,6 +37,7 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
             date=data["date"],
             upvote=data.get("upvote", 0),
             downvote=data.get("downvote", 0),
+            voters=data.get["voters"]
         )
         noticeBoard.contact.set(data.get("contact", []))
         # By default, add the creator of the workshop as the contact for the workshop
@@ -45,7 +46,6 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
         )
         # FirebaseAPI.send_club_message(data, self.context['club'])
         return noticeBoard
-
     class Meta:
         model = NoticeBoard
-        fields = "__all__"
+        fields = ("title", "description", "date", "upvote", "downvote", "voters")
