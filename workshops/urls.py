@@ -44,6 +44,5 @@ urlpatterns = [
     path('', include('config.urls')),
     path('', include('workshop.urls')),
     path('', include('team.urls')),
-    path('redoc/', schema_view.with_ui('redoc',
-         cache_timeout=0), name='schema-redoc'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
