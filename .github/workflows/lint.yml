@@ -9,7 +9,7 @@ on:
 
 jobs:
   lint:
-    runs-on:  ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-18.04]
@@ -22,4 +22,4 @@ jobs:
       - name: Install dependencies
         run: pipenv install
       - name: Run lint checks
-        run: pipenv run pylint --load-plugins pylint_django team workshops workshop authentication config
+        run: pipenv run pylint --load-plugins pylint_django team workshops workshop authentication config academics
