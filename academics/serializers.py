@@ -1,6 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import NotFound
-from drf_yasg2.utils import swagger_serializer_method
 from .models import AcademicSchedule, ProfsAndHODs, StudyMaterials
 
 
