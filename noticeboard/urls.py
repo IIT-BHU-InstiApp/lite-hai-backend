@@ -1,16 +1,16 @@
 from django.urls import path
 from .views import (
-    NoticeGetView,
-    NoticeUpdateView,
+    NoticeListView,
+    NoticeDetailView,
     NoticeUpvoteView,
     NoticeCreateView,
     NoticeDownvoteView,
 )
 
 urlpatterns = [
-    path("noticeboard/", NoticeGetView.as_view()),
+    path("noticeboard/", NoticeListView.as_view()),
     path("noticeboard/create/", NoticeCreateView.as_view()),
-    path("noticeboard/<int:pk>/", NoticeUpdateView.as_view()),
+    path("noticeboard/<int:pk>/", NoticeDetailView.as_view()),
     path("noticeboard/<int:pk>/upvote/", NoticeUpvoteView.as_view()),
     path("noticeboard/<int:pk>/downvote/", NoticeDownvoteView.as_view()),
 ]

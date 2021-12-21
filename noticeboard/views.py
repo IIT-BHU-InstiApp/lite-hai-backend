@@ -7,17 +7,18 @@ from rest_framework.response import Response
 from .permissions import AllowNoticeContact
 
 
-class NoticeGetView(generics.ListAPIView):
+class NoticeListView(generics.ListAPIView):
     """
     Get All Notices
     """
 
     queryset = (
+        # pylint: disable=no-member
         NoticeBoard.objects.all()
-        .extra(select={"offset": "upvote - downvote"})
+        .extra(select={"offset": "upvotes - downvotes"})
         .order_by("-offset")
     )
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
     serializer_class = NoticeDetailSerializer
 
 
@@ -25,7 +26,7 @@ class NoticeUpvoteView(generics.GenericAPIView):
     """
     Upvotes a notice
     """
-
+    # pylint: disable=no-member
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = NoticeDetailSerializer
@@ -37,7 +38,7 @@ class NoticeUpvoteView(generics.GenericAPIView):
                 return Response(
                     {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
                 )
-            notice.upvote += 1
+            notice.upvotes += 1
             notice.voters.add(request.user)
             notice.save()
             return Response(
@@ -53,7 +54,7 @@ class NoticeDownvoteView(generics.GenericAPIView):
     """
     Downvote a notice
     """
-
+    # pylint: disable=no-member
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = NoticeDetailSerializer
@@ -65,7 +66,7 @@ class NoticeDownvoteView(generics.GenericAPIView):
                 return Response(
                     {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
                 )
-            notice.downvote += 1
+            notice.downvotes += 1
             notice.voters.add(request.user)
             notice.save()
             return Response(
@@ -81,17 +82,18 @@ class NoticeCreateView(generics.CreateAPIView):
     """
     Create New Notice
     """
-
+    # pylint: disable=no-member
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.IsAuthenticated, AllowNoticeContact)
     serializer_class = NoticeCreateSerializer
 
 
-class NoticeUpdateView(generics.RetrieveUpdateDestroyAPIView):
+class NoticeDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Update and Delete a Notice
     """
 
     permission_classes = (permissions.IsAuthenticated, AllowNoticeContact)
     serializer_class = NoticeDetailSerializer
+    # pylint: disable=no-member
     queryset = NoticeBoard.objects.all()

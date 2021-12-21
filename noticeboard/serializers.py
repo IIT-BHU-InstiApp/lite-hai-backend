@@ -5,12 +5,6 @@ from .models import NoticeBoard
 from authentication.models import UserProfile
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfile
-        fields = ("id", "name", "email", "phone_number", "photo_url")
-
-
 class NoticeDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -35,8 +29,8 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
             title=data["title"],
             description=data.get("description", ""),
             date=data["date"],
-            upvote=data.get("upvote", 0),
-            downvote=data.get("downvote", 0),
+            upvotes=0,
+            downvotes=0,
         )
         noticeBoard.contact.set(data.get("contact", []))
         # By default, add the creator of the workshop as the contact for the workshop
