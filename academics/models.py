@@ -44,7 +44,7 @@ class StudyMaterials(models.Model):
 
 
 class ProfsAndHODs(models.Model):
-    department = models.CharField(max_length=60)
+    department = models.CharField(max_length=60, choices=dept_list)
     profs_and_HODs = models.URLField(default='https://www.iitbhu.ac.in/dept')
 
     class Meta:
