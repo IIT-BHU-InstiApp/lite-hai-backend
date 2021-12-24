@@ -1,4 +1,4 @@
-from datetime import date
+# from datetime import date
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from .models import NoticeBoard
@@ -6,10 +6,10 @@ from authentication.models import UserProfile
 
 
 class NoticeDetailSerializer(serializers.ModelSerializer):
-
+    voters = UserSerializer(many=True)
     class Meta:
         model = NoticeBoard
-        fields = "__all__"
+        fields = ("title", "description", "date", "upvote", "downvote", "voters")
 
 
 class NoticeCreateSerializer(serializers.ModelSerializer):
@@ -39,7 +39,6 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
         )
         # FirebaseAPI.send_club_message(data, self.context['club'])
         return noticeBoard
-
     class Meta:
         model = NoticeBoard
         fields = "__all__"
