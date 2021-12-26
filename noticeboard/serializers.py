@@ -6,7 +6,6 @@ from authentication.models import UserProfile
 
 
 class NoticeDetailSerializer(serializers.ModelSerializer):
-    voters = UserSerializer(many=True)
     class Meta:
         model = NoticeBoard
         fields = ("title", "description", "date", "upvotes", "downvotes", "voters")
