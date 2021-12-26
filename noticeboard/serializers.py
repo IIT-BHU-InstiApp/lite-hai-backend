@@ -9,8 +9,7 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
     voters = UserSerializer(many=True)
     class Meta:
         model = NoticeBoard
-        fields = ("title", "description", "date", "upvote", "downvote", "voters")
-
+        fields = ("title", "description", "date", "upvotes", "downvotes", "voters")
 
 class NoticeCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
@@ -42,3 +41,8 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = NoticeBoard
         fields = "__all__"
+
+class NoticeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NoticeBoard
+        fields = ("title", "date")
