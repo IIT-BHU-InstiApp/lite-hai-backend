@@ -51,9 +51,11 @@ INSTALLED_APPS = [
     'drf_yasg2',
     'corsheaders',
     'authentication',
+    'academics',
     'workshop',
     'team',
     'noticeboard',
+    'grievance'
     'config',
 ]
 
