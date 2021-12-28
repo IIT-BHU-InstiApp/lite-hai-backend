@@ -54,9 +54,9 @@ INSTALLED_APPS = [
     'academics',
     'workshop',
     'team',
+    'config',
     'noticeboard',
     'grievance'
-    'config',
 ]
 
 MIDDLEWARE = [
