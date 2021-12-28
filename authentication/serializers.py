@@ -125,12 +125,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         read_only_fields = (
             'id', 'email', 'department', 'year_of_joining', 'club_subscriptions',
-            'entity_subscriptions', 'club_privileges', 'entity_privileges', 'photo_url',
-            'can_post_notice')
+            'entity_subscriptions', 'club_privileges', 'entity_privileges', 'photo_url')
         fields = (
             'id', 'name', 'email', 'phone_number', 'department', 'year_of_joining',
             'club_subscriptions', 'entity_subscriptions', 'club_privileges', 'entity_privileges',
-            'photo_url', 'can_post_notice')
+            'photo_url')
 
 
 class ProfileSearchSerializer(serializers.Serializer):
