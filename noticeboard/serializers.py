@@ -1,25 +1,31 @@
 # from datetime import date
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
-from .models import NoticeBoard
 from authentication.models import UserProfile
+from .models import NoticeBoard
 
-
-class NoticeDetailSerializer(serializers.ModelSerializer):
+class NoticeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = NoticeBoard
-        fields = ("title", "description", "date", "upvotes", "downvotes", "voters")
+        fields = ("id", "title", "date", "importance")
+
+class NoticeDetailSerializer(serializers.ModelSerializer):
+    has_voted = serializers.SerializerMethodField()
+
+    def get_has_voted(self, obj):
+        # pylint: disable=no-member
+        user = UserProfile.objects.get(user=self.context['request'].user)
+        # if user in obj.voters.all():
+        if obj.voters.filter(id = user.id).exists():
+            return True
+        return False
+
+    class Meta:
+        model = NoticeBoard
+        read_only_fields = ("id", "upvotes", "downvotes")
+        fields = ("id", "title", "description", "date", "upvotes", "downvotes","importance", "has_voted")
+
 
 class NoticeCreateSerializer(serializers.ModelSerializer):
-    def validate(self, attrs):
-        request = self.context["request"]
-        # pylint: disable=no-member
-        profile = UserProfile.objects.get(user=request.user)
-        print(profile.get_notice_privileges())
-        if profile.get_notice_privileges():
-            raise PermissionDenied("You are not authorized to create notices")
-        return attrs
-
     def save(self, **kwargs):
         data = self.validated_data
         # pylint: disable=no-member
@@ -30,18 +36,7 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
             upvotes=0,
             downvotes=0,
         )
-        noticeBoard.contact.set(data.get("contact", []))
-        # By default, add the creator of the workshop as the contact for the workshop
-        noticeBoard.contact.add(
-            UserProfile.objects.get(user=self.context["request"].user)
-        )
-        # FirebaseAPI.send_club_message(data, self.context['club'])
         return noticeBoard
     class Meta:
         model = NoticeBoard
-        fields = "__all__"
-
-class NoticeListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = NoticeBoard
-        fields = ("title", "date")
+        fields = ("title", "description", "date", "importance")
