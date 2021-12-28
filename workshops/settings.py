@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'workshop',
     'team',
     'noticeboard',
+    'grievance',
     'config',
 ]
 
