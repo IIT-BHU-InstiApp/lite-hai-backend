@@ -1,7 +1,7 @@
 # from datetime import date
 from rest_framework import serializers
 from authentication.serializers import ProfileSerializer
-from .models import ParliamentContact, ParliamentUpdate
+from .models import ParliamentContact, ParliamentUpdate, ParliamentSuggestion
 
 class ParliamentContactListSerializer(serializers.ModelSerializer):
     profile = serializers.SerializerMethodField()
@@ -64,3 +64,24 @@ class ParliamentUpdateCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParliamentUpdate
         fields = ("title", "description", "date", "importance")
+
+
+class SuggestionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        #pylint: disable=no-member
+        model = ParliamentSuggestion
+        read_only_fields = ("id","author","upvotes", "downvotes")
+        fields=("id","title","description","author","date","upvotes", "downvotes")
+
+class SuggestionCreateSerializer(serializers.ModelSerializer):
+    author=serializers.SerializerMethodField()
+
+    def get_author(self, obj):
+        serializer = ProfileSerializer(obj.profile)
+        return serializer.data
+
+    class Meta:
+        #pylint: disable=no-member
+        model = ParliamentSuggestion
+        read_only_fields = ("id","author","upvotes", "downvotes")
+        fields=("id","title","description","author","date","upvotes", "downvotes")

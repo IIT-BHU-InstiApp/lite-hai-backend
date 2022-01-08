@@ -1,10 +1,16 @@
-from rest_framework import generics, permissions
-from .models import ParliamentContact, ParliamentUpdate
+from rest_framework import generics, permissions ,status
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+
+from authentication.models import UserProfile
+from .models import ParliamentContact, ParliamentUpdate, ParliamentSuggestion
 from .permissions import AllowParliamentHead
 from .serializers import (
     ParliamentContactListSerializer, ParliamentContactDetailSerializer,
     ParliamentContactCreateSerializer, ParliamentUpdateListSerializer,
-    ParliamentUpdateDetailSerializer, ParliamentUpdateCreateSerializer)
+    ParliamentUpdateDetailSerializer, ParliamentUpdateCreateSerializer,
+    SuggestionsSerializer,SuggestionCreateSerializer
+    )
 
 class ParliamentContactListView(generics.ListAPIView):
     """
@@ -36,7 +42,7 @@ class ParliamentContactDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class ParliamentUpdateListView(generics.ListAPIView):
     """
-    Get All Notices
+    Get All ParliamentUpdates
     """
 
     queryset = (
@@ -49,7 +55,7 @@ class ParliamentUpdateListView(generics.ListAPIView):
 
 class ParliamentUpdateCreateView(generics.CreateAPIView):
     """
-    Create New Notice
+    Create New ParliamentUpdate 
     """
     # pylint: disable=no-member
     queryset = ParliamentUpdate.objects.all()
@@ -58,10 +64,88 @@ class ParliamentUpdateCreateView(generics.CreateAPIView):
 
 class ParliamentUpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Update and Delete a Notice
+    Update and Delete a ParliamentUpdate
     """
 
     permission_classes = (permissions.IsAuthenticated, AllowParliamentHead)
     serializer_class = ParliamentUpdateDetailSerializer
     # pylint: disable=no-member
     queryset = ParliamentUpdate.objects.all()
+
+
+class ParliamentSuggestionsListView(generics.ListAPIView):
+    """
+    Get All suggestions
+    """
+    queryset = (
+        # pylint: disable=no-member
+        ParliamentSuggestion.objects.all()
+        .order_by("-upvotes", "-date")
+    )
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = SuggestionsSerializer
+
+class ParliamentSuggestionsCreateView(generics.CreateAPIView):
+    """
+    Create New suggestion
+    """
+    # pylint: disable=no-member
+    queryset = ParliamentSuggestion.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = SuggestionCreateSerializer
+
+class ParliamentSuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = SuggestionsSerializer
+
+    def get_queryset(self):
+        user = get_object_or_404(UserProfile,user=self.request.user)
+        return ParliamentSuggestion.objects.filter(author=user)
+
+class ParliamentSuggestionUpvoteView(generics.GenericAPIView):
+    """
+    Upvote a suggestion
+    """
+    # pylint: disable=no-member
+    queryset = ParliamentSuggestion.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = SuggestionsSerializer
+
+    def get(self, request, pk):
+        suggestion = get_object_or_404(self.queryset,id=pk)
+        user = UserProfile.objects.get(user=request.user)
+        if suggestion.voters.filter(id = user.id).exists():
+            return Response(
+                {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
+            )
+        suggestion.upvotes += 1
+        suggestion.voters.add(user)
+        suggestion.save()
+        return Response(
+            {"Message": "Upvoted successfully"}, status=status.HTTP_200_OK
+        )
+
+class ParliamentSuggestionDownvoteView(generics.GenericAPIView):
+    """
+    Downvote a suggestion
+    """
+    # pylint: disable=no-member
+    queryset = ParliamentSuggestion.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = SuggestionsSerializer
+
+    def get(self, request, pk):
+        suggestion = get_object_or_404(self.queryset,id=pk)
+        user = UserProfile.objects.get(user=request.user)
+
+        if suggestion.voters.filter(id = user.id).exists():
+            return Response(
+                {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
+            )
+        suggestion.downvotes += 1
+        suggestion.voters.add(user)
+        suggestion.save()
+        return Response(
+            {"Message": "Downvoted successfully"}, status=status.HTTP_200_OK
+        )
