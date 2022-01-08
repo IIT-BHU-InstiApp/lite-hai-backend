@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     year_of_joining = models.CharField(max_length=10)
     photo_url = models.URLField(null=True, blank=True, editable=False)
     can_post_notice = models.BooleanField(default=False)
+    can_add_parliament_details = models.BooleanField(default=False)
 
     # pylint: disable=invalid-str-returned
     def __str__(self):
