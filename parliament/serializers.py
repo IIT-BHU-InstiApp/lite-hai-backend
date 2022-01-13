@@ -74,11 +74,8 @@ class SuggestionsSerializer(serializers.ModelSerializer):
         fields=("id","title","description","author","date","upvotes", "downvotes")
 
 class SuggestionCreateSerializer(serializers.ModelSerializer):
-    author=serializers.SerializerMethodField()
 
-    def get_author(self, obj):
-        serializer = ProfileSerializer(obj.profile)
-        return serializer.data
+    author=serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         #pylint: disable=no-member

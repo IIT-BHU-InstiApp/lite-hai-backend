@@ -90,9 +90,14 @@ class ParliamentSuggestionsCreateView(generics.CreateAPIView):
     Create New suggestion
     """
     # pylint: disable=no-member
-    queryset = ParliamentSuggestion.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = ParliamentSuggestion.objects.all()
     serializer_class = SuggestionCreateSerializer
+
+    def perform_create(self, serializer):
+        user=UserProfile.objects.get(user=self.request.user)
+        serializer.save(author=user)
+
 
 class ParliamentSuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
