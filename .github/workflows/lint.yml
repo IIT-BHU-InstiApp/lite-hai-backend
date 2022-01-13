@@ -17,9 +17,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
-      - uses: dschep/install-pipenv-action@v1
-      - name: Install dependencies
-        run: pipenv install
+          python-version: 3.8
+      - name: Install dependencies with pipenv
+        run: |
+          pip install pipenv
+          pipenv install
       - name: Run lint checks
         run: pipenv run pylint --load-plugins pylint_django team workshops workshop authentication config noticeboard academics
