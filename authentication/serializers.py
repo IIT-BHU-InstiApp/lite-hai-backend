@@ -1,7 +1,7 @@
+# pylint: disable=too-few-public-methods
 import logging
 from django.core.validators import RegexValidator
-# pylint: disable=imported-auth-user
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from drf_yasg2.utils import swagger_serializer_method
 from workshop.serializers import ClubSerializer, EntitySerializer
@@ -49,7 +49,7 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     "Please login using @itbhu.ac.in student email id only")
             name = jwt['name']
-            user = User()
+            user = get_user_model()
             user.username = jwt['uid']
             user.email = email
             user.save()
