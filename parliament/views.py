@@ -3,117 +3,171 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from authentication.models import UserProfile
-from .models import ParliamentContact, ParliamentUpdate, ParliamentSuggestion
+from .models import Contact, Update, Suggestion
 from .permissions import AllowParliamentHead
 from .serializers import (
-    ParliamentContactListSerializer, ParliamentContactDetailSerializer,
-    ParliamentContactCreateSerializer, ParliamentUpdateListSerializer,
-    ParliamentUpdateDetailSerializer, ParliamentUpdateCreateSerializer,
+    ContactsSerializer, ContactCreateSerializer,
+    UpdatesSerializer, UpdateCreateSerializer,
     SuggestionsSerializer,SuggestionCreateSerializer
     )
 
-class ParliamentContactListView(generics.ListAPIView):
+class ContactsListView(generics.ListAPIView):
     """
     Get All Parliament Contacts
     """
-
-    queryset = ParliamentContact.objects.all()
+    queryset = Contact.objects.all()
     permission_classes = (permissions.AllowAny,)
-    serializer_class = ParliamentContactListSerializer
+    serializer_class = ContactsSerializer
 
-class ParliamentContactCreateView(generics.CreateAPIView):
+class ContactsCreateView(generics.CreateAPIView):
     """
     Create New Parliament Contact
     """
     # pylint: disable=no-member
-    queryset = ParliamentContact.objects.all()
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead)
-    serializer_class = ParliamentContactCreateSerializer
+    queryset = Contact.objects.all()
+    permission_classes = (permissions.IsAuthenticated)
+    serializer_class = ContactCreateSerializer
 
-class ParliamentContactDetailView(generics.RetrieveUpdateDestroyAPIView):
+class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Update and Delete a Parliament Contact
     """
-
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead)
-    serializer_class = ParliamentContactDetailSerializer
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    serializer_class = ContactsSerializer
     # pylint: disable=no-member
-    queryset = ParliamentContact.objects.all()
+    queryset = Contact.objects.all()
 
-class ParliamentUpdateListView(generics.ListAPIView):
+class UpdatesListView(generics.ListAPIView):
     """
-    Get All ParliamentUpdates
+    Get All Parliament Updates
     """
-
     queryset = (
         # pylint: disable=no-member
-        ParliamentUpdate.objects.all()
-        .order_by("-importance", "-date")
+        Update.objects.all()
+        .order_by("-upvotes", "-date")
     )
     permission_classes = (permissions.AllowAny,)
-    serializer_class = ParliamentUpdateListSerializer
+    serializer_class = UpdatesSerializer
 
-class ParliamentUpdateCreateView(generics.CreateAPIView):
+class UpdatesCreateView(generics.CreateAPIView):
     """
-    Create New ParliamentUpdate 
+    Create New Parliament Update
     """
     # pylint: disable=no-member
-    queryset = ParliamentUpdate.objects.all()
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead)
-    serializer_class = ParliamentUpdateCreateSerializer
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    queryset = Update.objects.all()
+    serializer_class = UpdateCreateSerializer
 
-class ParliamentUpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    Update and Delete a ParliamentUpdate
-    """
+    def perform_create(self, serializer):
+        user = get_object_or_404(UserProfile,user=self.request.user)
+        serializer.save(author=user)
 
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead)
-    serializer_class = ParliamentUpdateDetailSerializer
+
+class UpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Update and Delete a Parliament Update
+    """
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    serializer_class = UpdatesSerializer
+
+    def get_queryset(self):
+        if(self.request.user.is_authenticated):
+            user = get_object_or_404(UserProfile,user=self.request.user)
+            return Update.objects.filter(author=user)
+        return
+
+class UpdateUpvoteView(generics.GenericAPIView):
+    """
+    Upvote a Parliament Update
+    """
     # pylint: disable=no-member
-    queryset = ParliamentUpdate.objects.all()
+    queryset = Update.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UpdatesSerializer
 
+    def get(self, request, pk):
+        update = get_object_or_404(self.queryset,id=pk)
+        user = UserProfile.objects.get(user=request.user)
+        if update.voters.filter(id = user.id).exists():
+            return Response(
+                {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
+            )
+        update.upvotes += 1
+        update.voters.add(user)
+        update.save()
+        return Response(
+            {"Message": "Upvoted successfully"}, status=status.HTTP_200_OK
+        )
 
-class ParliamentSuggestionsListView(generics.ListAPIView):
+class UpdateDownvoteView(generics.GenericAPIView):
     """
-    Get All suggestions
+    Downvote a Parliament Update
+    """
+    # pylint: disable=no-member
+    queryset = Suggestion.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UpdatesSerializer
+
+    def get(self, request, pk):
+        update = get_object_or_404(self.queryset,id=pk)
+        user = UserProfile.objects.get(user=request.user)
+
+        if update.voters.filter(id = user.id).exists():
+            return Response(
+                {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
+            )
+        update.downvotes += 1
+        update.voters.add(user)
+        update.save()
+        return Response(
+            {"Message": "Downvoted successfully"}, status=status.HTTP_200_OK
+        )
+
+class SuggestionsListView(generics.ListAPIView):
+    """
+    Get All Parliament Suggestions
     """
     queryset = (
         # pylint: disable=no-member
-        ParliamentSuggestion.objects.all()
+        Suggestion.objects.all()
         .order_by("-upvotes", "-date")
     )
     permission_classes = (permissions.AllowAny,)
     serializer_class = SuggestionsSerializer
 
-class ParliamentSuggestionsCreateView(generics.CreateAPIView):
+class SuggestionsCreateView(generics.CreateAPIView):
     """
-    Create New suggestion
+    Create New Parliament Suggestion
     """
     # pylint: disable=no-member
-    permission_classes = (permissions.IsAuthenticated,)
-    queryset = ParliamentSuggestion.objects.all()
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    queryset = Suggestion.objects.all()
     serializer_class = SuggestionCreateSerializer
 
     def perform_create(self, serializer):
-        user=UserProfile.objects.get(user=self.request.user)
+        user = get_object_or_404(UserProfile,user=self.request.user)
         serializer.save(author=user)
 
 
-class ParliamentSuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
-
-    permission_classes = (permissions.IsAuthenticated,)
+class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Update and Delete a Parliament Suggestion
+    """
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
     serializer_class = SuggestionsSerializer
 
     def get_queryset(self):
-        user = get_object_or_404(UserProfile,user=self.request.user)
-        return ParliamentSuggestion.objects.filter(author=user)
+        if(self.request.user.is_authenticated):
+            user = get_object_or_404(UserProfile,user=self.request.user)
+            return Suggestion.objects.filter(author=user)
+        return
 
-class ParliamentSuggestionUpvoteView(generics.GenericAPIView):
+class SuggestionUpvoteView(generics.GenericAPIView):
     """
-    Upvote a suggestion
+    Upvote a Parliament Suggestion
     """
     # pylint: disable=no-member
-    queryset = ParliamentSuggestion.objects.all()
+    queryset = Suggestion.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = SuggestionsSerializer
 
@@ -131,12 +185,12 @@ class ParliamentSuggestionUpvoteView(generics.GenericAPIView):
             {"Message": "Upvoted successfully"}, status=status.HTTP_200_OK
         )
 
-class ParliamentSuggestionDownvoteView(generics.GenericAPIView):
+class SuggestionDownvoteView(generics.GenericAPIView):
     """
-    Downvote a suggestion
+    Downvote a Parliament Suggestion
     """
     # pylint: disable=no-member
-    queryset = ParliamentSuggestion.objects.all()
+    queryset = Suggestion.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = SuggestionsSerializer
 

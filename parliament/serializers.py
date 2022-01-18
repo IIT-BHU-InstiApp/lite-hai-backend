@@ -1,9 +1,9 @@
 # from datetime import date
 from rest_framework import serializers
 from authentication.serializers import ProfileSerializer
-from .models import ParliamentContact, ParliamentUpdate, ParliamentSuggestion
+from .models import Contact, Update, Suggestion
 
-class ParliamentContactListSerializer(serializers.ModelSerializer):
+class ContactsSerializer(serializers.ModelSerializer):
     profile = serializers.SerializerMethodField()
 
     def get_profile(self,obj):
@@ -11,25 +11,13 @@ class ParliamentContactListSerializer(serializers.ModelSerializer):
         return serializer.data
 
     class Meta:
-        model = ParliamentContact
+        model = Contact
         fields = ("id", "profile", "designation")
 
-class ParliamentContactDetailSerializer(serializers.ModelSerializer):
-    profile = serializers.SerializerMethodField()
-
-    def get_profile(self,obj):
-        serializer = ProfileSerializer(obj.profile)
-        return serializer.data
-
-    class Meta:
-        model = ParliamentContact
-        fields = ("id", "profile", "designation")
-
-
-class ParliamentContactCreateSerializer(serializers.ModelSerializer):
+class ContactCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
-        contact = ParliamentContact.objects.create(
+        contact = Contact.objects.create(
             profile=self.context["profile"],
             designation=data["designation"]
         )
@@ -37,39 +25,31 @@ class ParliamentContactCreateSerializer(serializers.ModelSerializer):
         return contact
 
     class Meta:
-        model = ParliamentContact
+        model = Contact
         fields = ("id", "designation")
 
-class ParliamentUpdateListSerializer(serializers.ModelSerializer):
+class UpdatesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ParliamentUpdate
-        fields = ("id", "title", "date", "importance")
+        #pylint: disable=no-member
+        model = Update
+        read_only_fields = ("id","author","upvotes", "downvotes")
+        fields=("id","title","description","author","date","upvotes", "downvotes")
 
-class ParliamentUpdateDetailSerializer(serializers.ModelSerializer):
+class UpdateCreateSerializer(serializers.ModelSerializer):
+
+    author=serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
-        model = ParliamentUpdate
-        fields = ("id", "title", "description", "date", "importance")
-
-
-class ParliamentUpdateCreateSerializer(serializers.ModelSerializer):
-    def save(self, **kwargs):
-        data = self.validated_data
-        # pylint: disable=no-member
-        noticeBoard = ParliamentUpdate.objects.create(
-            title=data["title"],
-            description=data.get("description", ""),
-            date=data["date"],
-        )
-        return noticeBoard
-    class Meta:
-        model = ParliamentUpdate
-        fields = ("title", "description", "date", "importance")
+        #pylint: disable=no-member
+        model = Update
+        read_only_fields = ("id","author","upvotes", "downvotes")
+        fields=("id","title","description","author","date","upvotes", "downvotes")
 
 
 class SuggestionsSerializer(serializers.ModelSerializer):
     class Meta:
         #pylint: disable=no-member
-        model = ParliamentSuggestion
+        model = Suggestion
         read_only_fields = ("id","author","upvotes", "downvotes")
         fields=("id","title","description","author","date","upvotes", "downvotes")
 
@@ -79,6 +59,6 @@ class SuggestionCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         #pylint: disable=no-member
-        model = ParliamentSuggestion
+        model = Suggestion
         read_only_fields = ("id","author","upvotes", "downvotes")
         fields=("id","title","description","author","date","upvotes", "downvotes")
