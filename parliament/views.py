@@ -162,6 +162,7 @@ class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Suggestion.objects.filter(author=user)
         return
 
+
 class SuggestionUpvoteView(generics.GenericAPIView):
     """
     Upvote a Parliament Suggestion
