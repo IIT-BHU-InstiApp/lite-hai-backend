@@ -25,7 +25,7 @@ class ContactsCreateView(generics.CreateAPIView):
     """
     # pylint: disable=no-member
     queryset = Contact.objects.all()
-    permission_classes = (permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = ContactCreateSerializer
 
 class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):

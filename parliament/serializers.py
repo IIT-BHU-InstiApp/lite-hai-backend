@@ -1,6 +1,7 @@
 # from datetime import date
 from rest_framework import serializers
 from authentication.serializers import ProfileSerializer
+from authentication.models import UserProfile
 from .models import Contact, Update, Suggestion
 
 class ContactsSerializer(serializers.ModelSerializer):
@@ -18,15 +19,15 @@ class ContactCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
         contact = Contact.objects.create(
-            profile=self.context["profile"],
-            designation=data["designation"]
+            designation=data['designation'],
+            profile= data['profile'],
         )
         contact.save()
         return contact
 
     class Meta:
         model = Contact
-        fields = ("id", "designation")
+        fields = ("id", "profile", "designation")
 
 class UpdatesSerializer(serializers.ModelSerializer):
     class Meta:
