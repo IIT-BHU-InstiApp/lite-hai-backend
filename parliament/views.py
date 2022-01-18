@@ -95,7 +95,7 @@ class ParliamentSuggestionsCreateView(generics.CreateAPIView):
     serializer_class = SuggestionCreateSerializer
 
     def perform_create(self, serializer):
-        user=UserProfile.objects.get(user=self.request.user)
+        user = get_object_or_404(UserProfile,user=self.request.user)
         serializer.save(author=user)
 
 
@@ -105,8 +105,10 @@ class ParliamentSuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = SuggestionsSerializer
 
     def get_queryset(self):
-        user = get_object_or_404(UserProfile,user=self.request.user)
-        return ParliamentSuggestion.objects.filter(author=user)
+        if(self.request.user.is_authenticated):
+            user = get_object_or_404(UserProfile,user=self.request.user)
+            return ParliamentSuggestion.objects.filter(author=user)
+        return 
 
 class ParliamentSuggestionUpvoteView(generics.GenericAPIView):
     """
