@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 # from datetime import date
 from rest_framework import serializers
 from authentication.models import UserProfile
@@ -12,6 +13,7 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
     has_voted = serializers.SerializerMethodField()
 
     def get_has_voted(self, obj):
+        """Check if already voted"""
         # pylint: disable=no-member
         user = UserProfile.objects.get(user=self.context['request'].user)
         # if user in obj.voters.all():
@@ -22,7 +24,8 @@ class NoticeDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = NoticeBoard
         read_only_fields = ("id", "upvotes", "downvotes")
-        fields = ("id", "title", "description", "date", "upvotes", "downvotes","importance", "has_voted")
+        fields = ("id", "title", "description", "date", "upvotes", "downvotes",
+                "importance", "has_voted")
 
 
 class NoticeCreateSerializer(serializers.ModelSerializer):

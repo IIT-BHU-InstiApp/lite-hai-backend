@@ -1,13 +1,9 @@
-from rest_framework import generics, permissions, status
-from rest_framework.response import Response
+# pylint: disable=no-member
+from rest_framework import generics
 from django.shortcuts import get_object_or_404
-from authentication.models import UserProfile
 from .models import AcademicSchedule, StudyMaterials, ProfsAndHODs
 from .serializers import (AcademicScheduleSerializer,
                           ProfsAndHODsSerializer, StudyMaterialsSerializer)
-from authentication.models import UserProfile
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-
 
 class AcademicScheduleView(generics.RetrieveAPIView):
     """
@@ -31,7 +27,8 @@ class AcademicScheduleView(generics.RetrieveAPIView):
 class StudyMaterialsView(generics.RetrieveAPIView):
     '''
     Accepts a parameter dept and returns a url of the study materials for the given department.
-    'dept' is the acronym of the department same as in the email id and contains lower case letters only.
+    'dept' is the acronym of the department same as in the email id and contains lower case
+    letters only.
     '''
 
     queryset = StudyMaterials.objects.all()
@@ -43,7 +40,8 @@ class StudyMaterialsView(generics.RetrieveAPIView):
 class ProfsAndHODsView(generics.RetrieveAPIView):
     '''
     Accepts a parameter dept and returns a url of the professors of the given department.
-    'dept' is the acronym of the department same as in the email id and contains lower case letters only.
+    'dept' is the acronym of the department same as in the email id and contains lower
+    case letters only.
     '''
 
     queryset = ProfsAndHODs.objects.all()

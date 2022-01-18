@@ -49,6 +49,7 @@ class NoticeUpvoteView(generics.GenericAPIView):
     serializer_class = NoticeDetailSerializer
 
     def get(self, request, pk):
+        """Check if already voted or not"""
         notice = self.queryset.get(id=pk)
         user = UserProfile.objects.get(user=request.user)
         if notice is not None:
@@ -62,8 +63,7 @@ class NoticeUpvoteView(generics.GenericAPIView):
             return Response(
                 {"Message": "Upvoted successfully"}, status=status.HTTP_200_OK
             )
-        else:
-            return Response(
+        return Response(
                 {"Error": "Notice not found"}, status=status.HTTP_204_NO_CONTENT
             )
 
@@ -78,6 +78,7 @@ class NoticeDownvoteView(generics.GenericAPIView):
     serializer_class = NoticeDetailSerializer
 
     def get(self, request, pk):
+        """Check if already voted or not"""
         notice = self.queryset.get(id=pk)
         user = UserProfile.objects.get(user=request.user)
         if notice is not None:
@@ -91,7 +92,6 @@ class NoticeDownvoteView(generics.GenericAPIView):
             return Response(
                 {"Message": "Downvoted successfully"}, status=status.HTTP_200_OK
             )
-        else:
-            return Response(
+        return Response(
                 {"Error": "Notice not found"}, status=status.HTTP_204_NO_CONTENT
             )
