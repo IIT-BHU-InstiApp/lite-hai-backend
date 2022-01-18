@@ -1,3 +1,4 @@
+# pylint: disable=too-few-public-methods
 from django.db import models
 
 # Create your models here.
