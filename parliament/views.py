@@ -154,14 +154,25 @@ class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Get, Update or Delete a Parliament Suggestion
     """
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,AllowNoticeContact)
     serializer_class = SuggestionsSerializer
 
+    def get_permissions(self):
+        if(self.request.method == 'GET'):
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
+
     def get_queryset(self):
+        if (self.request.method=='GET'):
+            return Suggestion.objects.all()
         if(self.request.user.is_authenticated):
             user = get_object_or_404(UserProfile,user=self.request.user)
+            if(user.can_add_parliament_details or user.can_post_notice):
+                return Suggestion.objects.all()
             return Suggestion.objects.filter(author=user)
-        return
+        return Response(
+            {"Message": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class SuggestionUpvoteView(generics.GenericAPIView):
