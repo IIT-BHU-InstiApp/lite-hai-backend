@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from authentication.models import UserProfile
 from .models import Contact, Update, Suggestion
 from .permissions import AllowParliamentHead
+from noticeboard.permissions import AllowNoticeContact
 from .serializers import (
     ContactsSerializer, ContactCreateSerializer,
     UpdatesSerializer, UpdateCreateSerializer,
@@ -104,7 +105,7 @@ class UpdateDownvoteView(generics.GenericAPIView):
     Downvote a Parliament Update
     """
     # pylint: disable=no-member
-    queryset = Suggestion.objects.all()
+    queryset = Update.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UpdatesSerializer
 
@@ -151,9 +152,9 @@ class SuggestionsCreateView(generics.CreateAPIView):
 
 class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Update and Delete a Parliament Suggestion
+    Get, Update or Delete a Parliament Suggestion
     """
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,AllowNoticeContact)
     serializer_class = SuggestionsSerializer
 
     def get_queryset(self):
