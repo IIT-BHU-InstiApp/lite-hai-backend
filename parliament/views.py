@@ -53,6 +53,7 @@ class UpdatesListView(generics.ListAPIView):
 class UpdatesCreateView(generics.CreateAPIView):
     """
     Create New Parliament Update
+    Users with can_add_parliament_details or can_add_notice permissions can create updates.
     """
     # pylint: disable=no-member
     permission_classes = (permissions.IsAuthenticated, AllowParliamentHead | AllowNoticeContact,)
@@ -66,7 +67,8 @@ class UpdatesCreateView(generics.CreateAPIView):
 
 class UpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Update and Delete a Parliament Update
+    Update and Delete a Parliament Update.
+    Users with can_add_parliament_details or can_add_notice permissions can update and delete.
     """
     permission_classes = (permissions.IsAuthenticated, AllowParliamentHead | AllowNoticeContact,)
     serializer_class = UpdatesSerializer
@@ -154,7 +156,7 @@ class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     get:
     Get a suggestion using its id. Authentication is not required for this method.
-    
+
     put:
     Update a suggestion using its id. A user can only update a suggestion written by him/her.
     Users with can_add_parliament_details or can_add_notice permissions can however update any suggestion.
@@ -165,7 +167,7 @@ class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     delete:
     Delete a suggestion using its id. A user can only update a suggestion written by him/her.
-    Users with can_add_parliament_details or can_add_notice permissions can however delete any suggestion.   
+    Users with can_add_parliament_details or can_add_notice permissions can however delete any suggestion.
     """
     serializer_class = SuggestionsSerializer
 
