@@ -26,7 +26,7 @@ class ContactsCreateView(generics.CreateAPIView):
     """
     # pylint: disable=no-member
     queryset = Contact.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
     serializer_class = ContactCreateSerializer
 
 class ContactDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -55,7 +55,7 @@ class UpdatesCreateView(generics.CreateAPIView):
     Create New Parliament Update
     """
     # pylint: disable=no-member
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead | AllowNoticeContact,)
     queryset = Update.objects.all()
     serializer_class = UpdateCreateSerializer
 
@@ -68,7 +68,7 @@ class UpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Update and Delete a Parliament Update
     """
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead | AllowNoticeContact,)
     serializer_class = UpdatesSerializer
 
     def get_queryset(self):

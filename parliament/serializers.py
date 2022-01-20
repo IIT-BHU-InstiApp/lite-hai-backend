@@ -18,6 +18,8 @@ class ContactsSerializer(serializers.ModelSerializer):
 class ContactCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
+        if Contact.objects.filter(profile=data["profile"]).exists():
+            raise serializers.ValidationError("Contact already exists")
         contact = Contact.objects.create(
             designation=data['designation'],
             profile= data['profile'],
