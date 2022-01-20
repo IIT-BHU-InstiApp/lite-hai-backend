@@ -126,11 +126,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id', 'email', 'department', 'year_of_joining', 'club_subscriptions',
             'entity_subscriptions', 'club_privileges', 'entity_privileges', 'photo_url',
-            'can_post_notice')
+            'can_post_notice', 'can_add_parliament_details')
         fields = (
             'id', 'name', 'email', 'phone_number', 'department', 'year_of_joining',
             'club_subscriptions', 'entity_subscriptions', 'club_privileges', 'entity_privileges',
-            'photo_url', 'can_post_notice')
+            'photo_url', 'can_post_notice', 'can_add_parliament_details')
 
 
 class ProfileSearchSerializer(serializers.Serializer):
