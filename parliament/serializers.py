@@ -18,6 +18,7 @@ class ContactsSerializer(serializers.ModelSerializer):
 class ContactCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.validated_data
+        # Can't create anothor contact if you already have one.
         if Contact.objects.filter(profile=data["profile"]).exists():
             raise serializers.ValidationError("Contact already exists")
         contact = Contact.objects.create(
