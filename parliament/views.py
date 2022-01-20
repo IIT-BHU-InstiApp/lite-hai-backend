@@ -141,7 +141,7 @@ class SuggestionsCreateView(generics.CreateAPIView):
     Create New Parliament Suggestion
     """
     # pylint: disable=no-member
-    permission_classes = (permissions.IsAuthenticated, AllowParliamentHead,)
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = Suggestion.objects.all()
     serializer_class = SuggestionCreateSerializer
 
@@ -152,7 +152,20 @@ class SuggestionsCreateView(generics.CreateAPIView):
 
 class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Get, Update or Delete a Parliament Suggestion
+    get:
+    Get a suggestion using its id. Authentication is not required for this method.
+    
+    put:
+    Update a suggestion using its id. A user can only update a suggestion written by him/her.
+    Users with can_add_parliament_details or can_add_notice permissions can however update any suggestion.
+
+    patch:
+    Update a suggestion using its id. A user can only update a suggestion written by him/her.
+    Users with can_add_parliament_details or can_add_notice permissions can however update any suggestion.
+
+    delete:
+    Delete a suggestion using its id. A user can only update a suggestion written by him/her.
+    Users with can_add_parliament_details or can_add_notice permissions can however delete any suggestion.   
     """
     serializer_class = SuggestionsSerializer
 
