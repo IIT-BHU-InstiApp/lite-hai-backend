@@ -130,7 +130,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'email', 'phone_number', 'department', 'year_of_joining',
             'club_subscriptions', 'entity_subscriptions', 'club_privileges', 'entity_privileges',
-            'photo_url', 'can_post_notice', 'can_add_parliament_details')
+            'photo_url', 'can_post_notice', 'can_add_parliament_details', 'mess_id')
 
 
 class ProfileSearchSerializer(serializers.Serializer):

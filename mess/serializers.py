@@ -62,13 +62,11 @@ class BillSerializer(serializers.ModelSerializer):
     Helper serializer for serializing the bill objects.
     """
     name = serializers.CharField(source='user_profile.name')
-    roll_number = serializers.CharField(source='user_profile.roll_number')
     mess = serializers.CharField(source='mess.name')
 
     class Meta:
         model = Bill
-        fields = ('name', 'roll_number', 'mess',
-                  'monthly_bill', 'extra_charges',)
+        fields = ('name', 'mess', 'monthly_bill', 'extra_charges',)
 
 
 class MessCancelSerializer(serializers.Serializer):
