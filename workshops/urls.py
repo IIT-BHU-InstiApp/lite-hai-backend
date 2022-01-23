@@ -47,5 +47,6 @@ urlpatterns = [
     path('', include('noticeboard.urls')),
     path('', include('grievance.urls')),
     path('', include('parliament.urls')),
+    path('', include('mess.urls')),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
