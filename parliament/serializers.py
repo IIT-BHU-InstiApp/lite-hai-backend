@@ -32,12 +32,17 @@ class ContactCreateSerializer(serializers.ModelSerializer):
         model = Contact
         fields = ("id", "profile", "designation")
 
-class UpdatesSerializer(serializers.ModelSerializer):
+class UpdateListSerializer(serializers.ModelSerializer):
     class Meta:
         #pylint: disable=no-member
         model = Update
-        read_only_fields = ("id","author","upvotes", "downvotes")
-        fields=("id","title","description","author","date","upvotes", "downvotes")
+        fields=("id","title","date")
+
+class UpdateDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Update
+        read_only_fields = ("id","author")
+        fields=("id","title","description","author","date","committee")
 
 class UpdateCreateSerializer(serializers.ModelSerializer):
 
@@ -46,16 +51,32 @@ class UpdateCreateSerializer(serializers.ModelSerializer):
     class Meta:
         #pylint: disable=no-member
         model = Update
-        read_only_fields = ("id","author","upvotes", "downvotes")
-        fields=("id","title","description","author","date","upvotes", "downvotes")
+        read_only_fields = ("id","author")
+        fields=("id","title","description","author","date","committee")
 
-
-class SuggestionsSerializer(serializers.ModelSerializer):
+class SuggestionListSerializer(serializers.ModelSerializer):
     class Meta:
         #pylint: disable=no-member
         model = Suggestion
+        fields=("id","title","date")
+
+class SuggestionDetailSerializer(serializers.ModelSerializer):
+    has_voted = serializers.SerializerMethodField()
+
+    def get_has_voted(self, obj):
+        """Check if already voted"""
+        # pylint: disable=no-member
+        user = UserProfile.objects.get(user=self.context['request'].user)
+        # if user in obj.voters.all():
+        if obj.voters.filter(id = user.id).exists():
+            return True
+        return False
+
+    class Meta:
+        model = Suggestion
         read_only_fields = ("id","author","upvotes", "downvotes")
-        fields=("id","title","description","author","date","upvotes", "downvotes")
+        fields=("id","title","description","author","date","upvotes","downvotes","has_voted")
+
 
 class SuggestionCreateSerializer(serializers.ModelSerializer):
 

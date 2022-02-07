@@ -15,9 +15,7 @@ class Update(models.Model):
     description = models.TextField()
     author = models.ForeignKey(UserProfile,on_delete=models.CASCADE,related_name="Update")
     date = models.DateTimeField(auto_now_add=True)
-    upvotes=models.IntegerField(default=0)
-    downvotes=models.IntegerField(default=0)
-    voters=models.ManyToManyField(UserProfile, blank=True)
+    committee = models.CharField(max_length=50)
 
     def __str__(self):
         return self.title
