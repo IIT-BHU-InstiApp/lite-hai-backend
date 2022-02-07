@@ -13,7 +13,7 @@ class ContactsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contact
-        fields = ("id", "profile", "designation")
+        fields = ("id", "profile", "designation", "email", "phone")
 
 class ContactCreateSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
@@ -30,7 +30,7 @@ class ContactCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Contact
-        fields = ("id", "profile", "designation")
+        fields = ("id", "profile", "designation", "email", "phone")
 
 class UpdateListSerializer(serializers.ModelSerializer):
     class Meta:

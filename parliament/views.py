@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from authentication.models import UserProfile
-from .models import Contact, Update, Suggestion
+from .models import Contact, Update, Suggestion, Committee
 from .permissions import AllowParliamentHead
 from noticeboard.permissions import AllowNoticeContact
 from .serializers import (
@@ -80,17 +80,14 @@ class UpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class CommitteeUpdatesListView(generics.ListAPIView):
     """
-    Get All Committee Updates
+    Get All Updates for a Committee
     """
-    def get_queryset(self):
-        committee = self.kwargs.get('committee')
-        return (
-            # pylint: disable=no-member
-            Update.objects.filter(committee=committee)
-            .order_by("-date")
-        )
     permission_classes = (permissions.AllowAny,)
-    serializer_class = UpdateDetailSerializer
+    serializer_class = UpdateListSerializer
+
+    def get_queryset(self):
+        committee = get_object_or_404(Committee,id=self.kwargs['committeeId'])
+        return Update.objects.filter(committee=committee)
 
 class SuggestionsListView(generics.ListAPIView):
     """
