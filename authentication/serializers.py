@@ -49,7 +49,8 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     "Please login using @itbhu.ac.in student email id only")
             name = jwt['name']
-            user = get_user_model()
+            UserModel = get_user_model()
+            user = UserModel()
             user.username = jwt['uid']
             user.email = email
             user.save()
