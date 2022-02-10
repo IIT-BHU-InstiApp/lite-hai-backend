@@ -32,14 +32,23 @@ class MessBillSerializer(serializers.Serializer):
         with given id. Raises error if not subscribed.
         """
         mess_id = self.context['mess_id']
+        mess = Mess.objects.filter(id=mess_id)
+        if not mess:
+            raise serializers.ValidationError(
+                'Mess with given id does not exist.')
+
+        mess = mess.first()
+        month = self.context['month']
         user = self.context['request'].user
         user_profile = UserProfile.objects.filter(user=user).first()
 
-        if user_profile.mess_id != mess_id:
+        bill = Bill.objects.filter(
+            user_profile=user_profile, mess=mess, month=month)
+        if not bill:
             raise serializers.ValidationError(
-                'You are not subscribed to this mess')
+                'Bill details not found for the student with given mess and month.')
 
-        data['user_profile'] = user_profile
+        data['bill'] = bill.first()
         return data
 
     def get_bill_details(self):
@@ -48,11 +57,7 @@ class MessBillSerializer(serializers.Serializer):
         and returns the serialized bill details.
         """
         data = self.validated_data
-        user_profile = data.get('user_profile')
-        mess = Mess.objects.filter(id=user_profile.mess_id).first()
-
-        bill = Bill.objects.filter(
-            user_profile=user_profile, mess=mess).first()
+        bill = data.get('bill')
         serialized_bill = BillSerializer(bill)
         return serialized_bill.data
 
@@ -66,7 +71,7 @@ class BillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bill
-        fields = ('name', 'mess', 'monthly_bill', 'extra_charges',)
+        fields = ('name', 'mess', 'monthly_bill', 'extra_charges', 'month',)
 
 
 class MessCancelSerializer(serializers.Serializer):

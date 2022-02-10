@@ -64,7 +64,7 @@ class MessDetailView(GenericAPIView):
 class MessBillView(GenericAPIView):
     """
     get:
-    Returns bills details with given mess id if student is subscribed to this mess.
+    Returns bill details of the student with given mess id for given month.
     """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MessBillSerializer
@@ -73,11 +73,12 @@ class MessBillView(GenericAPIView):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({
-            'mess_id': self.kwargs.get('pk')
+            'mess_id': self.kwargs.get('pk'),
+            'month': self.kwargs.get('month')
         })
         return context
 
-    def get(self, request, pk):
+    def get(self, request, pk, month):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         bill = serializer.get_bill_details()

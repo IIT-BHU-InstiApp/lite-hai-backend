@@ -12,7 +12,6 @@ class UserProfile(models.Model):
     photo_url = models.URLField(null=True, blank=True, editable=False)
     can_post_notice = models.BooleanField(default=False)
     can_add_parliament_details = models.BooleanField(default=False)
-    mess_id = models.IntegerField(null=True, blank=True)
 
     # pylint: disable=invalid-str-returned
     def __str__(self):
