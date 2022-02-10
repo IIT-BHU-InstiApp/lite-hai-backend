@@ -167,19 +167,19 @@ django_heroku.settings(locals())
 
 # Firebase Credentials
 # if not DEBUG:
-# with open("service_account.json.aes", "rb") as encrypted_file:
-#     with open("service_account.json", "wb") as decrypted_file:
-#         # decrypt file stream
-#         pyAesCrypt.decryptStream(
-#             encrypted_file,
-#             decrypted_file,
-#             config('SERVICE_ACCOUNT_DECRYPT_KEY'),
-#             64*1024,
-#             int(config('SERVICE_ACCOUNT_ENC_SIZE'))
-#         )
+with open("service_account.json.aes", "rb") as encrypted_file:
+    with open("service_account.json", "wb") as decrypted_file:
+        # decrypt file stream
+        pyAesCrypt.decryptStream(
+            encrypted_file,
+            decrypted_file,
+            config('SERVICE_ACCOUNT_DECRYPT_KEY'),
+            64*1024,
+            int(config('SERVICE_ACCOUNT_ENC_SIZE'))
+        )
 
-# cred = credentials.Certificate(os.path.join(BASE_DIR, 'service_account.json'))
-# default_app = firebase_admin.initialize_app(cred)
+cred = credentials.Certificate(os.path.join(BASE_DIR, 'service_account.json'))
+default_app = firebase_admin.initialize_app(cred)
 
 LOGGING = {
     'version': 1,
