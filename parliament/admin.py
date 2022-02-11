@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(Contact)
 admin.site.register(Update)
 admin.site.register(Suggestion)
+admin.site.register(Committee)
