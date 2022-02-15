@@ -3,15 +3,16 @@ from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from .models import LostAndFound
 from .serializers import (
-    CreateLostAndFoundSerializer, CountLostAndFoundSerializer,
-    LostAndFoundSerializer, LostAndFoundDetailSerializer)
+    CreateLostAndFoundSerializer,
+    LostAndFoundSerializer,
+    LostAndFoundListSerializer)
 
 
 class CreateLostAndFoundView(GenericAPIView):
     """
     post:
     Creates a new lost and found object and returns the
-    Id, Name, Branch, Course, Year, Type, Description and Status of the object.
+    Id, Name, Branch, Course, Year, Type and Description of the object.
     """
     permission_classes = (permissions.IsAuthenticated,)
     # pylint: disable=no-member
@@ -26,36 +27,19 @@ class CreateLostAndFoundView(GenericAPIView):
         return Response(complaint_dict.data, status=status.HTTP_201_CREATED)
 
 
-class CountLostAndFoundView(GenericAPIView):
-    """
-    get:
-    Returns a dictionary consisting of number of closed, registered and pending lost and found objects.
-    """
-    permission_classes = (permissions.IsAuthenticated,)
-    # pylint: disable=no-member
-    queryset = LostAndFound.objects.all()
-    serializer_class = CountLostAndFoundSerializer
-
-    def get(self, request, *args, **kwargs):
-        serializer = self.get_serializer()
-        count = serializer.get_count()
-        return Response(count, status=status.HTTP_200_OK)
-
-
-class LostAndFoundDetailView(GenericAPIView):
+class LostAndFoundListView(GenericAPIView):
     """
     get:
     Returns the list of all lost and found objects created by the authenticated user
-    having the given status value 'st'.
     """
     permission_classes = (permissions.IsAuthenticated,)
     # pylint: disable=no-member
     queryset = LostAndFound.objects.all()
-    serializer_class = LostAndFoundDetailSerializer
+    serializer_class = LostAndFoundListSerializer
 
-    def get(self, request, st):
+    def get(self, request):
         serializer = self.get_serializer()
-        detailed_complaints = serializer.get_details(status=st)
-        detailed_complaints_dict = LostAndFoundSerializer(
-            detailed_complaints, many=True)
-        return Response(detailed_complaints_dict.data, status=status.HTTP_200_OK)
+        list_lost_and_found = serializer.get_list()
+        list_lost_and_found_dict = LostAndFoundSerializer(
+            list_lost_and_found, many=True)
+        return Response(list_lost_and_found_dict.data, status=status.HTTP_200_OK)
