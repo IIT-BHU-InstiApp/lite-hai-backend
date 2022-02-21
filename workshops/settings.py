@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'grievance',
     'parliament',
     'config',
+    'lost_and_found'
 ]
 
 MIDDLEWARE = [
