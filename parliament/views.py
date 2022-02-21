@@ -3,13 +3,13 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from authentication.models import UserProfile
-from .models import Contact, Update, Suggestion, Committee
+from .models import Contact, Update, Suggestion
 from .permissions import AllowParliamentHead
 from noticeboard.permissions import AllowNoticeContact
 from .serializers import (
     ContactsSerializer, ContactCreateSerializer,
-    UpdateListSerializer, UpdateDetailSerializer, UpdateCreateSerializer,
-    SuggestionListSerializer, SuggestionDetailSerializer, SuggestionCreateSerializer
+    UpdatesSerializer, UpdateCreateSerializer,
+    SuggestionsSerializer,SuggestionCreateSerializer
     )
 
 class ContactsListView(generics.ListAPIView):
@@ -45,10 +45,10 @@ class UpdatesListView(generics.ListAPIView):
     queryset = (
         # pylint: disable=no-member
         Update.objects.all()
-        .order_by("-date")
+        .order_by("-upvotes", "-date")
     )
     permission_classes = (permissions.AllowAny,)
-    serializer_class = UpdateListSerializer
+    serializer_class = UpdatesSerializer
 
 class UpdatesCreateView(generics.CreateAPIView):
     """
@@ -64,13 +64,14 @@ class UpdatesCreateView(generics.CreateAPIView):
         user = get_object_or_404(UserProfile,user=self.request.user)
         serializer.save(author=user)
 
+
 class UpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Update and Delete a Parliament Update.
     Users with can_add_parliament_details or can_add_notice permissions can update and delete.
     """
     permission_classes = (permissions.IsAuthenticated, AllowParliamentHead | AllowNoticeContact,)
-    serializer_class = UpdateDetailSerializer
+    serializer_class = UpdatesSerializer
 
     def get_queryset(self):
         if(self.request.user.is_authenticated):
@@ -78,16 +79,52 @@ class UpdateDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Update.objects.filter(author=user)
         return
 
-class CommitteeUpdatesListView(generics.ListAPIView):
+class UpdateUpvoteView(generics.GenericAPIView):
     """
-    Get All Updates for a Committee
+    Upvote a Parliament Update
     """
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = UpdateListSerializer
+    # pylint: disable=no-member
+    queryset = Update.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UpdatesSerializer
 
-    def get_queryset(self):
-        committee = get_object_or_404(Committee,id=self.kwargs['committeeId'])
-        return Update.objects.filter(committee=committee)
+    def get(self, request, pk):
+        update = get_object_or_404(self.queryset,id=pk)
+        user = UserProfile.objects.get(user=request.user)
+        if update.voters.filter(id = user.id).exists():
+            return Response(
+                {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
+            )
+        update.upvotes += 1
+        update.voters.add(user)
+        update.save()
+        return Response(
+            {"Message": "Upvoted successfully"}, status=status.HTTP_200_OK
+        )
+
+class UpdateDownvoteView(generics.GenericAPIView):
+    """
+    Downvote a Parliament Update
+    """
+    # pylint: disable=no-member
+    queryset = Update.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UpdatesSerializer
+
+    def get(self, request, pk):
+        update = get_object_or_404(self.queryset,id=pk)
+        user = UserProfile.objects.get(user=request.user)
+
+        if update.voters.filter(id = user.id).exists():
+            return Response(
+                {"Error": "You can vote only once"}, status=status.HTTP_208_ALREADY_REPORTED
+            )
+        update.downvotes += 1
+        update.voters.add(user)
+        update.save()
+        return Response(
+            {"Message": "Downvoted successfully"}, status=status.HTTP_200_OK
+        )
 
 class SuggestionsListView(generics.ListAPIView):
     """
@@ -99,7 +136,7 @@ class SuggestionsListView(generics.ListAPIView):
         .order_by("-upvotes", "-date")
     )
     permission_classes = (permissions.AllowAny,)
-    serializer_class = SuggestionListSerializer
+    serializer_class = SuggestionsSerializer
 
 class SuggestionsCreateView(generics.CreateAPIView):
     """
@@ -132,7 +169,7 @@ class SuggestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     Delete a suggestion using its id. A user can only update a suggestion written by him/her.
     Users with can_add_parliament_details or can_add_notice permissions can however delete any suggestion.
     """
-    serializer_class = SuggestionDetailSerializer
+    serializer_class = SuggestionsSerializer
 
     def get_permissions(self):
         if(self.request.method == 'GET'):
@@ -160,7 +197,7 @@ class SuggestionUpvoteView(generics.GenericAPIView):
     # pylint: disable=no-member
     queryset = Suggestion.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = SuggestionDetailSerializer
+    serializer_class = SuggestionsSerializer
 
     def get(self, request, pk):
         suggestion = get_object_or_404(self.queryset,id=pk)
@@ -183,7 +220,7 @@ class SuggestionDownvoteView(generics.GenericAPIView):
     # pylint: disable=no-member
     queryset = Suggestion.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = SuggestionDetailSerializer
+    serializer_class = SuggestionsSerializer
 
     def get(self, request, pk):
         suggestion = get_object_or_404(self.queryset,id=pk)
