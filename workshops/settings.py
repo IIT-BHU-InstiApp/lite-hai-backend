@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'team',
     'noticeboard',
     'grievance',
-    'parliament',
+    'parliament_detail',
     'config',
     'lost_and_found'
 ]
