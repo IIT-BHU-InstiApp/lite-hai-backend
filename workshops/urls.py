@@ -48,5 +48,6 @@ urlpatterns = [
     path('', include('grievance.urls')),
     path('', include('parliament_detail.urls')),
     path('', include('lost_and_found.urls')),
+    path('', include('mess.urls')),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
