@@ -36,7 +36,7 @@ class UpdateListSerializer(serializers.ModelSerializer):
     class Meta:
         #pylint: disable=no-member
         model = Update
-        fields=("id","title","date", "committee")
+        fields=("id","title","description","author","date","committee")
 
 class UpdateDetailSerializer(serializers.ModelSerializer):
     class Meta:
