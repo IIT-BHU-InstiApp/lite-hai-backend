@@ -66,11 +66,13 @@ class SuggestionDetailSerializer(serializers.ModelSerializer):
     def get_has_voted(self, obj):
         """Check if already voted"""
         # pylint: disable=no-member
-        user = UserProfile.objects.get(user=self.context['request'].user)
-        # if user in obj.voters.all():
-        if obj.voters.filter(id = user.id).exists():
-            return True
+        if(self.context['request'].user.is_authenticated):
+            user = UserProfile.objects.get(user=self.context['request'].user)
+            # if user in obj.voters.all():
+            if obj.voters.filter(id = user.id).exists():
+                return True
         return False
+
 
     class Meta:
         model = Suggestion
