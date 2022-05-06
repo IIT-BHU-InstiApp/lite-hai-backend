@@ -7,7 +7,7 @@ from .models import NoticeBoard
 class NoticeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = NoticeBoard
-        fields = ("id", "title", "date", "importance")
+        fields = ("id", "title", "date", "importance", "description")
 
 class NoticeDetailSerializer(serializers.ModelSerializer):
     has_voted = serializers.SerializerMethodField()
