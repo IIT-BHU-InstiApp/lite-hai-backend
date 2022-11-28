@@ -8,3 +8,4 @@ gunicorn==19.9.0
 pyAesCrypt==0.4.3
 pylint-django==2.0.13
 python-decouple==3.1
+psycopg2==2.8.6
