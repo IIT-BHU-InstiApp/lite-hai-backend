@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "lite-hai",
+  "private_key_id": "95ada3203274cb0e2fb537d82d1ef7d748c0a4f7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCXmqEAR2YWGxc0\nKiYod6j15zL/YzazyAdqcElBVq4Nb88RtXpud9VFaTpNYHJxJcapZMM9aQKTWy6t\n4jjRpbXWwaixjGjwu30gbw4lQvtgbfdW+gT8FKCe13UYGo912hkR7G9JOMTiDvBV\n6/Ei3ndP2OafLimorMPIXXMhcv8RPsODwpKjzANRDHSqPuVwce3RW9ykbVyEzkbY\n2aq8Chp+LOBOu71zB5DdIpyUa+YRzsSuV+ZAC5XgpaimnIT0RP2s12pfUBmKxsvX\nlq4Q+TMzGZI9IqpahBDClX1wErNq2w0HE+ST3GE6rarQir3DMSVO88g7IpKp13Qm\nos/E3g+DAgMBAAECggEAF1alnG5hZ9vJya0HbMlnCFwMPMagQDL1+UvJ6zYV21mw\nDfDbJTBrc6EMaacEVyjSmXc6mzSUQe0SlZAy4Qtan/H2L0cHTLAARkLycYgLPMAR\nCKG6rLfcNjfC/e/wz9rAa0LzqtkDbi2QkBmfaJfI1FD2x+CKZz4Zcbn5JFgYriW3\ntFm6WpvRpHUL3e2TjaQ6hxrWmZmuega5FpnK26AqoG6AkcTWtjvk8qwaipybOuC/\nTgjBqV9rmR2g8A5pWx3YS80if96bKWnFepo2CNQad3q6XP7Q+hxpXIBrRm0r5TbT\npwAigWNlegnUeYyge6JX2ibFv2FQNN/djgQBasGeSQKBgQDKNBeBmRmdPL0QdUIo\nKa7jgqBnRng/IcCp+jvZjcmFXQTEBh+VDWGHM1pZX8ao90Th+v7m8/1YSFCw2Vm/\npH0/XGT3qbt1eC1BFLdGiq/IyZYQH2Wsl81TWrvSxWcsCAkzkdH/rDTc/Cpm5Xux\nLfhGlWo8sRIbCRgYL9YNTy0+fQKBgQC/8EAYuLvh33awE47oYbB8yY8wIpmjkqzo\nre0tBkmO/8lQA8JvauK6Z8HjX+eYnbLCOii3yhZI8vZypWodmbCq9nWWO6eyNKDT\nwNNCZrFDwKTHHZTZmrBb5RpM4z478FapRuD6NLfcaIzLACriQI2OgSPZFDMjjvvX\nIh/s1zPl/wKBgCzvTpn6T/rlWI6jwEP0n2znxoWs32QIOCyN82bxX2tHtJtrUPFq\nu9Wzz8w0wI0kBibCBIuGhTJtP6FNa+huwXanLbjr+0CrqELiO6htgYr5YWPL1mh4\ng6SWcU7xl2/tiT3wld5fgo/pafLb5JUHRjlJUwaRwxhG+RfG6aajhcZxAoGBAJrx\nbjzGvF0NkPl5AG9VlSxXZfDcrZxfZpf697DWF4GJuVCPiGF7LoZ+BgXwQLxx6YFj\ng8VCLRU8lXhdUjmM/RI2HRxnEewJEh9+1MwQrF7eX+ahWa0EdAPrAX06IN4wGTVT\nk4BIGHikKawieXvl0qBMXcz6woGdBm5YDN+bpjivAoGBAJ5HlBLCsYtkpqljSksQ\nDtHeApq+QGhQdk92idm7/8VmbXMMYRU4c8Voh1oIG5j5ZD7ZySsIxoFb5JlI27nx\nYHRVOgX8GsjbFoddvl0sp9qDGWXixvsTHjW3aNLr47KynRppiQOxgwW/YuWrOE18\ngIizaUCsv4EdEC82nvM+xBiP\n-----END PRIVATE KEY-----\n",
+  "client_email": "lite-hai@lite-hai.iam.gserviceaccount.com",
+  "client_id": "100235400634715727776",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lite-hai%40lite-hai.iam.gserviceaccount.com"
+}
