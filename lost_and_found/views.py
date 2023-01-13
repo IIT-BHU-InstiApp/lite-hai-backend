@@ -16,7 +16,7 @@ cred = None
 cred = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
-SAMPLE_SPREADSHEET_ID = '1Hch-gohmuAeAeJFwaozb1xz_Oj7DLa6C0qOhAuk3t-o'
+LOST_AND_FOUND_SPREADSHEET_ID = '1Hch-gohmuAeAeJFwaozb1xz_Oj7DLa6C0qOhAuk3t-o'
 
 
 class CreateLostAndFoundView(GenericAPIView):
@@ -38,7 +38,7 @@ class CreateLostAndFoundView(GenericAPIView):
         service = build('sheets', 'v4', credentials=cred)
         sheet = service.spreadsheets()
         sheet.values().append(
-            spreadsheetId=SAMPLE_SPREADSHEET_ID,
+            spreadsheetId=LOST_AND_FOUND_SPREADSHEET_ID,
             range="lost_and_found!A1:H1",
             valueInputOption="USER_ENTERED",
             insertDataOption="INSERT_ROWS",

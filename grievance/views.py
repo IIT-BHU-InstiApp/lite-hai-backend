@@ -15,7 +15,7 @@ cred = None
 cred = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
-SAMPLE_SPREADSHEET_ID = '1Hch-gohmuAeAeJFwaozb1xz_Oj7DLa6C0qOhAuk3t-o'
+GRIEVANCE_SPREADSHEET_ID = '1Hch-gohmuAeAeJFwaozb1xz_Oj7DLa6C0qOhAuk3t-o'
 
 
 class CreateGrievanceView(GenericAPIView):
@@ -37,7 +37,7 @@ class CreateGrievanceView(GenericAPIView):
         service = build('sheets', 'v4', credentials=cred)
         sheet = service.spreadsheets()
         sheet.values().append(
-            spreadsheetId=SAMPLE_SPREADSHEET_ID,
+            spreadsheetId=GRIEVANCE_SPREADSHEET_ID,
             range="grievance!A1:I1",
             valueInputOption="USER_ENTERED",
             insertDataOption="INSERT_ROWS",

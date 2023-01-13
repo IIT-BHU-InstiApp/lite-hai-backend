@@ -31,7 +31,7 @@ class Council(models.Model):
     youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return '%s' % self.name
+        return f'{self.name}'
 
 
 class Club(models.Model):
@@ -54,7 +54,7 @@ class Club(models.Model):
     youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return '%s' % self.name
+        return f'{self.name}'
 
 
 class Entity(models.Model):
@@ -77,7 +77,7 @@ class Entity(models.Model):
     youtube_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return '%s' % self.name
+        return f'{self.name}'
 
 
 class Tag(models.Model):
@@ -130,7 +130,7 @@ class Workshop(models.Model):
     link = models.URLField(null=True, blank=True)
 
     def __str__(self):
-        return '%s' % self.title
+        return f'{self.title}'
 
 
 class WorkshopResource(models.Model):
