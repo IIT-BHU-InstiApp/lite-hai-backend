@@ -5,4 +5,4 @@ class ConfigVar(models.Model):
     value = models.TextField()
 
     def __str__(self):
-        return '%s' % self.name
+        return f'{self.name}'

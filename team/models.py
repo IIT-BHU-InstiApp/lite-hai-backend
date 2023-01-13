@@ -5,7 +5,7 @@ def get_github_profile_pic_url(username):
     """
     Get the profile picture url from the github handle
     """
-    r = requests.get('https://api.github.com/users/' + username)
+    r = requests.get('https://api.github.com/users/' + username, timeout=0)
     github_user_json = r.json()
     return github_user_json['avatar_url']
 
