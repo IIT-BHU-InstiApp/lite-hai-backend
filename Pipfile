@@ -17,6 +17,9 @@ pyaescrypt = "*"
 python-decouple = "*"
 pylint-django = "*"
 drf-yasg2 = "*"
+google-api-python-client = "*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
 
 [requires]
 python_version = "3.8"
